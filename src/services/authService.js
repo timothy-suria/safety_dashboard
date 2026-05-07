@@ -12,7 +12,6 @@ async function gql(query, variables = {}) {
   });
 
   if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
   const { data, errors } = await res.json();
   if (errors?.length) throw new Error(errors[0].message);
   return data;
@@ -23,35 +22,16 @@ export const authService = {
     const data = await gql(
       `mutation Register($email: String!, $password: String!) {
         register(email: $email, password: $password) {
-          success
-          message
+          success message token
+          user { id email }
         }
       }`,
       { email, password },
     );
     const result = data.register;
     if (!result.success) throw new Error(result.message);
-    return result;
-  },
-
-  async verifyEmail(email, code) {
-    const data = await gql(
-      `mutation VerifyEmail($email: String!, $code: String!) {
-        verifyEmail(email: $email, code: $code) {
-          success
-          message
-          token
-          user { id email verified }
-        }
-      }`,
-      { email, code },
-    );
-    const result = data.verifyEmail;
-    if (!result.success) throw new Error(result.message);
-    if (result.token) {
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-    }
+    localStorage.setItem("token", result.token);
+    localStorage.setItem("user", JSON.stringify(result.user));
     return result;
   },
 
@@ -59,41 +39,22 @@ export const authService = {
     const data = await gql(
       `mutation Login($email: String!, $password: String!) {
         login(email: $email, password: $password) {
-          success
-          message
-          token
-          user { id email verified }
+          success message token
+          user { id email }
         }
       }`,
       { email, password },
     );
     const result = data.login;
     if (!result.success) throw new Error(result.message);
-    if (result.token) {
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-    }
-    return result;
-  },
-
-  async resendVerification(email) {
-    const data = await gql(
-      `mutation Resend($email: String!) {
-        resendVerification(email: $email) {
-          success
-          message
-        }
-      }`,
-      { email },
-    );
-    const result = data.resendVerification;
-    if (!result.success) throw new Error(result.message);
+    localStorage.setItem("token", result.token);
+    localStorage.setItem("user", JSON.stringify(result.user));
     return result;
   },
 
   getCurrentUser() {
-    const userJson = localStorage.getItem("user");
-    return userJson ? JSON.parse(userJson) : null;
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
   },
 
   logout() {

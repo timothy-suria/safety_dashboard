@@ -1,16 +1,12 @@
 <template>
   <div class="register-container">
     <div class="register-card">
-      <h1>{{ showVerification ? "Verify Email" : "Register" }}</h1>
+      <h1>Register</h1>
 
-      <!-- Error and Success Messages -->
       <div v-if="error" class="error-alert">{{ error }}</div>
-      <div v-if="successMessage" class="success-alert">
-        {{ successMessage }}
-      </div>
+      <div v-if="successMessage" class="success-alert">{{ successMessage }}</div>
 
-      <!-- Registration Form -->
-      <form v-if="!showVerification" @submit.prevent="handleRegister">
+      <form @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="email">Email:</label>
           <input
@@ -29,40 +25,12 @@
             id="password"
             v-model="password"
             type="password"
-            placeholder="Enter your password (min 6 characters)"
+            placeholder="At least 6 characters"
             required
           />
         </div>
-        <button
-          type="submit"
-          class="btn-register"
-          :disabled="!!emailError || loading"
-        >
+        <button type="submit" class="btn-register" :disabled="!!emailError || loading">
           {{ loading ? "Registering..." : "Register" }}
-        </button>
-      </form>
-
-      <!-- Email Verification Form -->
-      <form v-if="showVerification" @submit.prevent="handleVerifyEmail">
-        <div class="verification-info">
-          <p>
-            A verification code has been sent to <strong>{{ email }}</strong>
-          </p>
-          <p>Check your inbox (and spam folder) for the code.</p>
-        </div>
-        <div class="form-group">
-          <label for="code">Verification Code:</label>
-          <input
-            id="code"
-            v-model="verificationCode"
-            type="text"
-            placeholder="Enter the 6-digit code"
-            required
-            maxlength="6"
-          />
-        </div>
-        <button type="submit" class="btn-verify" :disabled="loading">
-          {{ loading ? "Verifying..." : "Verify Email" }}
         </button>
       </form>
 
@@ -82,63 +50,29 @@ import { authService } from "@/services/authService";
 const router = useRouter();
 const email = ref("");
 const password = ref("");
-const verificationCode = ref("");
 const emailError = ref("");
 const loading = ref(false);
 const error = ref("");
 const successMessage = ref("");
-const showVerification = ref(false);
+
 const validateEmail = () => {
-  if (email.value && !email.value.endsWith("@cp.co.id")) {
-    emailError.value = "Email must be a @cp.co.id address";
-  } else {
-    emailError.value = "";
-  }
+  emailError.value =
+    email.value && !email.value.endsWith("@cp.co.id")
+      ? "Email must be a @cp.co.id address"
+      : "";
 };
 
 const handleRegister = async () => {
   error.value = "";
   successMessage.value = "";
   loading.value = true;
-
   try {
     validateEmail();
+    if (emailError.value) throw new Error(emailError.value);
+    if (password.value.length < 6) throw new Error("Password must be at least 6 characters");
 
-    if (emailError.value) {
-      throw new Error(emailError.value);
-    }
-
-    if (!password.value) {
-      throw new Error("Please enter a password");
-    }
-
-    if (password.value.length < 6) {
-      throw new Error("Password must be at least 6 characters");
-    }
-
-    const result = await authService.register(email.value, password.value);
-    showVerification.value = true;
-    successMessage.value = result.message;
-  } catch (err) {
-    error.value = err.message;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleVerifyEmail = async () => {
-  error.value = "";
-  successMessage.value = "";
-  loading.value = true;
-
-  try {
-    if (!verificationCode.value) {
-      throw new Error("Please enter the verification code");
-    }
-
-    const result = await authService.verifyEmail(email.value, verificationCode.value);
-    successMessage.value = result.message;
-    setTimeout(() => router.push("/dashboard"), 1500);
+    await authService.register(email.value, password.value);
+    router.push("/dashboard");
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -158,7 +92,6 @@ const handleVerifyEmail = async () => {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  overflow: hidden;
 }
 
 .register-card {
@@ -204,10 +137,6 @@ const handleVerifyEmail = async () => {
   box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
 }
 
-.form-group input:invalid {
-  border-color: #f44336;
-}
-
 .error-message {
   color: #f44336;
   font-size: 12px;
@@ -235,22 +164,7 @@ const handleVerifyEmail = async () => {
   font-size: 14px;
 }
 
-.verification-info {
-  background-color: #e7f3ff;
-  border: 1px solid #b3d9ff;
-  border-radius: 5px;
-  padding: 15px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  color: #004085;
-}
-
-.verification-info p {
-  margin: 5px 0;
-}
-
-.btn-register,
-.btn-verify {
+.btn-register {
   width: 100%;
   padding: 12px;
   background-color: #3b82f6;
@@ -263,13 +177,11 @@ const handleVerifyEmail = async () => {
   transition: background-color 0.3s;
 }
 
-.btn-register:hover:not(:disabled),
-.btn-verify:hover:not(:disabled) {
+.btn-register:hover:not(:disabled) {
   background-color: #2563eb;
 }
 
-.btn-register:disabled,
-.btn-verify:disabled {
+.btn-register:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
