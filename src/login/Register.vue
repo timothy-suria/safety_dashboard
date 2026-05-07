@@ -48,7 +48,7 @@
           <p>
             A verification code has been sent to <strong>{{ email }}</strong>
           </p>
-          <p>Check the console for your verification code.</p>
+          <p>Check your inbox (and spam folder) for the code.</p>
         </div>
         <div class="form-group">
           <label for="code">Verification Code:</label>
@@ -77,9 +77,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import cp from "@/assets/cpbg.png";
 import { authService } from "@/services/authService";
-import { emailService } from "@/services/emailService";
 
 const router = useRouter();
 const email = ref("");
@@ -90,8 +88,6 @@ const loading = ref(false);
 const error = ref("");
 const successMessage = ref("");
 const showVerification = ref(false);
-const verificationCodeSent = ref("");
-
 const validateEmail = () => {
   if (email.value && !email.value.endsWith("@cp.co.id")) {
     emailError.value = "Email must be a @cp.co.id address";
@@ -120,21 +116,9 @@ const handleRegister = async () => {
       throw new Error("Password must be at least 6 characters");
     }
 
-    // Register the user
-    const registerResult = await authService.register(
-      email.value,
-      password.value,
-    );
-
-    // Send verification email
-    const emailResult = await emailService.sendVerificationEmail(
-      email.value,
-      registerResult.verificationCode,
-    );
-
-    verificationCodeSent.value = registerResult.verificationCode;
+    const result = await authService.register(email.value, password.value);
     showVerification.value = true;
-    successMessage.value = "Check email for verification code!";
+    successMessage.value = result.message;
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -152,27 +136,9 @@ const handleVerifyEmail = async () => {
       throw new Error("Please enter the verification code");
     }
 
-    // Verify the email
-    const result = await authService.verifyEmail(
-      email.value,
-      verificationCode.value,
-    );
-
+    const result = await authService.verifyEmail(email.value, verificationCode.value);
     successMessage.value = result.message;
-
-    // Auto-login the user after email verification
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        email: email.value,
-        loginTime: new Date().toISOString(),
-      }),
-    );
-
-    // Redirect to dashboard after 1.5 seconds
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1500);
+    setTimeout(() => router.push("/dashboard"), 1500);
   } catch (err) {
     error.value = err.message;
   } finally {

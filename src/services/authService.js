@@ -1,105 +1,103 @@
-// Simple in-memory storage for users (in production, use a real database)
-const users = new Map();
+const GRAPHQL_URL = "http://localhost:8000/graphql";
+
+async function gql(query, variables = {}) {
+  const token = localStorage.getItem("token");
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(GRAPHQL_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+  const { data, errors } = await res.json();
+  if (errors?.length) throw new Error(errors[0].message);
+  return data;
+}
 
 export const authService = {
-  // Register a new user
   async register(email, password) {
-    // Validate email format (must be @cp.co.id)
-    if (!email.endsWith("@cp.co.id")) {
-      throw new Error("Email must be a @cp.co.id address");
-    }
-
-    // Check if user already exists
-    if (users.has(email)) {
-      throw new Error("User already registered with this email");
-    }
-
-    // Store user (hashed password would be better in production)
-    users.set(email, {
-      password,
-      verified: false,
-      verificationCode: generateVerificationCode(),
-      createdAt: new Date(),
-    });
-
-    return {
-      success: true,
-      message: "Registration successful",
-      verificationCode: users.get(email).verificationCode,
-    };
-  },
-
-  // Login user
-  async login(email, password) {
-    // Validate email format
-    if (!email.endsWith("@cp.co.id")) {
-      throw new Error("Invalid email format. Must be @cp.co.id");
-    }
-
-    // Check if user exists
-    const user = users.get(email);
-    if (!user) {
-      throw new Error("User not found. Please register first");
-    }
-
-    // Verify password
-    if (user.password !== password) {
-      throw new Error("Invalid password");
-    }
-
-    // Check if email is verified
-    if (!user.verified) {
-      throw new Error("Please verify your email before logging in");
-    }
-
-    // Login successful
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        email,
-        loginTime: new Date().toISOString(),
-      }),
+    const data = await gql(
+      `mutation Register($email: String!, $password: String!) {
+        register(email: $email, password: $password) {
+          success
+          message
+        }
+      }`,
+      { email, password },
     );
-
-    return {
-      success: true,
-      message: "Login successful",
-      user: { email },
-    };
+    const result = data.register;
+    if (!result.success) throw new Error(result.message);
+    return result;
   },
 
-  // Verify email with code
   async verifyEmail(email, code) {
-    const user = users.get(email);
-    if (!user) {
-      throw new Error("User not found");
+    const data = await gql(
+      `mutation VerifyEmail($email: String!, $code: String!) {
+        verifyEmail(email: $email, code: $code) {
+          success
+          message
+          token
+          user { id email verified }
+        }
+      }`,
+      { email, code },
+    );
+    const result = data.verifyEmail;
+    if (!result.success) throw new Error(result.message);
+    if (result.token) {
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
     }
-
-    if (user.verificationCode !== code) {
-      throw new Error("Invalid verification code");
-    }
-
-    user.verified = true;
-    return {
-      success: true,
-      message: "Email verified successfully",
-    };
+    return result;
   },
 
-  // Get current logged-in user
+  async login(email, password) {
+    const data = await gql(
+      `mutation Login($email: String!, $password: String!) {
+        login(email: $email, password: $password) {
+          success
+          message
+          token
+          user { id email verified }
+        }
+      }`,
+      { email, password },
+    );
+    const result = data.login;
+    if (!result.success) throw new Error(result.message);
+    if (result.token) {
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+    }
+    return result;
+  },
+
+  async resendVerification(email) {
+    const data = await gql(
+      `mutation Resend($email: String!) {
+        resendVerification(email: $email) {
+          success
+          message
+        }
+      }`,
+      { email },
+    );
+    const result = data.resendVerification;
+    if (!result.success) throw new Error(result.message);
+    return result;
+  },
+
   getCurrentUser() {
     const userJson = localStorage.getItem("user");
     return userJson ? JSON.parse(userJson) : null;
   },
 
-  // Logout
   logout() {
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
-    return { success: true, message: "Logged out successfully" };
   },
 };
-
-// Helper function to generate a 6-digit verification code
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}

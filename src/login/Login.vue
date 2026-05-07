@@ -42,7 +42,6 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import cp from "@/assets/cpbg.png";
 import { authService } from "@/services/authService";
 
 const router = useRouter();
@@ -64,10 +63,7 @@ const handleLogin = async () => {
 
     const result = await authService.login(email.value, password.value);
     successMessage.value = result.message;
-
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1500);
+    setTimeout(() => router.push("/dashboard"), 1500);
   } catch (err) {
     error.value = err.message;
   } finally {
