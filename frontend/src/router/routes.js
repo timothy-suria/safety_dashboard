@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Login from "../login/Login.vue";
 import Register from "../login/Register.vue";
 import Dashboard from "../dashboard/Dashboard.vue";
+import DashboardHome from "../dashboard/views/DashboardHome.vue";
 import SafetyModules from "../dashboard/views/SafetyModules.vue";
 import InspectionK3L from "../dashboard/views/InspectionK3L.vue";
 
@@ -13,7 +14,7 @@ const routes = [
     path: "/dashboard",
     component: Dashboard,
     children: [
-      { path: "", redirect: "/dashboard/modules" },
+      { path: "", name: "DashboardHome", component: DashboardHome },
       { path: "modules", name: "SafetyModules", component: SafetyModules },
       { path: "reports", redirect: "/dashboard/reports/inspection-k3l" },
       { path: "reports/inspection-k3l", name: "InspectionK3L", component: InspectionK3L },
