@@ -1,0 +1,914 @@
+<template>
+  <div class="master-data">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Master Data</h2>
+        <p class="page-sub">Kelola data Business Unit dan Plant</p>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'bu' }"
+        @click="activeTab = 'bu'"
+      >
+        Business Unit
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'plant' }"
+        @click="activeTab = 'plant'"
+      >
+        Plant
+      </button>
+    </div>
+
+    <!-- ── Business Unit Tab ───────────────────────────────────────── -->
+    <div v-if="activeTab === 'bu'">
+      <div class="section-bar">
+        <div class="filter-group">
+          <span class="total-badge">{{ filteredBu.length }} data</span>
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input v-model="buSearch" type="text" placeholder="Cari nama atau kode…" class="search-input" />
+            <button v-if="buSearch" class="search-clear" @click="buSearch = ''">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn-primary" @click="openBuForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Tambah Business Unit
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Kode</th>
+                <th>Deskripsi</th>
+                <th>Status</th>
+                <th>Dibuat</th>
+                <th class="th-action">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="buLoading">
+                <td colspan="7" class="td-empty">Memuat data…</td>
+              </tr>
+              <tr v-else-if="!filteredBu.length">
+                <td colspan="7" class="td-empty">
+                  {{ buSearch ? 'Tidak ada hasil untuk "' + buSearch + '"' : 'Belum ada data Business Unit' }}
+                </td>
+              </tr>
+              <tr v-for="(item, idx) in filteredBu" :key="item.id">
+                <td class="td-num">{{ idx + 1 }}</td>
+                <td class="td-name">{{ item.name }}</td>
+                <td><span class="code-badge">{{ item.code }}</span></td>
+                <td class="td-desc">{{ item.description || '-' }}</td>
+                <td>
+                  <span :class="['status-pill', item.isActive ? 'pill-active' : 'pill-inactive']">
+                    {{ item.isActive ? 'Aktif' : 'Nonaktif' }}
+                  </span>
+                </td>
+                <td class="td-date">{{ formatDate(item.createdAt) }}</td>
+                <td class="td-action">
+                  <button class="btn-icon-sm btn-edit" title="Edit" @click="openBuForm(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button class="btn-icon-sm btn-delete" title="Hapus" @click="confirmDeleteBu(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/>
+                      <path d="M9 6V4h6v2"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Plant Tab ──────────────────────────────────────────────── -->
+    <div v-if="activeTab === 'plant'">
+      <div class="section-bar">
+        <div class="filter-group">
+          <span class="total-badge">{{ filteredPlants.length }} data</span>
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input v-model="plantSearch" type="text" placeholder="Cari nama atau kode…" class="search-input" />
+            <button v-if="plantSearch" class="search-clear" @click="plantSearch = ''">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <select v-model="plantFilterBu" class="filter-select">
+            <option :value="null">Semua Business Unit</option>
+            <option v-for="bu in buList" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
+          </select>
+        </div>
+        <button class="btn-primary" @click="openPlantForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Tambah Plant
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Plant</th>
+                <th>Kode</th>
+                <th>Business Unit</th>
+                <th>Lokasi</th>
+                <th>Status</th>
+                <th>Dibuat</th>
+                <th class="th-action">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="plantLoading">
+                <td colspan="8" class="td-empty">Memuat data…</td>
+              </tr>
+              <tr v-else-if="!filteredPlants.length">
+                <td colspan="8" class="td-empty">
+                  {{ plantSearch ? 'Tidak ada hasil untuk "' + plantSearch + '"' : 'Belum ada data Plant' }}
+                </td>
+              </tr>
+              <tr v-for="(item, idx) in filteredPlants" :key="item.id">
+                <td class="td-num">{{ idx + 1 }}</td>
+                <td class="td-name">{{ item.name }}</td>
+                <td><span class="code-badge">{{ item.code }}</span></td>
+                <td>{{ buNameMap[item.businessUnitId] || '-' }}</td>
+                <td class="td-desc">{{ item.location || '-' }}</td>
+                <td>
+                  <span :class="['status-pill', item.isActive ? 'pill-active' : 'pill-inactive']">
+                    {{ item.isActive ? 'Aktif' : 'Nonaktif' }}
+                  </span>
+                </td>
+                <td class="td-date">{{ formatDate(item.createdAt) }}</td>
+                <td class="td-action">
+                  <button class="btn-icon-sm btn-edit" title="Edit" @click="openPlantForm(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button class="btn-icon-sm btn-delete" title="Hapus" @click="confirmDeletePlant(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/>
+                      <path d="M9 6V4h6v2"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Business Unit Modal ───────────────────────────────────── -->
+    <div v-if="buModal.show" class="modal-overlay" @click.self="closeBuModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>{{ buModal.editId ? 'Edit Business Unit' : 'Tambah Business Unit' }}</h3>
+          <button class="btn-close" @click="closeBuModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nama <span class="req">*</span></label>
+            <input v-model="buForm.name" type="text" placeholder="Nama business unit" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Kode <span class="req">*</span></label>
+            <input v-model="buForm.code" type="text" placeholder="Kode unik (contoh: BU01)" class="form-input" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea v-model="buForm.description" placeholder="Deskripsi (opsional)" class="form-input form-textarea" rows="3" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select v-model="buForm.isActive" class="form-input">
+              <option :value="true">Aktif</option>
+              <option :value="false">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeBuModal" :disabled="buModal.saving">Batal</button>
+          <button class="btn-primary" @click="saveBu" :disabled="buModal.saving">
+            {{ buModal.saving ? 'Menyimpan…' : 'Simpan' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Plant Modal ───────────────────────────────────────────── -->
+    <div v-if="plantModal.show" class="modal-overlay" @click.self="closePlantModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>{{ plantModal.editId ? 'Edit Plant' : 'Tambah Plant' }}</h3>
+          <button class="btn-close" @click="closePlantModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nama Plant <span class="req">*</span></label>
+            <input v-model="plantForm.name" type="text" placeholder="Nama plant" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Kode <span class="req">*</span></label>
+            <input v-model="plantForm.code" type="text" placeholder="Kode unik (contoh: PLT01)" class="form-input" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <label>Business Unit <span class="req">*</span></label>
+            <select v-model="plantForm.businessUnitId" class="form-input">
+              <option :value="null" disabled>Pilih Business Unit</option>
+              <option v-for="bu in buList" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lokasi</label>
+            <input v-model="plantForm.location" type="text" placeholder="Lokasi plant (opsional)" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select v-model="plantForm.isActive" class="form-input">
+              <option :value="true">Aktif</option>
+              <option :value="false">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closePlantModal" :disabled="plantModal.saving">Batal</button>
+          <button class="btn-primary" @click="savePlant" :disabled="plantModal.saving">
+            {{ plantModal.saving ? 'Menyimpan…' : 'Simpan' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Delete Confirm Modal ──────────────────────────────────── -->
+    <div v-if="deleteModal.show" class="modal-overlay" @click.self="deleteModal.show = false">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h3>Konfirmasi Hapus</h3>
+          <button class="btn-close" @click="deleteModal.show = false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="delete-msg">
+            Hapus <strong>{{ deleteModal.name }}</strong>? Tindakan ini tidak dapat dibatalkan.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="deleteModal.show = false" :disabled="deleteModal.loading">Batal</button>
+          <button class="btn-danger" @click="executeDelete" :disabled="deleteModal.loading">
+            {{ deleteModal.loading ? 'Menghapus…' : 'Hapus' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <transition name="toast-fade">
+      <div v-if="toast.show" :class="['toast', `toast-${toast.type}`]">{{ toast.message }}</div>
+    </transition>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, computed, onMounted } from "vue";
+import { masterDataService } from "@/services/masterDataService";
+
+// ── State ────────────────────────────────────────────────────────────────
+const activeTab = ref("bu");
+
+const buList = ref([]);
+const buLoading = ref(false);
+const buSearch = ref("");
+
+const plantList = ref([]);
+const plantLoading = ref(false);
+const plantFilterBu = ref(null);
+const plantSearch = ref("");
+
+// ── Computed ─────────────────────────────────────────────────────────────
+const buNameMap = computed(() => {
+  const map = {};
+  buList.value.forEach((b) => (map[b.id] = b.name));
+  return map;
+});
+
+const filteredBu = computed(() => {
+  const q = buSearch.value.trim().toLowerCase();
+  if (!q) return buList.value;
+  return buList.value.filter(
+    (b) =>
+      b.name.toLowerCase().includes(q) ||
+      b.code.toLowerCase().includes(q) ||
+      (b.description || "").toLowerCase().includes(q),
+  );
+});
+
+const filteredPlants = computed(() => {
+  let list = plantList.value;
+  if (plantFilterBu.value) list = list.filter((p) => p.businessUnitId === plantFilterBu.value);
+  const q = plantSearch.value.trim().toLowerCase();
+  if (!q) return list;
+  return list.filter(
+    (p) =>
+      p.name.toLowerCase().includes(q) ||
+      p.code.toLowerCase().includes(q) ||
+      (p.location || "").toLowerCase().includes(q) ||
+      (buNameMap.value[p.businessUnitId] || "").toLowerCase().includes(q),
+  );
+});
+
+// ── Load data ────────────────────────────────────────────────────────────
+async function loadBu() {
+  buLoading.value = true;
+  try {
+    buList.value = await masterDataService.listBusinessUnits();
+  } catch (e) {
+    console.error("[MasterData] loadBu:", e);
+  } finally {
+    buLoading.value = false;
+  }
+}
+
+async function loadPlants() {
+  plantLoading.value = true;
+  try {
+    plantList.value = await masterDataService.listPlants();
+  } catch (e) {
+    console.error("[MasterData] loadPlants:", e);
+  } finally {
+    plantLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadBu();
+  loadPlants();
+});
+
+// ── Business Unit form ───────────────────────────────────────────────────
+const buModal = reactive({ show: false, editId: null, saving: false });
+const buForm = reactive({ name: "", code: "", description: "", isActive: true });
+
+function openBuForm(item = null) {
+  buModal.editId = item?.id ?? null;
+  buForm.name = item?.name ?? "";
+  buForm.code = item?.code ?? "";
+  buForm.description = item?.description ?? "";
+  buForm.isActive = item?.isActive ?? true;
+  buModal.show = true;
+}
+
+function closeBuModal() {
+  buModal.show = false;
+}
+
+async function saveBu() {
+  if (!buForm.name.trim()) return showToast("Nama wajib diisi", "error");
+  if (!buForm.code.trim()) return showToast("Kode wajib diisi", "error");
+
+  buModal.saving = true;
+  try {
+    const payload = {
+      name: buForm.name.trim(),
+      code: buForm.code.trim().toUpperCase(),
+      description: buForm.description.trim() || null,
+      isActive: buForm.isActive,
+    };
+    if (buModal.editId) {
+      await masterDataService.updateBusinessUnit(buModal.editId, payload);
+      showToast("Business unit berhasil diperbarui");
+    } else {
+      await masterDataService.createBusinessUnit(payload);
+      showToast("Business unit berhasil ditambahkan");
+    }
+    closeBuModal();
+    await loadBu();
+  } catch (e) {
+    console.error("[MasterData] saveBu:", e);
+  } finally {
+    buModal.saving = false;
+  }
+}
+
+// ── Plant form ───────────────────────────────────────────────────────────
+const plantModal = reactive({ show: false, editId: null, saving: false });
+const plantForm = reactive({ name: "", code: "", businessUnitId: null, location: "", isActive: true });
+
+function openPlantForm(item = null) {
+  plantModal.editId = item?.id ?? null;
+  plantForm.name = item?.name ?? "";
+  plantForm.code = item?.code ?? "";
+  plantForm.businessUnitId = item?.businessUnitId ?? null;
+  plantForm.location = item?.location ?? "";
+  plantForm.isActive = item?.isActive ?? true;
+  plantModal.show = true;
+}
+
+function closePlantModal() {
+  plantModal.show = false;
+}
+
+async function savePlant() {
+  if (!plantForm.name.trim()) return showToast("Nama wajib diisi", "error");
+  if (!plantForm.code.trim()) return showToast("Kode wajib diisi", "error");
+  if (!plantForm.businessUnitId) return showToast("Business Unit wajib dipilih", "error");
+
+  plantModal.saving = true;
+  try {
+    const payload = {
+      name: plantForm.name.trim(),
+      code: plantForm.code.trim().toUpperCase(),
+      businessUnitId: plantForm.businessUnitId,
+      location: plantForm.location.trim() || null,
+      isActive: plantForm.isActive,
+    };
+    if (plantModal.editId) {
+      await masterDataService.updatePlant(plantModal.editId, payload);
+      showToast("Plant berhasil diperbarui");
+    } else {
+      await masterDataService.createPlant(payload);
+      showToast("Plant berhasil ditambahkan");
+    }
+    closePlantModal();
+    await loadPlants();
+  } catch (e) {
+    console.error("[MasterData] savePlant:", e);
+  } finally {
+    plantModal.saving = false;
+  }
+}
+
+// ── Delete ───────────────────────────────────────────────────────────────
+const deleteModal = reactive({ show: false, name: "", type: "", id: null, loading: false });
+
+function confirmDeleteBu(item) {
+  deleteModal.type = "bu";
+  deleteModal.id = item.id;
+  deleteModal.name = item.name;
+  deleteModal.show = true;
+}
+
+function confirmDeletePlant(item) {
+  deleteModal.type = "plant";
+  deleteModal.id = item.id;
+  deleteModal.name = item.name;
+  deleteModal.show = true;
+}
+
+async function executeDelete() {
+  deleteModal.loading = true;
+  try {
+    if (deleteModal.type === "bu") {
+      await masterDataService.deleteBusinessUnit(deleteModal.id);
+      showToast("Business unit berhasil dihapus");
+      await loadBu();
+      await loadPlants();
+    } else {
+      await masterDataService.deletePlant(deleteModal.id);
+      showToast("Plant berhasil dihapus");
+      await loadPlants();
+    }
+    deleteModal.show = false;
+  } catch (e) {
+    showToast(e.message, "error");
+  } finally {
+    deleteModal.loading = false;
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────
+const toast = reactive({ show: false, message: "", type: "success" });
+let toastTimer = null;
+
+function showToast(msg, type = "success") {
+  if (toastTimer) clearTimeout(toastTimer);
+  toast.show = true;
+  toast.message = msg;
+  toast.type = type;
+  toastTimer = setTimeout(() => (toast.show = false), 4000);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+function formatDate(val) {
+  if (!val) return "-";
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+</script>
+
+<style scoped>
+.master-data {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Header */
+.page-header {
+  margin-bottom: 20px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+.tab-btn {
+  padding: 8px 20px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Section bar */
+.section-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.total-badge {
+  font-size: 13px;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.filter-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+}
+.filter-select:focus { border-color: #3b82f6; }
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  width: 15px;
+  height: 15px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+.search-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 32px 7px 32px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s, width 0.2s;
+}
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  width: 240px;
+}
+.search-clear {
+  position: absolute;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.search-clear:hover { color: #374151; }
+.search-clear svg { width: 13px; height: 13px; }
+
+/* Card + table */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 600px;
+}
+.data-table th {
+  background: #f8fafc;
+  padding: 11px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: #f8fafc; }
+
+.td-num { color: #94a3b8; font-size: 12px; width: 40px; }
+.td-name { font-weight: 600; color: #1e293b; }
+.td-desc { color: #64748b; max-width: 220px; }
+.td-date { color: #64748b; white-space: nowrap; }
+.td-empty { text-align: center; color: #94a3b8; padding: 40px 0; font-size: 13px; }
+.th-action { text-align: center; width: 90px; }
+.td-action { text-align: center; white-space: nowrap; }
+
+.code-badge {
+  display: inline-block;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.status-pill {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pill-active { background: #dcfce7; color: #16a34a; }
+.pill-inactive { background: #f1f5f9; color: #94a3b8; }
+
+/* Action buttons */
+.btn-icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-icon-sm svg { width: 15px; height: 15px; }
+.btn-edit { color: #2563eb; }
+.btn-edit:hover { background: #eff6ff; }
+.btn-delete { color: #ef4444; margin-left: 2px; }
+.btn-delete:hover { background: #fef2f2; }
+
+/* Primary / secondary / danger buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-primary:hover:not(:disabled) { background: #2563eb; }
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+.btn-icon { width: 16px; height: 16px; }
+
+.btn-secondary {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-secondary:hover:not(:disabled) { background: #f8fafc; }
+.btn-secondary:disabled { opacity: 0.6; cursor: default; }
+
+.btn-danger {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-danger:hover:not(:disabled) { background: #dc2626; }
+.btn-danger:disabled { opacity: 0.6; cursor: default; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+.modal-sm { max-width: 360px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+.btn-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.btn-close:hover { background: #f1f5f9; color: #374151; }
+.btn-close svg { width: 16px; height: 16px; }
+.modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer {
+  padding: 14px 20px 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Form inside modal */
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 13px; font-weight: 600; color: #374151; }
+.req { color: #ef4444; }
+.form-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.delete-msg { font-size: 14px; color: #374151; line-height: 1.5; margin: 0; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+.toast-success { background: #1e293b; color: #fff; }
+.toast-error { background: #ef4444; color: #fff; }
+.toast-fade-enter-active, .toast-fade-leave-active { transition: opacity 0.3s, transform 0.3s; }
+.toast-fade-enter-from, .toast-fade-leave-to { opacity: 0; transform: translateX(-50%) translateY(8px); }
+
+/* Mobile */
+@media (max-width: 767px) {
+  .master-data { padding: 16px; }
+  .section-bar { flex-direction: column; align-items: flex-start; }
+  .btn-primary { width: 100%; justify-content: center; }
+  .tabs { width: 100%; }
+  .tab-btn { flex: 1; text-align: center; }
+}
+</style>

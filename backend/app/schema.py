@@ -3,6 +3,7 @@ import json
 from strawberry.fastapi import GraphQLRouter
 from typing import Optional, List
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from datetime import date
 
 from app import models, auth
@@ -50,13 +51,35 @@ class AuthPayload:
 class BusinessUnitType:
     id: int
     name: str
+    code: str = ""
+    description: Optional[str] = None
+    is_active: bool = True
+    created_at: Optional[str] = None
+
+
+@strawberry.type
+class BusinessUnitPayload:
+    success: bool
+    message: str
+    business_unit: Optional["BusinessUnitType"] = None
 
 
 @strawberry.type
 class PlantType:
     id: int
     name: str
+    code: str = ""
     business_unit_id: Optional[int] = None
+    location: Optional[str] = None
+    is_active: bool = True
+    created_at: Optional[str] = None
+
+
+@strawberry.type
+class PlantPayload:
+    success: bool
+    message: str
+    plant: Optional["PlantType"] = None
 
 
 @strawberry.type
@@ -84,6 +107,29 @@ class InspectionK3LPayload:
     success: bool
     message: str
     inspection: Optional[InspectionK3LType] = None
+
+
+def _bu_to_type(r: models.BusinessUnit) -> BusinessUnitType:
+    return BusinessUnitType(
+        id=r.id,
+        name=r.name,
+        code=r.code or "",
+        description=r.description,
+        is_active=r.is_active if r.is_active is not None else True,
+        created_at=str(r.created_at) if r.created_at else None,
+    )
+
+
+def _plant_to_type(r: models.Plant) -> PlantType:
+    return PlantType(
+        id=r.id,
+        name=r.name,
+        code=r.code or "",
+        business_unit_id=r.business_unit_id,
+        location=r.location,
+        is_active=r.is_active if r.is_active is not None else True,
+        created_at=str(r.created_at) if r.created_at else None,
+    )
 
 
 def _model_to_type(record: models.InspectionK3L) -> InspectionK3LType:
@@ -150,7 +196,7 @@ class Query:
         db = _get_db()
         try:
             records = db.query(models.BusinessUnit).order_by(models.BusinessUnit.name.asc()).all()
-            return [BusinessUnitType(id=r.id, name=r.name) for r in records]
+            return [_bu_to_type(r) for r in records]
         finally:
             db.close()
 
@@ -165,7 +211,7 @@ class Query:
             if business_unit_id is not None:
                 query = query.filter(models.Plant.business_unit_id == business_unit_id)
             records = query.order_by(models.Plant.name.asc()).all()
-            return [PlantType(id=r.id, name=r.name, business_unit_id=r.business_unit_id) for r in records]
+            return [_plant_to_type(r) for r in records]
         finally:
             db.close()
 
@@ -414,6 +460,212 @@ class Mutation:
         except Exception as e:
             db.rollback()
             return InspectionK3LPayload(success=False, message=f"Failed to delete: {str(e)}")
+        finally:
+            db.close()
+
+
+    # ── Business Unit mutations ──────────────────────────────────────────
+
+    @strawberry.mutation
+    def create_business_unit(
+        self,
+        info: strawberry.types.Info,
+        name: str,
+        code: str,
+        description: Optional[str] = None,
+        is_active: Optional[bool] = True,
+    ) -> BusinessUnitPayload:
+        user = _get_current_user(info)
+        if not user:
+            return BusinessUnitPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            if db.query(models.BusinessUnit).filter(models.BusinessUnit.name == name).first():
+                return BusinessUnitPayload(success=False, message="Business unit name already exists")
+            if db.query(models.BusinessUnit).filter(models.BusinessUnit.code == code).first():
+                return BusinessUnitPayload(success=False, message="Business unit code already exists")
+            record = models.BusinessUnit(
+                name=name, code=code, description=description,
+                is_active=is_active if is_active is not None else True,
+            )
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+            return BusinessUnitPayload(success=True, message="Business unit created", business_unit=_bu_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return BusinessUnitPayload(success=False, message=f"Failed to create: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def update_business_unit(
+        self,
+        info: strawberry.types.Info,
+        id: int,
+        name: Optional[str] = None,
+        code: Optional[str] = None,
+        description: Optional[str] = None,
+        is_active: Optional[bool] = None,
+    ) -> BusinessUnitPayload:
+        user = _get_current_user(info)
+        if not user:
+            return BusinessUnitPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == id).first()
+            if not record:
+                return BusinessUnitPayload(success=False, message="Business unit not found")
+            if name is not None:
+                dup = db.query(models.BusinessUnit).filter(models.BusinessUnit.name == name, models.BusinessUnit.id != id).first()
+                if dup:
+                    return BusinessUnitPayload(success=False, message="Business unit name already exists")
+                record.name = name
+            if code is not None:
+                dup = db.query(models.BusinessUnit).filter(models.BusinessUnit.code == code, models.BusinessUnit.id != id).first()
+                if dup:
+                    return BusinessUnitPayload(success=False, message="Business unit code already exists")
+                record.code = code
+            if description is not None:
+                record.description = description
+            if is_active is not None:
+                record.is_active = is_active
+            db.commit()
+            db.refresh(record)
+            return BusinessUnitPayload(success=True, message="Business unit updated", business_unit=_bu_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return BusinessUnitPayload(success=False, message=f"Failed to update: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def delete_business_unit(self, info: strawberry.types.Info, id: int) -> BusinessUnitPayload:
+        user = _get_current_user(info)
+        if not user:
+            return BusinessUnitPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == id).first()
+            if not record:
+                return BusinessUnitPayload(success=False, message="Business unit not found")
+            db.delete(record)
+            db.commit()
+            return BusinessUnitPayload(success=True, message="Business unit deleted")
+        except IntegrityError:
+            db.rollback()
+            return BusinessUnitPayload(
+                success=False,
+                message="Business Unit tidak dapat dihapus karena masih memiliki Plant yang terkait. Hapus semua Plant di Business Unit ini terlebih dahulu.",
+            )
+        except Exception as e:
+            db.rollback()
+            return BusinessUnitPayload(success=False, message=f"Failed to delete: {str(e)}")
+        finally:
+            db.close()
+
+    # ── Plant mutations ──────────────────────────────────────────────────
+
+    @strawberry.mutation
+    def create_plant(
+        self,
+        info: strawberry.types.Info,
+        name: str,
+        code: str,
+        business_unit_id: int,
+        location: Optional[str] = None,
+        is_active: Optional[bool] = True,
+    ) -> PlantPayload:
+        user = _get_current_user(info)
+        if not user:
+            return PlantPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            bu = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == business_unit_id).first()
+            if not bu:
+                return PlantPayload(success=False, message="Business unit not found")
+            if db.query(models.Plant).filter(models.Plant.code == code).first():
+                return PlantPayload(success=False, message="Plant code already exists")
+            record = models.Plant(
+                name=name, code=code, business_unit_id=business_unit_id,
+                location=location, is_active=is_active if is_active is not None else True,
+            )
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+            return PlantPayload(success=True, message="Plant created", plant=_plant_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return PlantPayload(success=False, message=f"Failed to create: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def update_plant(
+        self,
+        info: strawberry.types.Info,
+        id: int,
+        name: Optional[str] = None,
+        code: Optional[str] = None,
+        business_unit_id: Optional[int] = None,
+        location: Optional[str] = None,
+        is_active: Optional[bool] = None,
+    ) -> PlantPayload:
+        user = _get_current_user(info)
+        if not user:
+            return PlantPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.Plant).filter(models.Plant.id == id).first()
+            if not record:
+                return PlantPayload(success=False, message="Plant not found")
+            if business_unit_id is not None:
+                bu = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == business_unit_id).first()
+                if not bu:
+                    return PlantPayload(success=False, message="Business unit not found")
+                record.business_unit_id = business_unit_id
+            if name is not None:
+                record.name = name
+            if code is not None:
+                dup = db.query(models.Plant).filter(models.Plant.code == code, models.Plant.id != id).first()
+                if dup:
+                    return PlantPayload(success=False, message="Plant code already exists")
+                record.code = code
+            if location is not None:
+                record.location = location
+            if is_active is not None:
+                record.is_active = is_active
+            db.commit()
+            db.refresh(record)
+            return PlantPayload(success=True, message="Plant updated", plant=_plant_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return PlantPayload(success=False, message=f"Failed to update: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def delete_plant(self, info: strawberry.types.Info, id: int) -> PlantPayload:
+        user = _get_current_user(info)
+        if not user:
+            return PlantPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.Plant).filter(models.Plant.id == id).first()
+            if not record:
+                return PlantPayload(success=False, message="Plant not found")
+            db.delete(record)
+            db.commit()
+            return PlantPayload(success=True, message="Plant deleted")
+        except IntegrityError:
+            db.rollback()
+            return PlantPayload(
+                success=False,
+                message="Plant tidak dapat dihapus karena masih memiliki data Inspeksi K3L yang terkait. Hapus semua data Inspeksi K3L di Plant ini terlebih dahulu.",
+            )
+        except Exception as e:
+            db.rollback()
+            return PlantPayload(success=False, message=f"Failed to delete: {str(e)}")
         finally:
             db.close()
 

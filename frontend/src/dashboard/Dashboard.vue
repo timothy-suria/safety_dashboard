@@ -29,6 +29,7 @@ const pageTitles = {
   "/dashboard/modules": "Safety Modules",
   "/dashboard/reports": "Reports",
   "/dashboard/reports/inspection-k3l": "Inspection K3L",
+  "/dashboard/master-data": "Master Data",
   "/dashboard/settings": "Settings",
 };
 const pageTitle = computed(() => pageTitles[route.path] ?? "Dashboard");
