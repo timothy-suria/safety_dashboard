@@ -59,8 +59,9 @@
                       <label>Kategori Temuan <span class="required">*</span></label>
                       <select v-model="form.kategoriTemuan" required>
                         <option value="" disabled>Pilih Kategori</option>
-                        <option value="Major">Major</option>
-                        <option value="Minor">Minor</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
                       </select>
                     </div>
                     <div class="form-group full-width">
@@ -470,7 +471,7 @@
           <button
             class="btn btn-sm btn-export"
             @click="exportCsv"
-            :disabled="records.length === 0"
+            :disabled="filteredRecords.length === 0"
             title="Export semua data ke CSV"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -485,8 +486,48 @@
           </button>
         </div>
       </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            v-model="searchQuery"
+            class="search-input"
+            placeholder="Cari deskripsi, lokasi, tanggal..."
+          />
+          <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">&times;</button>
+        </div>
+
+        <select v-model="filterKategori" class="filter-select">
+          <option value="">Semua Kategori</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        <select v-model="filterStatus" class="filter-select">
+          <option value="">Semua Status</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Closed">Closed</option>
+        </select>
+
+        <button v-if="hasActiveFilters" class="btn-reset-filters" @click="resetFilters">
+          Reset
+        </button>
+
+        <span v-if="hasActiveFilters" class="filter-count">
+          {{ filteredRecords.length }} / {{ records.length }} data
+        </span>
+      </div>
+
       <div class="table-wrapper">
-        <table v-if="records.length > 0">
+        <table v-if="filteredRecords.length > 0">
           <thead>
             <tr>
               <th>No</th>
@@ -505,7 +546,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in records" :key="item.id">
+            <tr v-for="(item, idx) in filteredRecords" :key="item.id">
               <td>{{ idx + 1 }}</td>
               <td class="td-nowrap">{{ formatDate(item.tanggal) }}</td>
               <td>
@@ -579,6 +620,9 @@
             </tr>
           </tbody>
         </table>
+        <div v-else-if="hasActiveFilters" class="empty-state">
+          <p>Tidak ada data yang cocok dengan filter. <button class="btn-inline-link" @click="resetFilters">Reset filter</button></p>
+        </div>
         <div v-else class="empty-state">
           <p>Belum ada data temuan. Klik "Tambah Temuan" untuk menambahkan.</p>
         </div>
@@ -604,6 +648,48 @@ const filteredPlants = computed(() => {
   if (!form.value.businessUnitId) return [];
   return plants.value.filter((p) => p.businessUnitId === form.value.businessUnitId);
 });
+
+// ── Search & filters ──
+const searchQuery = ref('');
+const filterKategori = ref('');
+const filterStatus = ref('');
+
+const hasActiveFilters = computed(
+  () => searchQuery.value.trim() !== '' || filterKategori.value !== '' || filterStatus.value !== '',
+);
+
+const filteredRecords = computed(() => {
+  let result = records.value;
+
+  if (filterKategori.value) {
+    result = result.filter((r) => r.kategoriTemuan === filterKategori.value);
+  }
+
+  if (filterStatus.value) {
+    result = result.filter((r) => r.status === filterStatus.value);
+  }
+
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    result = result.filter(
+      (r) =>
+        (r.deskripsiTemuan || '').toLowerCase().includes(q) ||
+        (r.lokasi || '').toLowerCase().includes(q) ||
+        (r.tindakanPerbaikan || '').toLowerCase().includes(q) ||
+        (r.tanggal || '').includes(q) ||
+        (r.kategoriTemuan || '').toLowerCase().includes(q) ||
+        (r.status || '').toLowerCase().includes(q),
+    );
+  }
+
+  return result;
+});
+
+function resetFilters() {
+  searchQuery.value = '';
+  filterKategori.value = '';
+  filterStatus.value = '';
+}
 
 // ── View detail modal ──
 const showViewModal = ref(false);
@@ -881,8 +967,9 @@ async function confirmDelete() {
 }
 
 function exportCsv() {
+  const source = filteredRecords.value;
   // Parse all photo URL arrays upfront to determine column count
-  const parsedPhotos = records.value.map((row) => {
+  const parsedPhotos = source.map((row) => {
     if (!row.fotoSebelum) return [];
     try {
       const parsed = JSON.parse(row.fotoSebelum);
@@ -894,7 +981,7 @@ function exportCsv() {
 
   const maxPhotos = parsedPhotos.reduce((max, p) => Math.max(max, p.length), 0);
 
-  const rows = records.value.map((row, idx) => {
+  const rows = source.map((row, idx) => {
     const photos = parsedPhotos[idx];
     const photoFields = {};
     for (let i = 0; i < maxPhotos; i++) {
@@ -1496,6 +1583,107 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 7px 32px 7px 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 17px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.search-clear:hover { color: #475569; }
+
+.filter-select {
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #475569;
+  background: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-select:focus { border-color: #3b82f6; }
+
+.btn-reset-filters {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-reset-filters:hover { background: #f1f5f9; color: #334155; }
+
+.filter-count {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.btn-inline-link {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
 .table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -1568,8 +1756,9 @@ tbody tr:hover { background: #f8fafc; }
   font-weight: 600;
   white-space: nowrap;
 }
-.kategori-major { background: #fef2f2; color: #dc2626; }
-.kategori-minor { background: #fefce8; color: #a16207; }
+.kategori-low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.kategori-medium { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.kategori-high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
 /* ── Empty state ── */
 .empty-state {
