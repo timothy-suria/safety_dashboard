@@ -172,7 +172,7 @@
                                 accept="image/*"
                                 multiple
                                 @change="onPhotoSelect"
-                                hidden
+                                style="display:none"
                               />
                             </label>
                             <label class="photo-btn">
@@ -195,7 +195,7 @@
                                 accept="image/*"
                                 capture="environment"
                                 @change="onPhotoSelect"
-                                hidden
+                                style="display:none"
                               />
                             </label>
                           </div>
@@ -304,7 +304,7 @@
                                 accept="image/*"
                                 multiple
                                 @change="onPhotoAfterSelect"
-                                hidden
+                                style="display:none"
                               />
                             </label>
                             <label class="photo-btn">
@@ -327,7 +327,7 @@
                                 accept="image/*"
                                 capture="environment"
                                 @change="onPhotoAfterSelect"
-                                hidden
+                                style="display:none"
                               />
                             </label>
                           </div>
@@ -342,13 +342,28 @@
                   <h4 class="section-title">Lokasi</h4>
                   <div class="form-row">
                     <div class="form-group form-group-fill">
-                      <label>Lokasi</label>
+                      <label>Lokasi Temuan</label>
                       <input
                         type="text"
                         v-model="form.lokasi"
                         placeholder="Lokasi temuan"
                       />
                     </div>
+                    <div class="form-group form-group-fill">
+                      <label>Department</label>
+                      <select v-model.number="form.departmentId">
+                        <option :value="null">Pilih Department</option>
+                        <option
+                          v-for="dept in departments"
+                          :key="dept.id"
+                          :value="dept.id"
+                        >
+                          {{ dept.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
                     <div class="form-group form-group-fill">
                       <label>Business Unit</label>
                       <select
@@ -595,6 +610,12 @@
                     <span class="detail-label">Lokasi</span>
                     <span class="detail-value">{{
                       viewingRecord.lokasi || '-'
+                    }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Department</span>
+                    <span class="detail-value">{{
+                      getDepartmentName(viewingRecord.departmentId)
                     }}</span>
                   </div>
                   <div class="detail-row">
@@ -929,6 +950,7 @@
               <th>Foto Sebelum</th>
               <th>Foto Sesudah</th>
               <th>Lokasi</th>
+              <th>Department</th>
               <th>Business Unit</th>
               <th>Plant</th>
               <th>Tindakan Perbaikan</th>
@@ -1005,6 +1027,7 @@
                 <span v-else class="text-muted">-</span>
               </td>
               <td class="td-nowrap">{{ item.lokasi || '-' }}</td>
+              <td class="td-nowrap">{{ getDepartmentName(item.departmentId) }}</td>
               <td class="td-nowrap">
                 {{ getBusinessUnitName(item.businessUnitId) }}
               </td>
@@ -1111,6 +1134,7 @@ const editingId = ref(null);
 const records = ref([]);
 const businessUnits = ref([]);
 const plants = ref([]);
+const departments = ref([]);
 
 const filteredPlants = computed(() => {
   if (!form.value.businessUnitId) return [];
@@ -1206,6 +1230,11 @@ function getBusinessUnitName(id) {
 function getPlantName(id) {
   if (!id) return '-';
   return plants.value.find((p) => p.id === id)?.name ?? '-';
+}
+
+function getDepartmentName(id) {
+  if (!id) return '-';
+  return departments.value.find((d) => d.id === id)?.name ?? '-';
 }
 
 function formatDate(val) {
@@ -1311,6 +1340,7 @@ const defaultForm = () => ({
   aktualClose: '',
   businessUnitId: null,
   plantId: null,
+  departmentId: null,
 });
 
 const form = ref(defaultForm());
@@ -1341,12 +1371,14 @@ async function loadData() {
 
 async function loadLocationOptions() {
   try {
-    const [units, plantOptions] = await Promise.all([
+    const [units, plantOptions, deptOptions] = await Promise.all([
       inspectionK3LService.listBusinessUnits(),
       inspectionK3LService.listPlants(),
+      inspectionK3LService.listDepartments(),
     ]);
     businessUnits.value = units;
     plants.value = plantOptions;
+    departments.value = deptOptions;
   } catch (e) {
     console.error("[InspectionK3L] loadLocationOptions:", e);
   }
@@ -1379,6 +1411,7 @@ async function submitForm() {
       aktualClose: form.value.aktualClose || null,
       businessUnitId: form.value.businessUnitId || null,
       plantId: form.value.plantId || null,
+      departmentId: form.value.departmentId || null,
     };
 
     if (editingId.value) {
@@ -1420,6 +1453,7 @@ function editRecord(item) {
     aktualClose: item.aktualClose || '',
     businessUnitId: item.businessUnitId || null,
     plantId: item.plantId || null,
+    departmentId: item.departmentId || null,
   };
   clearPhotos();
   clearPhotosAfter();

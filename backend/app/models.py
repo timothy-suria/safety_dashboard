@@ -53,8 +53,17 @@ class User(Base):
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
     last_login = Column(DateTime)
     otp_expires_at = Column(DateTime)
-    role = Column(String, nullable=False, default="user", server_default="user")
-    business_unit = Column(String, nullable=False, default="", server_default="")
+
+
+class Department(Base):
+    __tablename__ = "departments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    code = Column(String(20), unique=True, nullable=False)
+    description = Column(Text)
+    is_active = Column(Boolean, server_default="true")
+    created_at = Column(DateTime, server_default=func.current_timestamp())
 
 
 class InspectionK3L(Base):
@@ -87,6 +96,7 @@ class InspectionK3L(Base):
     created_by = Column(Integer, ForeignKey("users.id"))
     business_unit_id = Column(Integer, ForeignKey("business_units.id"))
     plant_id = Column(Integer, ForeignKey("plants.id"))
+    department_id = Column(Integer, ForeignKey("departments.id"))
 
     # Audit trail
     created_at = Column(DateTime, server_default=func.current_timestamp())

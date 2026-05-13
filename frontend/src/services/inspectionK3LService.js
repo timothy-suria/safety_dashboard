@@ -51,6 +51,17 @@ export const inspectionK3LService = {
     return data.businessUnits;
   },
 
+  async listDepartments() {
+    const data = await gql(`
+      query {
+        departments {
+          id name
+        }
+      }
+    `);
+    return data.departments;
+  },
+
   async listPlants(businessUnitId = null) {
     const data = await gql(
       `query Plants($businessUnitId: Int) {
@@ -71,7 +82,7 @@ export const inspectionK3LService = {
           fotoSebelum fotoSesudah lokasi
           tindakanPerbaikan targetSelesai
           status aktualClose
-          businessUnitId plantId
+          businessUnitId plantId departmentId
           createdAt updatedAt
         }
       }
@@ -87,7 +98,7 @@ export const inspectionK3LService = {
           fotoSebelum fotoSesudah lokasi
           tindakanPerbaikan targetSelesai
           status aktualClose
-          businessUnitId plantId
+          businessUnitId plantId departmentId
           createdAt updatedAt
         }
       }`,
@@ -110,7 +121,8 @@ export const inspectionK3LService = {
         $status: String,
         $aktualClose: String,
         $businessUnitId: Int,
-        $plantId: Int
+        $plantId: Int,
+        $departmentId: Int
       ) {
         createInspectionK3l(
           tanggal: $tanggal,
@@ -124,7 +136,8 @@ export const inspectionK3LService = {
           status: $status,
           aktualClose: $aktualClose,
           businessUnitId: $businessUnitId,
-          plantId: $plantId
+          plantId: $plantId,
+          departmentId: $departmentId
         ) {
           success message
           inspection {
@@ -155,7 +168,8 @@ export const inspectionK3LService = {
         $status: String,
         $aktualClose: String,
         $businessUnitId: Int,
-        $plantId: Int
+        $plantId: Int,
+        $departmentId: Int
       ) {
         updateInspectionK3l(
           id: $id,
@@ -170,7 +184,8 @@ export const inspectionK3LService = {
           status: $status,
           aktualClose: $aktualClose,
           businessUnitId: $businessUnitId,
-          plantId: $plantId
+          plantId: $plantId,
+          departmentId: $departmentId
         ) {
           success message
           inspection {

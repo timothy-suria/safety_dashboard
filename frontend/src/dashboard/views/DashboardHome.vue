@@ -15,7 +15,32 @@
     <!-- Loading -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <span>Loading dashboard…</span>
+      <span>Memuat data dashboard…</span>
+    </div>
+
+    <!-- Error state -->
+    <div v-else-if="loadFailed" class="dashboard-empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" width="48" height="48">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <h3>Tidak dapat memuat data</h3>
+      <p>Pastikan server backend sudah berjalan, lalu refresh halaman ini.</p>
+      <button class="empty-btn" @click="() => window.location.reload()">Refresh</button>
+    </div>
+
+    <!-- Empty state -->
+    <div v-else-if="records.length === 0" class="dashboard-empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" width="48" height="48">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+        <line x1="9" y1="12" x2="15" y2="12"/>
+        <line x1="9" y1="16" x2="13" y2="16"/>
+      </svg>
+      <h3>Belum ada data temuan</h3>
+      <p>Data Inspection K3L belum tersedia. Mulai dengan menambahkan temuan pertama.</p>
+      <button class="empty-btn" @click="() => $router.push('/dashboard/reports/inspection-k3l')">+ Tambah Temuan</button>
     </div>
 
     <template v-else>
@@ -342,6 +367,7 @@ const router = useRouter();
 
 const records = ref([]);
 const loading = ref(true);
+const loadFailed = ref(false);
 const calendarDate = ref(new Date());
 const barScrollRef = ref(null);
 
@@ -604,11 +630,17 @@ function formatDate(s) {
 }
 
 onMounted(async () => {
+  const timeout = setTimeout(() => {
+    loading.value = false;
+    loadFailed.value = true;
+  }, 10000);
   try {
     records.value = await inspectionK3LService.list();
   } catch (e) {
     console.error(e);
+    loadFailed.value = true;
   } finally {
+    clearTimeout(timeout);
     loading.value = false;
     await nextTick();
     if (barScrollRef.value) {
@@ -689,6 +721,47 @@ onMounted(async () => {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Empty / error state ────────────────────────────────────────── */
+.dashboard-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.dashboard-empty-state h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+
+.dashboard-empty-state p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.empty-btn {
+  margin-top: 4px;
+  padding: 8px 20px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.empty-btn:hover { background: #2563eb; }
 
 /* ── KPI cards ──────────────────────────────────────────────────── */
 .kpi-grid {

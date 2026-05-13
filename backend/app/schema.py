@@ -122,6 +122,23 @@ class PlantPayload:
 
 
 @strawberry.type
+class DepartmentType:
+    id: int
+    name: str
+    code: str = ""
+    description: Optional[str] = None
+    is_active: bool = True
+    created_at: Optional[str] = None
+
+
+@strawberry.type
+class DepartmentPayload:
+    success: bool
+    message: str
+    department: Optional["DepartmentType"] = None
+
+
+@strawberry.type
 class InspectionK3LType:
     id: int
     tanggal: str
@@ -137,6 +154,7 @@ class InspectionK3LType:
     created_by: Optional[int] = None
     business_unit_id: Optional[int] = None
     plant_id: Optional[int] = None
+    department_id: Optional[int] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -146,6 +164,17 @@ class InspectionK3LPayload:
     success: bool
     message: str
     inspection: Optional[InspectionK3LType] = None
+
+
+def _dept_to_type(r: models.Department) -> DepartmentType:
+    return DepartmentType(
+        id=r.id,
+        name=r.name,
+        code=r.code or "",
+        description=r.description,
+        is_active=r.is_active if r.is_active is not None else True,
+        created_at=str(r.created_at) if r.created_at else None,
+    )
 
 
 @strawberry.type
@@ -232,6 +261,7 @@ def _model_to_type(record: models.InspectionK3L) -> InspectionK3LType:
         created_by=record.created_by,
         business_unit_id=record.business_unit_id,
         plant_id=record.plant_id,
+        department_id=record.department_id,
         created_at=str(record.created_at) if record.created_at else None,
         updated_at=str(record.updated_at) if record.updated_at else None,
     )
@@ -244,19 +274,7 @@ class Query:
         user = _get_current_user(info)
         if not user:
             return None
-        return UserType(id=user.id, email=user.email, role=user.role, business_unit=user.business_unit, role_id=user.role_id)
-
-    @strawberry.field
-    def safety_modules(self, info: strawberry.types.Info) -> List[SafetyModuleType]:
-        user = _get_current_user(info)
-        if not user:
-            return []
-        db = _get_db()
-        try:
-            records = db.query(models.SafetyModule).order_by(models.SafetyModule.created_at.desc()).all()
-            return [_module_to_type(r) for r in records]
-        finally:
-            db.close()
+        return UserType(id=user.id, email=user.email, role=user.role, business_unit=user.business_unit)
 
     @strawberry.field
     def inspection_k3l_list(self, info: strawberry.types.Info) -> List[InspectionK3LType]:
@@ -321,6 +339,18 @@ class Query:
             db.close()
 
     @strawberry.field
+    def departments(self, info: strawberry.types.Info) -> List[DepartmentType]:
+        user = _get_current_user(info)
+        if not user:
+            return []
+        db = _get_db()
+        try:
+            records = db.query(models.Department).order_by(models.Department.name.asc()).all()
+            return [_dept_to_type(r) for r in records]
+        finally:
+            db.close()
+
+    @strawberry.field
     def plants(self, info: strawberry.types.Info, business_unit_id: Optional[int] = None) -> List[PlantType]:
         user = _get_current_user(info)
         if not user:
@@ -367,8 +397,8 @@ class Mutation:
                 token=token,
                 user=UserType(
                     id=user.id, email=user.email,
-                    role=role_name.name if role_name else user.role,
-                    business_unit=bu_name.name if bu_name else user.business_unit,
+                    role=role_name.name if role_name else "",
+                    business_unit=bu_name.name if bu_name else "",
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
@@ -402,8 +432,8 @@ class Mutation:
                 token=token,
                 user=UserType(
                     id=user.id, email=user.email,
-                    role=role_name.name if role_name else user.role,
-                    business_unit=bu_name.name if bu_name else user.business_unit,
+                    role=role_name.name if role_name else "",
+                    business_unit=bu_name.name if bu_name else "",
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
@@ -428,6 +458,7 @@ class Mutation:
         aktual_close: Optional[str] = None,
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
+        department_id: Optional[int] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
@@ -463,6 +494,7 @@ class Mutation:
                 created_by=user.id,
                 business_unit_id=business_unit_id,
                 plant_id=plant_id,
+                department_id=department_id,
             )
             db.add(record)
             db.commit()
@@ -495,6 +527,7 @@ class Mutation:
         aktual_close: Optional[str] = None,
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
+        department_id: Optional[int] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
@@ -545,6 +578,8 @@ class Mutation:
                 record.business_unit_id = business_unit_id
             if plant_id is not None:
                 record.plant_id = plant_id
+            if department_id is not None:
+                record.department_id = department_id
 
             db.commit()
             db.refresh(record)
@@ -699,6 +734,106 @@ class Mutation:
         except Exception as e:
             db.rollback()
             return BusinessUnitPayload(success=False, message=f"Failed to delete: {str(e)}")
+        finally:
+            db.close()
+
+    # ── Department mutations ─────────────────────────────────────────────
+
+    @strawberry.mutation
+    def create_department(
+        self,
+        info: strawberry.types.Info,
+        name: str,
+        code: str,
+        description: Optional[str] = None,
+        is_active: Optional[bool] = True,
+    ) -> DepartmentPayload:
+        user = _get_current_user(info)
+        if not user:
+            return DepartmentPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            if db.query(models.Department).filter(models.Department.name == name).first():
+                return DepartmentPayload(success=False, message="Department name already exists")
+            if db.query(models.Department).filter(models.Department.code == code).first():
+                return DepartmentPayload(success=False, message="Department code already exists")
+            record = models.Department(
+                name=name, code=code, description=description,
+                is_active=is_active if is_active is not None else True,
+            )
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+            return DepartmentPayload(success=True, message="Department created", department=_dept_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return DepartmentPayload(success=False, message=f"Failed to create: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def update_department(
+        self,
+        info: strawberry.types.Info,
+        id: int,
+        name: Optional[str] = None,
+        code: Optional[str] = None,
+        description: Optional[str] = None,
+        is_active: Optional[bool] = None,
+    ) -> DepartmentPayload:
+        user = _get_current_user(info)
+        if not user:
+            return DepartmentPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.Department).filter(models.Department.id == id).first()
+            if not record:
+                return DepartmentPayload(success=False, message="Department not found")
+            if name is not None:
+                dup = db.query(models.Department).filter(models.Department.name == name, models.Department.id != id).first()
+                if dup:
+                    return DepartmentPayload(success=False, message="Department name already exists")
+                record.name = name
+            if code is not None:
+                dup = db.query(models.Department).filter(models.Department.code == code, models.Department.id != id).first()
+                if dup:
+                    return DepartmentPayload(success=False, message="Department code already exists")
+                record.code = code
+            if description is not None:
+                record.description = description
+            if is_active is not None:
+                record.is_active = is_active
+            db.commit()
+            db.refresh(record)
+            return DepartmentPayload(success=True, message="Department updated", department=_dept_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return DepartmentPayload(success=False, message=f"Failed to update: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def delete_department(self, info: strawberry.types.Info, id: int) -> DepartmentPayload:
+        user = _get_current_user(info)
+        if not user:
+            return DepartmentPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.Department).filter(models.Department.id == id).first()
+            if not record:
+                return DepartmentPayload(success=False, message="Department not found")
+            db.delete(record)
+            db.commit()
+            return DepartmentPayload(success=True, message="Department deleted")
+        except IntegrityError:
+            db.rollback()
+            return DepartmentPayload(
+                success=False,
+                message="Department tidak dapat dihapus karena masih digunakan oleh data lain.",
+            )
+        except Exception as e:
+            db.rollback()
+            return DepartmentPayload(success=False, message=f"Failed to delete: {str(e)}")
         finally:
             db.close()
 

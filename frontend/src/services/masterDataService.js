@@ -243,4 +243,59 @@ export const masterDataService = {
     if (!r.success) throw new Error(r.message);
     return r;
   },
+
+  // ── Department ────────────────────────────────────────────────────────
+
+  async listDepartments() {
+    const data = await gql(`
+      query {
+        departments {
+          id name code description isActive createdAt
+        }
+      }
+    `);
+    return data.departments;
+  },
+
+  async createDepartment(input) {
+    const data = await gql(
+      `mutation CreateDept($name: String!, $code: String!, $description: String, $isActive: Boolean) {
+        createDepartment(name: $name, code: $code, description: $description, isActive: $isActive) {
+          success message
+          department { id name code description isActive createdAt }
+        }
+      }`,
+      input,
+    );
+    const r = data.createDepartment;
+    if (!r.success) throw new Error(r.message);
+    return r;
+  },
+
+  async updateDepartment(id, input) {
+    const data = await gql(
+      `mutation UpdateDept($id: Int!, $name: String, $code: String, $description: String, $isActive: Boolean) {
+        updateDepartment(id: $id, name: $name, code: $code, description: $description, isActive: $isActive) {
+          success message
+          department { id name code description isActive createdAt }
+        }
+      }`,
+      { id, ...input },
+    );
+    const r = data.updateDepartment;
+    if (!r.success) throw new Error(r.message);
+    return r;
+  },
+
+  async deleteDepartment(id) {
+    const data = await gql(
+      `mutation DeleteDept($id: Int!) {
+        deleteDepartment(id: $id) { success message }
+      }`,
+      { id },
+    );
+    const r = data.deleteDepartment;
+    if (!r.success) throw new Error(r.message);
+    return r;
+  },
 };

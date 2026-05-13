@@ -4,7 +4,7 @@
     <div class="page-header">
       <div>
         <h2 class="page-title">Master Data</h2>
-        <p class="page-sub">Kelola data Business Unit, Plant, dan User</p>
+        <p class="page-sub">Kelola data Business Unit, Plant, User, dan Department</p>
       </div>
     </div>
 
@@ -26,10 +26,10 @@
       </button>
       <button
         class="tab-btn"
-        :class="{ active: activeTab === 'user' }"
-        @click="activeTab = 'user'"
+        :class="{ active: activeTab === 'dept' }"
+        @click="activeTab = 'dept'"
       >
-        Users
+        Department
       </button>
       <button
         class="tab-btn"
@@ -37,6 +37,13 @@
         @click="activeTab = 'role'"
       >
         Roles
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'user' }"
+        @click="activeTab = 'user'"
+      >
+        Users
       </button>
     </div>
 
@@ -559,6 +566,128 @@
       </div>
     </div>
 
+    <!-- ── Department Tab ──────────────────────────────────────── -->
+    <div v-if="activeTab === 'dept'">
+      <div class="section-bar">
+        <div class="filter-group">
+          <span class="total-badge">{{ filteredDepts.length }} data</span>
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input v-model="deptSearch" type="text" placeholder="Cari nama atau kode…" class="search-input" />
+            <button v-if="deptSearch" class="search-clear" @click="deptSearch = ''">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn-primary" @click="openDeptForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Tambah Department
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Kode</th>
+                <th>Deskripsi</th>
+                <th>Status</th>
+                <th>Dibuat</th>
+                <th class="th-action">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="deptLoading">
+                <td colspan="7" class="td-empty">Memuat data…</td>
+              </tr>
+              <tr v-else-if="!filteredDepts.length">
+                <td colspan="7" class="td-empty">
+                  {{ deptSearch ? 'Tidak ada hasil untuk "' + deptSearch + '"' : 'Belum ada data Department' }}
+                </td>
+              </tr>
+              <tr v-for="(item, idx) in filteredDepts" :key="item.id">
+                <td class="td-num">{{ idx + 1 }}</td>
+                <td class="td-name">{{ item.name }}</td>
+                <td><span class="code-badge">{{ item.code }}</span></td>
+                <td class="td-desc">{{ item.description || '-' }}</td>
+                <td>
+                  <span :class="['status-pill', item.isActive ? 'pill-active' : 'pill-inactive']">
+                    {{ item.isActive ? 'Aktif' : 'Nonaktif' }}
+                  </span>
+                </td>
+                <td class="td-date">{{ formatDate(item.createdAt) }}</td>
+                <td class="td-action">
+                  <button class="btn-icon-sm btn-edit" title="Edit" @click="openDeptForm(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button class="btn-icon-sm btn-delete" title="Hapus" @click="confirmDeleteDept(item)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/>
+                      <path d="M9 6V4h6v2"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Department Modal ─────────────────────────────────────── -->
+    <div v-if="deptModal.show" class="modal-overlay" @click.self="closeDeptModal">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h3>{{ deptModal.editId ? 'Edit Department' : 'Tambah Department' }}</h3>
+          <button class="btn-close" @click="closeDeptModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nama <span class="req">*</span></label>
+            <input v-model="deptForm.name" type="text" placeholder="Nama department" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Kode <span class="req">*</span></label>
+            <input v-model="deptForm.code" type="text" placeholder="Kode unik (contoh: DEPT01)" class="form-input" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea v-model="deptForm.description" placeholder="Deskripsi (opsional)" class="form-input form-textarea" rows="3" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select v-model="deptForm.isActive" class="form-input">
+              <option :value="true">Aktif</option>
+              <option :value="false">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeDeptModal" :disabled="deptModal.saving">Batal</button>
+          <button class="btn-primary" @click="saveDept" :disabled="deptModal.saving">
+            {{ deptModal.saving ? 'Menyimpan…' : 'Simpan' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Delete Confirm Modal ──────────────────────────────────── -->
     <div v-if="deleteModal.show" class="modal-overlay" @click.self="deleteModal.show = false">
       <div class="modal modal-sm">
@@ -615,6 +744,10 @@ const userList = ref([]);
 const userLoading = ref(false);
 const userSearch = ref("");
 
+const deptList = ref([]);
+const deptLoading = ref(false);
+const deptSearch = ref("");
+
 // ── Computed ─────────────────────────────────────────────────────────────
 const buNameMap = computed(() => {
   const map = {};
@@ -665,6 +798,17 @@ const plantNameMap = computed(() => {
   const map = {};
   plantList.value.forEach((p) => (map[p.id] = p.name));
   return map;
+});
+
+const filteredDepts = computed(() => {
+  const q = deptSearch.value.trim().toLowerCase();
+  if (!q) return deptList.value;
+  return deptList.value.filter(
+    (d) =>
+      d.name.toLowerCase().includes(q) ||
+      d.code.toLowerCase().includes(q) ||
+      (d.description || "").toLowerCase().includes(q),
+  );
 });
 
 const filteredUsers = computed(() => {
@@ -725,11 +869,23 @@ async function loadUsers() {
   }
 }
 
+async function loadDepts() {
+  deptLoading.value = true;
+  try {
+    deptList.value = await masterDataService.listDepartments();
+  } catch (e) {
+    console.error("[MasterData] loadDepts:", e);
+  } finally {
+    deptLoading.value = false;
+  }
+}
+
 onMounted(() => {
   loadBu();
   loadPlants();
   loadRoles();
   loadUsers();
+  loadDepts();
 });
 
 // ── Business Unit form ───────────────────────────────────────────────────
@@ -931,6 +1087,51 @@ async function saveUser() {
   }
 }
 
+// ── Department form ──────────────────────────────────────────────────────
+const deptModal = reactive({ show: false, editId: null, saving: false });
+const deptForm = reactive({ name: "", code: "", description: "", isActive: true });
+
+function openDeptForm(item = null) {
+  deptModal.editId = item?.id ?? null;
+  deptForm.name = item?.name ?? "";
+  deptForm.code = item?.code ?? "";
+  deptForm.description = item?.description ?? "";
+  deptForm.isActive = item?.isActive ?? true;
+  deptModal.show = true;
+}
+
+function closeDeptModal() {
+  deptModal.show = false;
+}
+
+async function saveDept() {
+  if (!deptForm.name.trim()) return showToast("Nama wajib diisi", "error");
+  if (!deptForm.code.trim()) return showToast("Kode wajib diisi", "error");
+
+  deptModal.saving = true;
+  try {
+    const payload = {
+      name: deptForm.name.trim(),
+      code: deptForm.code.trim().toUpperCase(),
+      description: deptForm.description.trim() || null,
+      isActive: deptForm.isActive,
+    };
+    if (deptModal.editId) {
+      await masterDataService.updateDepartment(deptModal.editId, payload);
+      showToast("Department berhasil diperbarui");
+    } else {
+      await masterDataService.createDepartment(payload);
+      showToast("Department berhasil ditambahkan");
+    }
+    closeDeptModal();
+    await loadDepts();
+  } catch (e) {
+    showToast(e.message, "error");
+  } finally {
+    deptModal.saving = false;
+  }
+}
+
 // ── Delete ───────────────────────────────────────────────────────────────
 const deleteModal = reactive({ show: false, name: "", type: "", id: null, loading: false });
 
@@ -962,6 +1163,13 @@ function confirmDeleteUser(item) {
   deleteModal.show = true;
 }
 
+function confirmDeleteDept(item) {
+  deleteModal.type = "dept";
+  deleteModal.id = item.id;
+  deleteModal.name = item.name;
+  deleteModal.show = true;
+}
+
 async function executeDelete() {
   deleteModal.loading = true;
   try {
@@ -978,6 +1186,10 @@ async function executeDelete() {
       await masterDataService.deleteRole(deleteModal.id);
       showToast("Role berhasil dihapus");
       await loadRoles();
+    } else if (deleteModal.type === "dept") {
+      await masterDataService.deleteDepartment(deleteModal.id);
+      showToast("Department berhasil dihapus");
+      await loadDepts();
     } else {
       await masterDataService.deleteUser(deleteModal.id);
       showToast("User berhasil dihapus");
