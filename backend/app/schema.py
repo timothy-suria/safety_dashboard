@@ -31,6 +31,21 @@ def _get_current_user(info: strawberry.types.Info) -> Optional[models.User]:
     return user
 
 
+def _get_role_level(user: models.User) -> int:
+    """Return the role level for a user. Higher level = more restricted."""
+    if not user.role_id:
+        return 999
+    db = _get_db()
+    role = db.query(models.Role).filter(models.Role.id == user.role_id).first()
+    db.close()
+    return role.level if role else 999
+
+
+def _is_staff(user: models.User) -> bool:
+    """Staff (level 6) can only see their own business unit and plant."""
+    return _get_role_level(user) >= 6
+
+
 @strawberry.type
 class UserType:
     id: int
@@ -40,6 +55,8 @@ class UserType:
     full_name: Optional[str] = None
     username: Optional[str] = None
     role_id: Optional[int] = None
+    business_unit_id: Optional[int] = None
+    plant_id: Optional[int] = None
 
 
 @strawberry.type
@@ -283,7 +300,13 @@ class Query:
             return []
         db = _get_db()
         try:
-            records = db.query(models.InspectionK3L).order_by(models.InspectionK3L.created_at.desc()).all()
+            query = db.query(models.InspectionK3L)
+            if _is_staff(user):
+                query = query.filter(
+                    models.InspectionK3L.business_unit_id == user.business_unit_id,
+                    models.InspectionK3L.plant_id == user.plant_id,
+                )
+            records = query.order_by(models.InspectionK3L.created_at.desc()).all()
             return [_model_to_type(r) for r in records]
         finally:
             db.close()
@@ -297,6 +320,11 @@ class Query:
         try:
             record = db.query(models.InspectionK3L).filter(models.InspectionK3L.id == id).first()
             if not record:
+                return None
+            if _is_staff(user) and (
+                record.business_unit_id != user.business_unit_id
+                or record.plant_id != user.plant_id
+            ):
                 return None
             return _model_to_type(record)
         finally:
@@ -426,6 +454,8 @@ class Mutation:
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
+                    business_unit_id=user.business_unit_id,
+                    plant_id=user.plant_id,
                 ),
             )
         except Exception as e:
@@ -461,6 +491,8 @@ class Mutation:
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
+                    business_unit_id=user.business_unit_id,
+                    plant_id=user.plant_id,
                 ),
             )
         finally:
@@ -563,6 +595,12 @@ class Mutation:
             if not record:
                 return InspectionK3LPayload(success=False, message="Record not found")
 
+            if _is_staff(user) and (
+                record.business_unit_id != user.business_unit_id
+                or record.plant_id != user.plant_id
+            ):
+                return InspectionK3LPayload(success=False, message="Access denied")
+
             next_business_unit_id = business_unit_id if business_unit_id is not None else record.business_unit_id
             next_plant_id = plant_id if plant_id is not None else record.plant_id
             if next_business_unit_id is not None:
@@ -629,6 +667,12 @@ class Mutation:
             record = db.query(models.InspectionK3L).filter(models.InspectionK3L.id == id).first()
             if not record:
                 return InspectionK3LPayload(success=False, message="Record not found")
+
+            if _is_staff(user) and (
+                record.business_unit_id != user.business_unit_id
+                or record.plant_id != user.plant_id
+            ):
+                return InspectionK3LPayload(success=False, message="Access denied")
 
             # Collect all Cloudinary URLs before deleting the DB record
             photo_urls = []

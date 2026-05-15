@@ -365,36 +365,24 @@
                   </div>
                   <div class="form-row">
                     <div class="form-group form-group-fill">
-                      <label>Business Unit</label>
-                      <select
-                        v-model.number="form.businessUnitId"
-                        @change="onBusinessUnitChange"
-                      >
-                        <option :value="null">Pilih Business Unit</option>
-                        <option
-                          v-for="unit in businessUnits"
-                          :key="unit.id"
-                          :value="unit.id"
-                        >
-                          {{ unit.name }}
-                        </option>
-                      </select>
+                      <label>Business Unit <span class="field-auto-tag">Otomatis</span></label>
+                      <input
+                        type="text"
+                        :value="getBusinessUnitName(form.businessUnitId)"
+                        disabled
+                        class="field-auto"
+                        placeholder="-"
+                      />
                     </div>
                     <div class="form-group form-group-fill">
-                      <label>Plant</label>
-                      <select
-                        v-model.number="form.plantId"
-                        :disabled="!form.businessUnitId"
-                      >
-                        <option :value="null">Pilih Plant</option>
-                        <option
-                          v-for="plant in filteredPlants"
-                          :key="plant.id"
-                          :value="plant.id"
-                        >
-                          {{ plant.name }}
-                        </option>
-                      </select>
+                      <label>Plant <span class="field-auto-tag">Otomatis</span></label>
+                      <input
+                        type="text"
+                        :value="getPlantName(form.plantId)"
+                        disabled
+                        class="field-auto"
+                        placeholder="-"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1148,6 +1136,9 @@ import {
   uploadImage,
 } from '@/services/inspectionK3LService.js';
 import { exportToCsv } from '@/services/exportCsvService.js';
+import { authService } from '@/services/authService.js';
+
+const currentUser = authService.getCurrentUser();
 
 const route = useRoute();
 const router = useRouter();
@@ -1365,8 +1356,8 @@ const defaultForm = () => ({
   targetSelesai: '',
   status: 'Open',
   aktualClose: '',
-  businessUnitId: null,
-  plantId: null,
+  businessUnitId: currentUser?.businessUnitId ?? null,
+  plantId: currentUser?.plantId ?? null,
   departmentId: null,
 });
 
@@ -1424,9 +1415,6 @@ function cancelForm() {
   clearPhotosAfter();
 }
 
-function onBusinessUnitChange() {
-  form.value.plantId = null;
-}
 
 // ── Data loading ──
 async function loadData() {
@@ -2351,6 +2339,25 @@ onMounted(async () => {
   display: flex;
   gap: 12px;
   padding-top: 8px;
+}
+
+.field-auto-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: #64748b;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 5px;
+  vertical-align: middle;
+  letter-spacing: 0.2px;
+}
+
+.field-auto {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  border-color: #e2e8f0 !important;
 }
 
 /* ── Toast ── */
