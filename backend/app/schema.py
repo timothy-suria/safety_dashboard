@@ -104,6 +104,12 @@ class AuthPayload:
 
 
 @strawberry.type
+class GenericPayload:
+    success: bool
+    message: str
+
+
+@strawberry.type
 class BusinessUnitType:
     id: int
     name: str
@@ -495,6 +501,33 @@ class Mutation:
                     plant_id=user.plant_id,
                 ),
             )
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def change_password(self, info: strawberry.types.Info, current_password: str, new_password: str) -> GenericPayload:
+        user = _get_current_user(info)
+        if not user:
+            return GenericPayload(success=False, message="Authentication required")
+
+        if len(new_password) < 6:
+            return GenericPayload(success=False, message="Password must be at least 6 characters")
+
+        if not auth.verify_password(current_password, user.hashed_password):
+            return GenericPayload(success=False, message="Current password is incorrect")
+
+        db = _get_db()
+        try:
+            record = db.query(models.User).filter(models.User.id == user.id).first()
+            if not record:
+                return GenericPayload(success=False, message="User not found")
+
+            record.hashed_password = auth.hash_password(new_password)
+            db.commit()
+            return GenericPayload(success=True, message="Password berhasil diubah")
+        except Exception as e:
+            db.rollback()
+            return GenericPayload(success=False, message=f"Failed to update password: {str(e)}")
         finally:
             db.close()
 

@@ -6,6 +6,7 @@ import DashboardHome from "../dashboard/views/DashboardHome.vue";
 import SafetyModules from "../dashboard/views/SafetyModules.vue";
 import InspectionK3L from "../dashboard/views/InspectionK3L.vue";
 import MasterData from "../dashboard/views/MasterData.vue";
+import Settings from "../dashboard/views/Settings.vue";
 
 const routes = [
   { path: "/", redirect: "/login" },
@@ -19,9 +20,17 @@ const routes = [
       { path: "", name: "DashboardHome", component: DashboardHome },
       { path: "modules", name: "SafetyModules", component: SafetyModules },
       { path: "reports", redirect: "/dashboard/reports/inspection-k3l" },
-      { path: "reports/inspection-k3l", name: "InspectionK3L", component: InspectionK3L },
+      {
+        path: "reports/inspection-k3l",
+        name: "InspectionK3L",
+        component: InspectionK3L,
+      },
       { path: "master-data", name: "MasterData", component: MasterData },
-      { path: "settings", name: "Settings", component: { template: "<div style='padding:32px'><h2>Settings coming soon</h2></div>" } },
+      {
+        path: "settings",
+        name: "Settings",
+        component: Settings,
+      },
     ],
   },
 ];

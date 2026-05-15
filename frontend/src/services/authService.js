@@ -62,4 +62,20 @@ export const authService = {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   },
+
+  async changePassword(currentPassword, newPassword) {
+    const data = await gql(
+      `mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+        success
+        message
+      }
+    }`,
+      { currentPassword, newPassword },
+    );
+
+    const result = data.changePassword;
+    if (!result.success) throw new Error(result.message);
+    return result;
+  },
 };

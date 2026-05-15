@@ -1656,35 +1656,6 @@ onMounted(async () => {
 }
 
 /* ── Buttons ── */
-.btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    opacity 0.15s;
-}
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.btn-primary {
-  background: #3b82f6;
-  color: #fff;
-}
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-}
-.btn-secondary {
-  background: #e2e8f0;
-  color: #475569;
-}
-.btn-secondary:hover:not(:disabled) {
-  background: #cbd5e1;
-}
 .btn-delete-confirm {
   background: #ef4444;
   color: #fff;

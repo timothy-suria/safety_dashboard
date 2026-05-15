@@ -64,7 +64,7 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openBuForm()">
+        <button class="btn btn-primary" @click="openBuForm()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -149,7 +149,7 @@
             <option v-for="bu in buList" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
           </select>
         </div>
-        <button class="btn-primary" @click="openPlantForm()">
+        <button class="btn btn-primary" @click="openPlantForm()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -248,8 +248,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeBuModal" :disabled="buModal.saving">Batal</button>
-          <button class="btn-primary" @click="saveBu" :disabled="buModal.saving">
+          <button class="btn btn-secondary" @click="closeBuModal" :disabled="buModal.saving">Batal</button>
+          <button class="btn btn-primary" @click="saveBu" :disabled="buModal.saving">
             {{ buModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -296,8 +296,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closePlantModal" :disabled="plantModal.saving">Batal</button>
-          <button class="btn-primary" @click="savePlant" :disabled="plantModal.saving">
+          <button class="btn btn-secondary" @click="closePlantModal" :disabled="plantModal.saving">Batal</button>
+          <button class="btn btn-primary" @click="savePlant" :disabled="plantModal.saving">
             {{ plantModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -321,7 +321,7 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openUserForm()">
+        <button class="btn btn-primary" @click="openUserForm()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -406,7 +406,7 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openRoleForm()">
+        <button class="btn btn-primary" @click="openRoleForm()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -490,8 +490,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeRoleModal" :disabled="roleModal.saving">Batal</button>
-          <button class="btn-primary" @click="saveRole" :disabled="roleModal.saving">
+          <button class="btn btn-secondary" @click="closeRoleModal" :disabled="roleModal.saving">Batal</button>
+          <button class="btn btn-primary" @click="saveRole" :disabled="roleModal.saving">
             {{ roleModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -558,8 +558,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeUserModal" :disabled="userModal.saving">Batal</button>
-          <button class="btn-primary" @click="saveUser" :disabled="userModal.saving">
+          <button class="btn btn-secondary" @click="closeUserModal" :disabled="userModal.saving">Batal</button>
+          <button class="btn btn-primary" @click="saveUser" :disabled="userModal.saving">
             {{ userModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -705,7 +705,7 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="deleteModal.show = false" :disabled="deleteModal.loading">Batal</button>
+          <button class="btn btn-secondary" @click="deleteModal.show = false" :disabled="deleteModal.loading">Batal</button>
           <button class="btn-danger" @click="executeDelete" :disabled="deleteModal.loading">
             {{ deleteModal.loading ? 'Menghapus…' : 'Hapus' }}
           </button>
@@ -1454,39 +1454,26 @@ function formatDate(val) {
 .btn-delete { color: #ef4444; margin-left: 2px; }
 .btn-delete:hover { background: #fef2f2; }
 
-/* Primary / secondary / danger buttons */
+/* Primary / secondary / danger buttons (overrides on global .btn) */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #3b82f6;
-  color: #fff;
   font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
   white-space: nowrap;
 }
-.btn-primary:hover:not(:disabled) { background: #2563eb; }
-.btn-primary:disabled { opacity: 0.6; cursor: default; }
+.btn-primary:disabled { cursor: default; }
 .btn-icon { width: 16px; height: 16px; }
 
 .btn-secondary {
   padding: 8px 18px;
-  border-radius: 8px;
   border: 1px solid #e2e8f0;
   background: #fff;
   color: #374151;
-  font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
 }
 .btn-secondary:hover:not(:disabled) { background: #f8fafc; }
-.btn-secondary:disabled { opacity: 0.6; cursor: default; }
+.btn-secondary:disabled { cursor: default; }
 
 .btn-danger {
   padding: 8px 18px;
