@@ -287,11 +287,11 @@ function closeWatchModal() {
   font-size: 22px;
   font-weight: 700;
   color: #1e293b;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .page-header p {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748b;
   margin: 0;
 }

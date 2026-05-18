@@ -20,6 +20,39 @@
 
     <!-- Table -->
     <div v-else class="table-card">
+      <!-- Table header with title + export -->
+      <div class="table-header">
+        <h3>Data Laporan</h3>
+        <div class="table-header-actions">
+          <div class="export-dropdown-wrap" v-click-outside="() => showExportDropdown = false">
+            <button class="btn btn-sm btn-export" @click="showExportDropdown = !showExportDropdown" title="Pilih format export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div v-if="showExportDropdown" class="export-dropdown-menu">
+              <button class="export-dropdown-item" @click="exportCsvAll(); showExportDropdown = false" :disabled="filteredRecords.length === 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <div>
+                  <div class="export-item-label">CSV (Semua Data)</div>
+                  <div class="export-item-desc">Export data yang tampil saat ini</div>
+                </div>
+              </button>
+              <button class="export-dropdown-item" @click="showHseExportModal = true; showExportDropdown = false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div>
+                  <div class="export-item-label">Laporan Bulanan</div>
+                  <div class="export-item-desc">Export CSV atau PDF per bulan</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Date filter row -->
       <div class="date-filter-row">
         <button v-for="opt in DATE_PRESETS" :key="opt.value" class="date-chip" :class="{ active: filterDate === opt.value }" @click="setDatePreset(opt.value)">{{ opt.label }}</button>
@@ -414,6 +447,50 @@
         </div>
       </div>
     </div>
+    <!-- Modal: Export Bulanan HSE -->
+    <div v-if="showHseExportModal" class="modal-overlay" @mousedown.self="showHseExportModal = false">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h3 class="modal-title">Export Data Bulanan</h3>
+          <button class="modal-close" @click="showHseExportModal = false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Pilih bulan dan tahun untuk export data HSE Daily Report.</p>
+          <div class="export-month-row">
+            <div class="export-field">
+              <label class="export-label">Bulan</label>
+              <select v-model="hseExportMonth" class="export-select">
+                <option v-for="(name,idx) in MONTH_NAMES" :key="idx+1" :value="idx+1">{{ name }}</option>
+              </select>
+            </div>
+            <div class="export-field">
+              <label class="export-label">Tahun</label>
+              <select v-model="hseExportYear" class="export-select">
+                <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="export-preview-text">
+            Export data bulan <strong>{{ MONTH_NAMES[hseExportMonth-1] }} {{ hseExportYear }}</strong>
+          </div>
+        </div>
+        <div class="modal-footer-bar">
+          <button class="btn-secondary" @click="showHseExportModal = false">Batal</button>
+          <div class="export-btn-group">
+            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file CSV">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              CSV
+            </button>
+            <button class="btn btn-export-pdf" @click="downloadMonthlyPDF" :disabled="pdfGenerating" title="Download sebagai file PDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              {{ pdfGenerating ? 'Generating...' : 'PDF' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -423,6 +500,17 @@ import { authService } from '@/services/authService.js';
 import { hseDailyService, uploadImage } from '@/services/hseDailyService.js';
 import { usePagination } from '@/composables/usePagination.js';
 import PaginationBar from '@/components/PaginationBar.vue';
+import { exportToCsv } from '@/services/exportCsvService.js';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutsideHandler = (e) => { if (!el.contains(e.target)) binding.value(e); };
+    document.addEventListener('mousedown', el._clickOutsideHandler);
+  },
+  unmounted(el) { document.removeEventListener('mousedown', el._clickOutsideHandler); },
+};
 
 const JENIS_OPTIONS = [
   'Ketinggian',
@@ -785,43 +873,225 @@ async function doDelete() {
     submitting.value = false;
   }
 }
+
+// ── Export ─────────────────────────────────────────────────────────────────
+const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const showExportDropdown = ref(false);
+const showHseExportModal = ref(false);
+const hseExportMonth = ref(new Date().getMonth() + 1);
+const hseExportYear = ref(new Date().getFullYear());
+const pdfGenerating = ref(false);
+
+const yearOptions = computed(() => {
+  const yr = new Date().getFullYear();
+  return Array.from({ length: 5 }, (_, i) => yr - i);
+});
+
+const CSV_COLUMNS = [
+  { label: 'No',               key: 'no' },
+  { label: 'Tanggal',          key: 'tanggal' },
+  { label: 'Lokasi Pekerjaan', key: 'lokasiPekerjaan' },
+  { label: 'Jenis Pekerjaan',  key: 'jenisPekerjaan' },
+  { label: 'Level Risiko',     key: 'levelRisiko' },
+  { label: 'Pengawas HSE',     key: 'pengawasHse' },
+  { label: 'Permit',           key: 'statusPermit' },
+  { label: 'Pekerjaan',        key: 'pekerjaan' },
+  { label: 'Potensi Bahaya',   key: 'potensiBahaya' },
+  { label: 'Pengendalian',     key: 'pengendalianBahaya' },
+  { label: 'Saran/Masukan',    key: 'saranMasukan' },
+];
+
+function recordsToCsvRows(rows) {
+  return rows.map((r, i) => ({
+    no: i + 1,
+    tanggal: r.tanggal || '',
+    lokasiPekerjaan: r.lokasiPekerjaan || '',
+    jenisPekerjaan: displayJenis(r),
+    levelRisiko: r.levelRisiko || '',
+    pengawasHse: r.pengawasHse || '',
+    statusPermit: r.statusPermit ? 'Ada' : 'Tidak',
+    pekerjaan: parseBullets(r.pekerjaan).join(' | '),
+    potensiBahaya: parseBullets(r.potensiBahaya).join(' | '),
+    pengendalianBahaya: parseBullets(r.pengendalianBahaya).join(' | '),
+    saranMasukan: parseBullets(r.saranMasukan).join(' | '),
+  }));
+}
+
+function exportCsvAll() {
+  const today = new Date().toISOString().slice(0, 10);
+  exportToCsv(`hse-daily-${today}.csv`, CSV_COLUMNS, recordsToCsvRows(filteredRecords.value));
+}
+
+function exportMonthlyCSV() {
+  const m = hseExportMonth.value;
+  const y = hseExportYear.value;
+  const rows = records.value.filter(r => {
+    if (!r.tanggal) return false;
+    const d = new Date(r.tanggal);
+    return d.getFullYear() === y && d.getMonth() + 1 === m;
+  });
+  if (!rows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
+  exportToCsv(`hse-daily-${y}-${String(m).padStart(2,'0')}.csv`, CSV_COLUMNS, recordsToCsvRows(rows));
+  showHseExportModal.value = false;
+}
+
+async function downloadMonthlyPDF() {
+  const m = hseExportMonth.value;
+  const y = hseExportYear.value;
+  const monthRows = records.value.filter(r => {
+    if (!r.tanggal) return false;
+    const d = new Date(r.tanggal);
+    return d.getFullYear() === y && d.getMonth() + 1 === m;
+  });
+  if (!monthRows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
+
+  pdfGenerating.value = true;
+  await nextTick();
+  try {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const dark = [30, 41, 59];
+
+    // Header
+    doc.setFillColor(30, 41, 59);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('HSE DAILY REPORT', pageW / 2, 10, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`PT Charoen Pokphand Indonesia  |  Periode: ${MONTH_NAMES[m-1]} ${y}`, pageW / 2, 17, { align: 'center' });
+
+    // Summary stats
+    const total    = monthRows.length;
+    const rendah   = monthRows.filter(r => r.levelRisiko === 'Rendah').length;
+    const sedang   = monthRows.filter(r => r.levelRisiko === 'Sedang').length;
+    const tinggi   = monthRows.filter(r => r.levelRisiko === 'Tinggi').length;
+    const withPermit = monthRows.filter(r => r.statusPermit).length;
+
+    const stats = [
+      { label: 'Total Laporan', value: total },
+      { label: 'Risiko Rendah', value: rendah },
+      { label: 'Risiko Sedang', value: sedang },
+      { label: 'Risiko Tinggi', value: tinggi },
+      { label: 'Dengan Permit', value: withPermit },
+    ];
+    const boxW = (pageW - 28) / stats.length;
+    let bx = 14;
+    stats.forEach(s => {
+      doc.setFillColor(241, 245, 249);
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(bx, 26, boxW - 2, 14, 2, 2, 'FD');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(...dark);
+      doc.text(String(s.value), bx + (boxW - 2) / 2, 31, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text(s.label, bx + (boxW - 2) / 2, 36.5, { align: 'center' });
+      bx += boxW;
+    });
+
+    // Main data table
+    const tableRows = monthRows.map((r, i) => [
+      i + 1,
+      r.tanggal || '',
+      r.lokasiPekerjaan || '-',
+      displayJenis(r),
+      r.levelRisiko || '-',
+      r.pengawasHse || '-',
+      r.statusPermit ? 'Ada' : 'Tidak',
+      parseBullets(r.pekerjaan).join('\n'),
+      parseBullets(r.potensiBahaya).join('\n'),
+      parseBullets(r.pengendalianBahaya).join('\n'),
+    ]);
+
+    autoTable(doc, {
+      startY: 44,
+      head: [['No','Tanggal','Lokasi','Jenis Pekerjaan','Level Risiko','Pengawas HSE','Permit','Pekerjaan','Potensi Bahaya','Pengendalian']],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [30,41,59], textColor: 255, fontSize: 7.5, fontStyle: 'bold', halign: 'center' },
+      bodyStyles: { fontSize: 7.5, textColor: dark, valign: 'top' },
+      columnStyles: {
+        0: { cellWidth: 8,  halign: 'center' },
+        1: { cellWidth: 20, halign: 'center' },
+        2: { cellWidth: 28 },
+        3: { cellWidth: 28 },
+        4: { cellWidth: 20, halign: 'center' },
+        5: { cellWidth: 28 },
+        6: { cellWidth: 15, halign: 'center' },
+        7: { cellWidth: 42 },
+        8: { cellWidth: 42 },
+        9: { cellWidth: 42 },
+      },
+      margin: { left: 14, right: 14 },
+      didParseCell(data) {
+        if (data.section === 'body' && data.column.index === 4) {
+          const v = data.cell.raw;
+          if (v === 'Rendah') data.cell.styles.textColor = [22, 163, 74];
+          else if (v === 'Sedang') data.cell.styles.textColor = [217, 119, 6];
+          else if (v === 'Tinggi') data.cell.styles.textColor = [220, 38, 38];
+        }
+      },
+    });
+
+    // Breakdown per Risiko
+    const risikoY = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(...dark);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BREAKDOWN PER LEVEL RISIKO', 14, risikoY);
+
+    const risikoRows = ['Rendah','Sedang','Tinggi'].map(lv => {
+      const rows = monthRows.filter(r => r.levelRisiko === lv);
+      const withP = rows.filter(r => r.statusPermit).length;
+      const pct = rows.length > 0 ? `${Math.round((withP / rows.length) * 100)}%` : '-';
+      return [lv, rows.length, withP, rows.length - withP, pct];
+    });
+
+    autoTable(doc, {
+      startY: risikoY + 3,
+      head: [['Level Risiko','Jumlah','Dengan Permit','Tanpa Permit','% Permit']],
+      body: risikoRows,
+      theme: 'striped',
+      headStyles: { fillColor: [71,85,105], textColor: 255, fontSize: 8, fontStyle: 'bold', halign: 'center' },
+      bodyStyles: { fontSize: 9, halign: 'center' },
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+
+    doc.save(`hse-daily-${y}-${String(m).padStart(2,'0')}.pdf`);
+    showHseExportModal.value = false;
+  } finally {
+    pdfGenerating.value = false;
+  }
+}
 </script>
 
 <style scoped>
-.page { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+/* Page */
+.page { padding: var(--sp-8) var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-5); }
 .page-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .page-title { font-size: 22px; font-weight: 700; color: #1e293b; margin: 0 0 4px; }
-.page-sub { font-size: 13px; color: #94a3b8; margin: 0; }
+.page-sub { font-size: 13px; color: #64748b; margin: 0; }
 
-.btn-primary { background: #3b82f6; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-.btn-primary:hover { background: #2563eb; }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 500; cursor: pointer; }
-.btn-secondary:hover { background: #e2e8f0; }
-.btn-danger { background: #ef4444; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.btn-danger:hover { background: #dc2626; }
-.btn-danger:disabled { opacity: 0.6; }
-
-.empty-state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 80px 20px; color: #94a3b8; }
-.empty-state svg { width: 56px; height: 56px; }
-.empty-state p { font-size: 15px; margin: 0; }
-
-.table-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+/* Table */
 .table-card table { min-width: 800px; }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .loading { padding: 40px; text-align: center; color: #94a3b8; }
-.table-toolbar { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+.table-toolbar { padding: 12px 20px; }
 .search-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 10px; flex: 1; min-width: 200px; }
 .search-box svg { width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0; }
 .search-box input { border: none; background: transparent; font-size: 13px; color: #1e293b; outline: none; flex: 1; padding: 8px 0; }
 .search-box input::placeholder { color: #94a3b8; }
 .search-clear { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; padding: 0; line-height: 1; }
 .search-clear:hover { color: #64748b; }
-.toolbar-select { border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; color: #374151; font-size: 13px; padding: 8px 10px; outline: none; cursor: pointer; }
-.toolbar-select:focus { border-color: #3b82f6; }
 .btn-reset-filter { background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 8px; font-size: 12px; padding: 7px 12px; cursor: pointer; white-space: nowrap; }
 .btn-reset-filter:hover { background: #fee2e2; }
-.date-filter-row { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+.date-filter-row { padding: 10px 20px; }
 .date-chip { background: #f1f5f9; border: 1px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .date-chip:hover { background: #e2e8f0; color: #1e293b; }
 .date-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
@@ -830,48 +1100,30 @@ async function doDelete() {
 .toolbar-date { border: none; background: transparent; color: #1e293b; font-size: 13px; padding: 6px 10px; outline: none; cursor: pointer; color-scheme: light; width: 140px; }
 .date-sep { color: #94a3b8; font-size: 13px; }
 .no-results { text-align: center; padding: 32px; color: #94a3b8; font-size: 14px; }
-table { width: 100%; border-collapse: collapse; }
-thead { background: #f8fafc; }
-th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
-td { padding: 13px 16px; font-size: 14px; color: #374151; border-bottom: 1px solid #f1f5f9; }
+th { text-transform: uppercase; letter-spacing: 0.04em; }
 .row-clickable { cursor: pointer; transition: background 0.1s; }
-.row-clickable:hover { background: #f8fafc; }
 .col-pekerjaan { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.badge-risiko { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: 600; }
+.badge-risiko { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .badge-risiko.rendah { background: #d1fae5; color: #065f46; }
 .badge-risiko.sedang { background: #fef3c7; color: #92400e; }
 .badge-risiko.tinggi { background: #fee2e2; color: #991b1b; }
 
-.badge-permit { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: 600; }
+.badge-permit { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .badge-permit.ada { background: #dbeafe; color: #1d4ed8; }
 .badge-permit.tidak { background: #f1f5f9; color: #64748b; }
 
 .col-actions { display: flex; gap: 6px; }
-.btn-icon { width: 30px; height: 30px; border: none; border-radius: 6px; background: #f1f5f9; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-.btn-icon svg { width: 14px; height: 14px; }
-.btn-icon:hover { background: #e2e8f0; }
-.btn-icon.danger:hover { background: #fee2e2; color: #dc2626; }
-
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.modal { background: #fff; border-radius: 14px; width: 100%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
-.modal-sm { max-width: 400px; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
-.modal-header h2 { font-size: 17px; font-weight: 700; color: #1e293b; margin: 0; }
-.btn-close { background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 0 4px; }
-.btn-close:hover { color: #475569; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #e5e7eb; }
 
 /* Form */
 .modal-form { display: flex; flex-direction: column; overflow: hidden; }
-.form-scroll { padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.form-scroll { padding: var(--sp-5) var(--sp-6); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
 .form-section-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; margin-top: 4px; }
 .form-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
-.form-group input, .form-group select { border: 1px solid #d1d5db; border-radius: 7px; padding: 8px 11px; font-size: 14px; color: #1e293b; background: #fff; outline: none; transition: border-color 0.15s; }
-.form-group input:focus, .form-group select:focus { border-color: #3b82f6; }
+.form-group input, .form-group select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 14px; color: #1e293b; background: #fff; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.form-group input:focus, .form-group select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); }
 .field-auto { background: #f1f5f9 !important; color: #64748b !important; cursor: not-allowed !important; border-color: #e2e8f0 !important; }
 .field-auto-tag { font-size: 10px; font-weight: 600; color: #fff; background: #64748b; border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: middle; }
 .req { color: #ef4444; }
@@ -897,8 +1149,8 @@ td { padding: 13px 16px; font-size: 14px; color: #374151; border-bottom: 1px sol
 .bullet-list { display: flex; flex-direction: column; gap: 6px; }
 .bullet-row { display: flex; align-items: center; gap: 8px; }
 .bullet-dot { font-weight: 700; color: #64748b; min-width: 20px; text-align: right; flex-shrink: 0; }
-.bullet-row input { flex: 1; border: 1px solid #d1d5db; border-radius: 7px; padding: 7px 10px; font-size: 14px; outline: none; }
-.bullet-row input:focus { border-color: #3b82f6; }
+.bullet-row input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.bullet-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12); }
 .btn-remove-bullet { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; padding: 4px; border-radius: 4px; line-height: 1; }
 .btn-remove-bullet:hover { color: #ef4444; background: #fee2e2; }
 .btn-remove-bullet:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -960,4 +1212,49 @@ td { padding: 13px 16px; font-size: 14px; color: #374151; border-bottom: 1px sol
 
 /* Delete modal */
 .delete-msg { padding: 16px 24px 0; font-size: 14px; color: #374151; margin: 0; }
+
+/* Export button (green tint, unique to this page) */
+.btn-export {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
+  border-radius: var(--r-sm); padding: 7px 12px; font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s;
+}
+.btn-export:hover { background: #dcfce7; border-color: #86efac; }
+.modal-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+.modal-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 6px; border: none;
+  background: transparent; color: #94a3b8; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: #f1f5f9; color: #1e293b; }
+.export-preview-text {
+  margin-top: 4px; font-size: 13px; color: #374151;
+  background: #f0f9ff; border: 1px solid #bae6fd;
+  border-radius: var(--r-md); padding: 9px 14px;
+}
+.modal-footer-bar {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px; padding: 14px 24px 18px;
+  border-top: 1px solid #e2e8f0; background: #f8fafc;
+  border-radius: 0 0 14px 14px; flex-shrink: 0;
+}
+.export-btn-group { display: flex; gap: 8px; }
+.btn-export-csv {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; background: #f0fdf4; color: #15803d;
+  border: 1.5px solid #86efac; border-radius: 7px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.btn-export-csv:hover { background: #dcfce7; border-color: #4ade80; }
+.btn-export-pdf {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; background: #7c3aed; color: #fff;
+  border: 1.5px solid #7c3aed; border-radius: 7px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-export-pdf:hover:not(:disabled) { background: #6d28d9; border-color: #6d28d9; }
+.btn-export-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Modal body */
 </style>

@@ -730,8 +730,8 @@ onMounted(async () => {
 
 .dash-header h2 {
   font-size: 22px;
-  font-weight: 800;
-  color: #0f172a;
+  font-weight: 700;
+  color: #1e293b;
   margin: 0 0 4px;
 }
 

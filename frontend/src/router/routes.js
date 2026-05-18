@@ -32,7 +32,7 @@ const routes = [
         name: "HseDailyReport",
         component: HseDailyReport,
       },
-      { path: "master-data", name: "MasterData", component: MasterData },
+{ path: "master-data", name: "MasterData", component: MasterData },
       {
         path: "settings",
         name: "Settings",

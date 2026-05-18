@@ -79,19 +79,20 @@ function cancel() {
 .form-input {
   width: 100%;
   padding: 9px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 14px;
   color: #1e293b;
   background-color: #fff;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
 .form-input:focus {
   border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .form-error {

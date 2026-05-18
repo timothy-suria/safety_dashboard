@@ -9,7 +9,7 @@
 
     <!-- Action bar -->
     <div class="action-bar">
-      <button class="btn btn-primary" @click="showForm = true">
+      <button class="btn-primary" @click="showForm = true">
         + Tambah Temuan
       </button>
     </div>
@@ -453,7 +453,7 @@
                 <div class="form-actions">
                   <button
                     type="submit"
-                    class="btn btn-primary"
+                    class="btn-primary"
                     :disabled="submitting"
                   >
                     {{
@@ -466,7 +466,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-secondary"
+                    class="btn-secondary"
                     @click="tryCloseForm"
                   >
                     Batal
@@ -838,7 +838,7 @@
                   {{ deleting ? 'Menghapus...' : 'Ya, Hapus' }}
                 </button>
                 <button
-                  class="btn btn-secondary"
+                  class="btn-secondary"
                   @click="showDeleteModal = false"
                   :disabled="deleting"
                 >
@@ -868,7 +868,7 @@
               <p class="discard-desc">Anda memiliki data yang belum disimpan. Apakah yakin ingin menutup form ini?</p>
             </div>
             <div class="discard-footer">
-              <button class="btn btn-secondary" @click="showDiscardConfirm = false">Kembali</button>
+              <button class="btn-secondary" @click="showDiscardConfirm = false">Kembali</button>
               <button class="btn btn-discard-confirm" @click="forceCloseForm">Ya, Batalkan</button>
             </div>
           </div>
@@ -891,25 +891,44 @@
       <div class="table-header">
         <h3>Data Temuan</h3>
         <div class="table-header-actions">
-          <button
-            class="btn btn-sm btn-export"
-            @click="exportCsv"
-            :disabled="filteredRecords.length === 0"
-            title="Export semua data ke CSV"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              width="14"
-              height="14"
+          <div class="export-dropdown-wrap" v-click-outside="() => showExportDropdown = false">
+            <button
+              class="btn btn-sm btn-export"
+              @click="showExportDropdown = !showExportDropdown"
+              title="Pilih format export"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Export CSV
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Export
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div v-if="showExportDropdown" class="export-dropdown-menu">
+              <button class="export-dropdown-item" @click="exportCsv(); showExportDropdown = false" :disabled="filteredRecords.length === 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <div>
+                  <div class="export-item-label">CSV (Semua Data)</div>
+                  <div class="export-item-desc">Export data yang tampil saat ini</div>
+                </div>
+              </button>
+              <button class="export-dropdown-item" @click="showExportModal = true; showExportDropdown = false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div>
+                  <div class="export-item-label">Laporan Bulanan</div>
+                  <div class="export-item-desc">Export CSV atau PDF per bulan</div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <button
+            class="btn btn-sm btn-summary"
+            @click="openSummaryModal"
+            title="Lihat ringkasan statistik bulanan"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Ringkasan
           </button>
           <button class="btn btn-sm" @click="loadData" :disabled="loading">
             {{ loading ? 'Loading...' : 'Refresh' }}
@@ -1152,11 +1171,126 @@
         </div>
       </div>
     </div>
+
+    <!-- ── Modal: Export Bulanan (Option 1 + PDF) ──────────────────────── -->
+    <div v-if="showExportModal" class="modal-overlay" @click.self="showExportModal = false">
+      <div class="modal-container modal-export-monthly">
+        <div class="modal-header">
+          <h3 class="modal-title">Export Data Bulanan</h3>
+          <button class="modal-close" @click="showExportModal = false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Pilih bulan dan tahun untuk mengexport data Inspection K3L.</p>
+          <div class="export-month-row">
+            <div class="export-field">
+              <label class="export-label">Bulan</label>
+              <select v-model="exportMonth" class="export-select">
+                <option v-for="(name, idx) in MONTH_NAMES" :key="idx+1" :value="idx+1">{{ name }}</option>
+              </select>
+            </div>
+            <div class="export-field">
+              <label class="export-label">Tahun</label>
+              <select v-model="exportYear" class="export-select">
+                <option v-for="y in Array.from({length:5},(_,i)=>new Date().getFullYear()-i)" :key="y" :value="y">{{ y }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="export-preview-text">
+            Export data bulan <strong>{{ MONTH_NAMES[exportMonth-1] }} {{ exportYear }}</strong>
+          </div>
+        </div>
+        <div class="modal-footer-bar">
+          <button class="btn-secondary" @click="showExportModal = false">Batal</button>
+          <div class="export-btn-group">
+            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file CSV">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              CSV
+            </button>
+            <button class="btn btn-export-pdf" @click="downloadMonthlyPDF(exportMonth, exportYear, true)" :disabled="pdfGenerating" title="Download sebagai file PDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              {{ pdfGenerating ? 'Generating...' : 'PDF' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal: Ringkasan Bulanan (Option 2) ──────────────────────────── -->
+    <div v-if="showSummaryModal" class="modal-overlay" @click.self="showSummaryModal = false">
+      <div class="modal-container modal-summary">
+        <div class="modal-header">
+          <h3 class="modal-title">Ringkasan Bulanan — Inspection K3L</h3>
+          <button class="modal-close" @click="showSummaryModal = false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Month/year selector -->
+          <div class="summary-month-row">
+            <select v-model="summaryMonth" class="export-select" @change="renderSummaryCharts">
+              <option v-for="(name, idx) in MONTH_NAMES" :key="idx+1" :value="idx+1">{{ name }}</option>
+            </select>
+            <select v-model="summaryYear" class="export-select" @change="renderSummaryCharts">
+              <option v-for="y in Array.from({length:5},(_,i)=>new Date().getFullYear()-i)" :key="y" :value="y">{{ y }}</option>
+            </select>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="kpi-row">
+            <div class="kpi-card kpi-total">
+              <span class="kpi-value">{{ summaryData.total }}</span>
+              <span class="kpi-label">Total</span>
+            </div>
+            <div class="kpi-card kpi-open">
+              <span class="kpi-value">{{ summaryData.open }}</span>
+              <span class="kpi-label">Open</span>
+            </div>
+            <div class="kpi-card kpi-inprogress">
+              <span class="kpi-value">{{ summaryData.inProgress }}</span>
+              <span class="kpi-label">In Progress</span>
+            </div>
+            <div class="kpi-card kpi-closed">
+              <span class="kpi-value">{{ summaryData.closed }}</span>
+              <span class="kpi-label">Closed</span>
+            </div>
+            <div class="kpi-card kpi-overdue">
+              <span class="kpi-value">{{ summaryData.overdue }}</span>
+              <span class="kpi-label">Overdue</span>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div v-if="summaryData.total > 0" class="charts-row">
+            <div class="chart-wrap">
+              <h4 class="chart-title">Temuan per Kategori</h4>
+              <canvas ref="summaryChartKategoriRef" height="200"></canvas>
+            </div>
+            <div class="chart-wrap">
+              <h4 class="chart-title">Distribusi Status</h4>
+              <canvas ref="summaryChartStatusRef" height="200"></canvas>
+            </div>
+          </div>
+          <div v-else class="empty-state">
+            <p>Tidak ada data untuk {{ MONTH_NAMES[summaryMonth-1] }} {{ summaryYear }}.</p>
+          </div>
+        </div>
+        <div class="modal-footer-bar">
+          <button class="btn-secondary" @click="showSummaryModal = false">Tutup</button>
+          <button class="btn btn-export-pdf" @click="downloadMonthlyPDF(summaryMonth, summaryYear, false)" :disabled="pdfGenerating">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{ pdfGenerating ? 'Generating...' : 'Download PDF' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   inspectionK3LService,
@@ -1166,6 +1300,17 @@ import { exportToCsv } from '@/services/exportCsvService.js';
 import { authService } from '@/services/authService.js';
 import { usePagination } from '@/composables/usePagination.js';
 import PaginationBar from '@/components/PaginationBar.vue';
+import Chart from 'chart.js/auto';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutsideHandler = (e) => { if (!el.contains(e.target)) binding.value(e); };
+    document.addEventListener('mousedown', el._clickOutsideHandler);
+  },
+  unmounted(el) { document.removeEventListener('mousedown', el._clickOutsideHandler); },
+};
 
 const currentUser = authService.getCurrentUser();
 
@@ -1697,6 +1842,402 @@ function exportCsv() {
   exportToCsv(`inspection-k3l-${today}.csv`, columns, rows);
 }
 
+// ── Monthly Export (Option 1) ──────────────────────────────────────────────
+const showExportModal = ref(false);
+const showExportDropdown = ref(false);
+const exportMonth = ref(new Date().getMonth() + 1);
+const exportYear = ref(new Date().getFullYear());
+
+const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function exportMonthlyCSV() {
+  const m = Number(exportMonth.value);
+  const y = Number(exportYear.value);
+  const rows = records.value.filter((r) => {
+    if (!r.tanggal) return false;
+    const d = new Date(r.tanggal);
+    return d.getMonth() + 1 === m && d.getFullYear() === y;
+  });
+  if (!rows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
+  const columns = [
+    { label: 'No', key: 'no' },
+    { label: 'Tanggal', key: 'tanggal' },
+    { label: 'Kategori Temuan', key: 'kategoriTemuan' },
+    { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
+    { label: 'Lokasi', key: 'lokasi' },
+    { label: 'Tindakan Perbaikan', key: 'tindakanPerbaikan' },
+    { label: 'Target Selesai', key: 'targetSelesai' },
+    { label: 'Status', key: 'status' },
+    { label: 'Aktual Close', key: 'aktualClose' },
+  ];
+  const mapped = rows.map((r, i) => ({ no: i + 1, tanggal: r.tanggal || '', kategoriTemuan: r.kategoriTemuan || '', deskripsiTemuan: r.deskripsiTemuan || '', lokasi: r.lokasi || '', tindakanPerbaikan: r.tindakanPerbaikan || '', targetSelesai: r.targetSelesai || '', status: r.status || '', aktualClose: r.aktualClose || '' }));
+  exportToCsv(`inspection-k3l-${y}-${String(m).padStart(2,'0')}.csv`, columns, mapped);
+  showExportModal.value = false;
+}
+
+// ── Monthly Summary (Option 2) ─────────────────────────────────────────────
+const showSummaryModal = ref(false);
+const summaryMonth = ref(new Date().getMonth() + 1);
+const summaryYear = ref(new Date().getFullYear());
+const summaryChartKategoriRef = ref(null);
+const summaryChartStatusRef = ref(null);
+let chartKategori = null;
+let chartStatus = null;
+
+const summaryData = computed(() => {
+  const m = Number(summaryMonth.value);
+  const y = Number(summaryYear.value);
+  const rows = records.value.filter((r) => {
+    if (!r.tanggal) return false;
+    const d = new Date(r.tanggal);
+    return d.getMonth() + 1 === m && d.getFullYear() === y;
+  });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const overdue = rows.filter((r) => r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < today).length;
+  const byKategori = { Low: 0, Medium: 0, High: 0 };
+  const byStatus = { Open: 0, 'In Progress': 0, Closed: 0 };
+  rows.forEach((r) => {
+    if (r.kategoriTemuan in byKategori) byKategori[r.kategoriTemuan]++;
+    if (r.status in byStatus) byStatus[r.status]++;
+    else byStatus[r.status] = (byStatus[r.status] || 0) + 1;
+  });
+  return { total: rows.length, open: byStatus['Open'] || 0, inProgress: byStatus['In Progress'] || 0, closed: byStatus['Closed'] || 0, overdue, byKategori, byStatus, rows };
+});
+
+function destroyCharts() {
+  if (chartKategori) { chartKategori.destroy(); chartKategori = null; }
+  if (chartStatus) { chartStatus.destroy(); chartStatus = null; }
+}
+
+async function openSummaryModal() {
+  showSummaryModal.value = true;
+  await nextTick();
+  renderSummaryCharts();
+}
+
+function renderSummaryCharts() {
+  destroyCharts();
+  const sd = summaryData.value;
+  if (summaryChartKategoriRef.value) {
+    chartKategori = new Chart(summaryChartKategoriRef.value, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(sd.byKategori),
+        datasets: [{ label: 'Jumlah Temuan', data: Object.values(sd.byKategori), backgroundColor: ['#22c55e','#f59e0b','#ef4444'], borderRadius: 6, borderSkipped: false }],
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } },
+    });
+  }
+  if (summaryChartStatusRef.value) {
+    chartStatus = new Chart(summaryChartStatusRef.value, {
+      type: 'doughnut',
+      data: {
+        labels: ['Open','In Progress','Closed'],
+        datasets: [{ data: [sd.byStatus['Open']||0, sd.byStatus['In Progress']||0, sd.byStatus['Closed']||0], backgroundColor: ['#ef4444','#f59e0b','#22c55e'], hoverOffset: 6 }],
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+    });
+  }
+}
+
+watch([summaryMonth, summaryYear], async () => {
+  if (showSummaryModal.value) { await nextTick(); renderSummaryCharts(); }
+});
+
+// ── Download Monthly PDF (Option 3) ────────────────────────────────────────
+const pdfGenerating = ref(false);
+
+async function downloadMonthlyPDF(month, year, closeModal = false) {
+  pdfGenerating.value = true;
+  try {
+    const m = Number(month);
+    const y = Number(year);
+    const monthRows = records.value.filter((r) => {
+      if (!r.tanggal) return false;
+      const d = new Date(r.tanggal);
+      return d.getMonth() + 1 === m && d.getFullYear() === y;
+    }).sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+    const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+    const fmtDate = (v) => { if (!v) return '-'; const d = new Date(v); return isNaN(d) ? v : d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }); };
+
+    const total = monthRows.length;
+    const open = monthRows.filter(r => r.status === 'Open').length;
+    const inProg = monthRows.filter(r => r.status === 'In Progress').length;
+    const closed = monthRows.filter(r => r.status === 'Closed').length;
+    const overdue = monthRows.filter(r => r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < todayDate).length;
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+
+    // Header bar
+    doc.setFillColor(30, 58, 95);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LAPORAN BULANAN INSPEKSI K3L', pageW / 2, 10, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`PT Charoen Pokphand Indonesia  |  Periode: ${MONTH_NAMES[m-1]} ${y}`, pageW / 2, 17, { align: 'center' });
+
+    // Generated date
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(8);
+    const genDate = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    doc.text(`Dibuat: ${genDate}`, pageW - 14, 27, { align: 'right' });
+
+    // KPI summary table
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RINGKASAN EKSEKUTIF', 14, 34);
+
+    autoTable(doc, {
+      startY: 37,
+      head: [['Total Temuan', 'Open', 'In Progress', 'Closed', 'Overdue', 'Close Rate']],
+      body: [[total, open, inProg, closed, overdue, `${total > 0 ? Math.round((closed/total)*100) : 0}%`]],
+      theme: 'grid',
+      headStyles: { fillColor: [30, 58, 95], textColor: 255, fontStyle: 'bold', fontSize: 9, halign: 'center' },
+      bodyStyles: { fontSize: 11, fontStyle: 'bold', halign: 'center' },
+      columnStyles: {
+        0: { cellWidth: 35 },
+        1: { textColor: [220, 38, 38] },
+        2: { textColor: [217, 119, 6] },
+        3: { textColor: [22, 163, 74] },
+        4: { textColor: [147, 51, 234] },
+        5: { textColor: [2, 132, 199] },
+      },
+      margin: { left: 14, right: 14 },
+    });
+
+    // Breakdown by kategori
+    const breakdownY = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BREAKDOWN PER KATEGORI', 14, breakdownY);
+
+    const breakdownRows = ['Low', 'Medium', 'High'].map(k => {
+      const rows = monthRows.filter(r => r.kategoriTemuan === k);
+      const closed = rows.filter(r=>r.status==='Closed').length;
+      const pct = rows.length > 0 ? `${Math.round((closed/rows.length)*100)}%` : '-';
+      return [k, rows.length, rows.filter(r=>r.status==='Open').length, rows.filter(r=>r.status==='In Progress').length, closed, pct];
+    });
+
+    autoTable(doc, {
+      startY: breakdownY + 3,
+      head: [['Kategori', 'Jumlah', 'Open', 'In Progress', 'Closed', '% Close']],
+      body: breakdownRows,
+      theme: 'striped',
+      headStyles: { fillColor: [71, 85, 105], textColor: 255, fontSize: 8, fontStyle: 'bold', halign: 'center' },
+      bodyStyles: { fontSize: 9, halign: 'center' },
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
+      margin: { left: 14, right: 14 },
+    });
+
+    // Breakdown by department — multi-level header matching reference table
+    const deptBreakdownY = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BREAKDOWN PER DEPARTEMEN', 14, deptBreakdownY);
+
+    const allDepts = departments.value;
+    const headerBg  = [200, 210, 220];
+    const redBg     = [220, 38, 38];
+    const amberBg   = [217, 119, 6];
+    const greenBg   = [22, 163, 74];
+    const white      = [255, 255, 255];
+    const dark       = [30, 41, 59];
+
+    const catStats = (rows, kat) => ({
+      O: rows.filter(r => r.kategoriTemuan === kat && r.status === 'Open').length,
+      I: rows.filter(r => r.kategoriTemuan === kat && r.status === 'In Progress').length,
+      C: rows.filter(r => r.kategoriTemuan === kat && r.status === 'Closed').length,
+    });
+
+    const deptBodyRows = allDepts.map((dept, idx) => {
+      const rows   = monthRows.filter(r => r.departmentId === dept.id);
+      const low    = catStats(rows, 'Low');
+      const med    = catStats(rows, 'Medium');
+      const high   = catStats(rows, 'High');
+      const dTotal  = rows.length;
+      const dClosed = low.C + med.C + high.C;
+      const pct    = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : '-';
+      return [idx + 1, dept.name.toUpperCase(), low.O, low.I, low.C, med.O, med.I, med.C, high.O, high.I, high.C, pct];
+    });
+
+    // Totals row
+    const tLow  = catStats(monthRows, 'Low');
+    const tMed  = catStats(monthRows, 'Medium');
+    const tHigh = catStats(monthRows, 'High');
+    const tAll    = monthRows.length;
+    const tClosed = tLow.C + tMed.C + tHigh.C;
+    const tPct    = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : '-';
+    const totalCellStyle = (color) => ({ styles: { fontStyle: 'bold', textColor: color } });
+    deptBodyRows.push([
+      { content: 'TOTAL TEMUAN', colSpan: 2, styles: { fontStyle: 'bold', halign: 'center', fillColor: [220, 230, 242], textColor: dark } },
+      { content: tLow.O,  ...totalCellStyle(redBg) },
+      { content: tLow.I,  ...totalCellStyle(amberBg) },
+      { content: tLow.C,  ...totalCellStyle(greenBg) },
+      { content: tMed.O,  ...totalCellStyle(redBg) },
+      { content: tMed.I,  ...totalCellStyle(amberBg) },
+      { content: tMed.C,  ...totalCellStyle(greenBg) },
+      { content: tHigh.O, ...totalCellStyle(redBg) },
+      { content: tHigh.I, ...totalCellStyle(amberBg) },
+      { content: tHigh.C, ...totalCellStyle(greenBg) },
+      { content: tPct,    styles: { fontStyle: 'bold', textColor: dark } },
+    ]);
+
+    const monthLabel = MONTH_NAMES[m - 1].toUpperCase();
+
+    // Column layout (must match columnStyles below)
+    const colW   = [10, 45, 13, 13, 13, 13, 13, 13, 13, 13, 13, 18];
+    const margin = 14;
+    const colX   = colW.reduce((acc, w, i) => { acc.push(i === 0 ? margin : acc[i - 1] + colW[i - 1]); return acc; }, []);
+    const hRowH  = 6.5;
+    const borderClr = [160, 175, 190];
+    let hdrY = deptBreakdownY + 3;
+
+    const fillText = (txt, x, y, w, rh, fill, fg, fs = 7.5) => {
+      doc.setFillColor(...fill);
+      doc.setDrawColor(...borderClr);
+      doc.rect(x, y, w, rh, 'FD');
+      if (txt) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(fs);
+        doc.setTextColor(...fg);
+        doc.text(String(txt), x + w / 2, y + rh / 2, { align: 'center', baseline: 'middle' });
+      }
+    };
+
+    const totalHdrH = hRowH * 3;
+
+    // NO, DEPARTEMEN, % CLOSE — span all 3 rows vertically
+    fillText('NO',         colX[0],  hdrY, colW[0],  totalHdrH, headerBg, dark);
+    fillText('DEPARTEMEN', colX[1],  hdrY, colW[1],  totalHdrH, headerBg, dark);
+    fillText('% CLOSE',    colX[11], hdrY, colW[11], totalHdrH, headerBg, dark);
+
+    // Header row 1 (cols 2-10): MONTH label merged
+    fillText(monthLabel, colX[2], hdrY, colW.slice(2, 11).reduce((a, b) => a + b, 0), hRowH, headerBg, dark);
+    hdrY += hRowH;
+
+    // Header row 2: LOW | MEDIUM | HIGH
+    fillText('LOW',    colX[2], hdrY, colW.slice(2, 5).reduce((a, b) => a + b, 0),  hRowH, headerBg, dark);
+    fillText('MEDIUM', colX[5], hdrY, colW.slice(5, 8).reduce((a, b) => a + b, 0),  hRowH, headerBg, dark);
+    fillText('HIGH',   colX[8], hdrY, colW.slice(8, 11).reduce((a, b) => a + b, 0), hRowH, headerBg, dark);
+    hdrY += hRowH;
+
+    // Header row 3: O I C repeated
+    fillText('O', colX[2],  hdrY, colW[2],  hRowH, redBg,   white);
+    fillText('I', colX[3],  hdrY, colW[3],  hRowH, amberBg, white);
+    fillText('C', colX[4],  hdrY, colW[4],  hRowH, greenBg, white);
+    fillText('O', colX[5],  hdrY, colW[5],  hRowH, redBg,   white);
+    fillText('I', colX[6],  hdrY, colW[6],  hRowH, amberBg, white);
+    fillText('C', colX[7],  hdrY, colW[7],  hRowH, greenBg, white);
+    fillText('O', colX[8],  hdrY, colW[8],  hRowH, redBg,   white);
+    fillText('I', colX[9],  hdrY, colW[9],  hRowH, amberBg, white);
+    fillText('C', colX[10], hdrY, colW[10], hRowH, greenBg, white);
+    hdrY += hRowH;
+
+    autoTable(doc, {
+      startY: hdrY,
+      showHead: 'never',
+      body: deptBodyRows,
+      theme: 'grid',
+      bodyStyles: { fontSize: 8, halign: 'center', textColor: dark },
+      columnStyles: {
+        0:  { cellWidth: colW[0],  halign: 'center' },
+        1:  { cellWidth: colW[1],  halign: 'left', fontStyle: 'bold' },
+        2:  { cellWidth: colW[2]  },
+        3:  { cellWidth: colW[3]  },
+        4:  { cellWidth: colW[4]  },
+        5:  { cellWidth: colW[5]  },
+        6:  { cellWidth: colW[6]  },
+        7:  { cellWidth: colW[7]  },
+        8:  { cellWidth: colW[8]  },
+        9:  { cellWidth: colW[9]  },
+        10: { cellWidth: colW[10] },
+        11: { cellWidth: colW[11] },
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    // Detail findings
+    const detailY = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DETAIL TEMUAN', 14, detailY);
+
+    if (monthRows.length === 0) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Tidak ada data temuan untuk ${MONTH_NAMES[m-1]} ${y}.`, 14, detailY + 6);
+    } else {
+      autoTable(doc, {
+        startY: detailY + 3,
+        head: [['No', 'Tanggal', 'Kategori', 'Deskripsi Temuan', 'Lokasi', 'Tindakan Perbaikan', 'Target', 'Status', 'Aktual Close']],
+        body: monthRows.map((r, i) => {
+          const isOvd = r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < todayDate;
+          return [
+            i + 1,
+            fmtDate(r.tanggal),
+            r.kategoriTemuan || '-',
+            r.deskripsiTemuan || '-',
+            r.lokasi || '-',
+            r.tindakanPerbaikan || '-',
+            fmtDate(r.targetSelesai),
+            r.status || '-',
+            fmtDate(r.aktualClose),
+          ];
+        }),
+        theme: 'striped',
+        headStyles: { fillColor: [71, 85, 105], textColor: 255, fontSize: 7.5, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 8, textColor: [51, 65, 85] },
+        columnStyles: {
+          0: { cellWidth: 8, halign: 'center' },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 18, halign: 'center' },
+          3: { cellWidth: 'auto', minCellWidth: 35 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 'auto', minCellWidth: 35 },
+          6: { cellWidth: 22 },
+          7: { cellWidth: 22, halign: 'center' },
+          8: { cellWidth: 22 },
+        },
+        didParseCell(data) {
+          if (data.section === 'body') {
+            const row = monthRows[data.row.index];
+            const isOvd = row && row.status !== 'Closed' && row.targetSelesai && new Date(row.targetSelesai) < todayDate;
+            if (isOvd) data.cell.styles.textColor = [220, 38, 38];
+            if (row && row.status === 'Closed') data.cell.styles.textColor = [148, 163, 184];
+          }
+        },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    // Footer on each page
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Halaman ${i} dari ${pageCount}`, pageW / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+    }
+
+    doc.save(`laporan-k3l-${y}-${String(m).padStart(2,'0')}.pdf`);
+    if (closeModal) showExportModal.value = false;
+  } finally {
+    pdfGenerating.value = false;
+  }
+}
+
+onBeforeUnmount(() => { destroyCharts(); });
+
 onMounted(async () => {
   await loadData(true);
   loadLocationOptions(true);
@@ -1822,7 +2363,7 @@ onMounted(async () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2204,7 +2745,7 @@ onMounted(async () => {
 .form-group label {
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: #374151;
 }
 .required {
   color: #ef4444;
@@ -2213,13 +2754,13 @@ onMounted(async () => {
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 8px 12px;
+  padding: 9px 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   color: #1e293b;
   background: #fff;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .form-group select {
   cursor: pointer;
@@ -2234,7 +2775,7 @@ onMounted(async () => {
 .form-group textarea:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 .form-group textarea {
   resize: vertical;
@@ -2533,6 +3074,7 @@ onMounted(async () => {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 
 /* ── Date filter row ── */
 .date-filter-row { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
@@ -2885,5 +3427,164 @@ tbody tr:hover {
   table {
     min-width: 1000px;
   }
+}
+
+/* ── Monthly Report Buttons ─────────────────────────────────────────────── */
+
+.btn-summary {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-summary:hover { background: #dbeafe; border-color: #93c5fd; }
+
+.btn-print-report {
+  background: #faf5ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-print-report:hover { background: #ede9fe; border-color: #c4b5fd; }
+
+/* ── Monthly modals shared container overrides ──────────────────────────── */
+.modal-export-monthly {
+  max-width: 420px;
+}
+.modal-summary {
+  max-width: 720px;
+  width: 92vw;
+}
+
+/* Modal desc text */
+.modal-desc {
+  font-size: 13px;
+  color: #475569;
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.export-preview-text {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #374151;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--r-md);
+  padding: 9px 14px;
+}
+
+/* Footer bar for the new modals */
+.modal-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0 0 14px 14px;
+  flex-shrink: 0;
+}
+.export-btn-group {
+  display: flex;
+  gap: 8px;
+}
+.btn-export-csv {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1.5px solid #86efac;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-export-csv:hover { background: #dcfce7; border-color: #4ade80; }
+.btn-export-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: #7c3aed;
+  color: #fff;
+  border: 1.5px solid #7c3aed;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-export-pdf:hover:not(:disabled) { background: #6d28d9; border-color: #6d28d9; }
+.btn-export-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Monthly Summary Modal ──────────────────────────────────────────────── */
+.summary-month-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.kpi-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.kpi-card {
+  flex: 1;
+  min-width: 88px;
+  border-radius: 10px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid transparent;
+}
+.kpi-value {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.kpi-total     { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+.kpi-open      { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+.kpi-inprogress{ background: #fffbeb; color: #b45309; border-color: #fcd34d; }
+.kpi-closed    { background: #f0fdf4; color: #15803d; border-color: #86efac; }
+.kpi-overdue   { background: #faf5ff; color: #7c3aed; border-color: #d8b4fe; }
+
+.charts-row {
+  display: flex;
+  gap: 14px;
+}
+.chart-wrap {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 12px 10px;
+}
+.chart-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 10px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 </style>

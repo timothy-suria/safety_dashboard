@@ -64,8 +64,8 @@
             </button>
           </div>
         </div>
-        <button class="btn btn-primary" @click="openBuForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+        <button class="btn-primary" @click="openBuForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Tambah Business Unit
@@ -150,8 +150,8 @@
             <option v-for="bu in buList" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
           </select>
         </div>
-        <button class="btn btn-primary" @click="openPlantForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+        <button class="btn-primary" @click="openPlantForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Tambah Plant
@@ -250,8 +250,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeBuModal" :disabled="buModal.saving">Batal</button>
-          <button class="btn btn-primary" @click="saveBu" :disabled="buModal.saving">
+          <button class="btn-secondary" @click="closeBuModal" :disabled="buModal.saving">Batal</button>
+          <button class="btn-primary" @click="saveBu" :disabled="buModal.saving">
             {{ buModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -298,8 +298,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closePlantModal" :disabled="plantModal.saving">Batal</button>
-          <button class="btn btn-primary" @click="savePlant" :disabled="plantModal.saving">
+          <button class="btn-secondary" @click="closePlantModal" :disabled="plantModal.saving">Batal</button>
+          <button class="btn-primary" @click="savePlant" :disabled="plantModal.saving">
             {{ plantModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -323,8 +323,8 @@
             </button>
           </div>
         </div>
-        <button class="btn btn-primary" @click="openUserForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+        <button class="btn-primary" @click="openUserForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Tambah User
@@ -409,8 +409,8 @@
             </button>
           </div>
         </div>
-        <button class="btn btn-primary" @click="openRoleForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+        <button class="btn-primary" @click="openRoleForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Tambah Role
@@ -494,8 +494,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeRoleModal" :disabled="roleModal.saving">Batal</button>
-          <button class="btn btn-primary" @click="saveRole" :disabled="roleModal.saving">
+          <button class="btn-secondary" @click="closeRoleModal" :disabled="roleModal.saving">Batal</button>
+          <button class="btn-primary" @click="saveRole" :disabled="roleModal.saving">
             {{ roleModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -562,8 +562,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeUserModal" :disabled="userModal.saving">Batal</button>
-          <button class="btn btn-primary" @click="saveUser" :disabled="userModal.saving">
+          <button class="btn-secondary" @click="closeUserModal" :disabled="userModal.saving">Batal</button>
+          <button class="btn-primary" @click="saveUser" :disabled="userModal.saving">
             {{ userModal.saving ? 'Menyimpan…' : 'Simpan' }}
           </button>
         </div>
@@ -588,7 +588,7 @@
           </div>
         </div>
         <button class="btn-primary" @click="openDeptForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Tambah Department
@@ -710,7 +710,7 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="deleteModal.show = false" :disabled="deleteModal.loading">Batal</button>
+          <button class="btn-secondary" @click="deleteModal.show = false" :disabled="deleteModal.loading">Batal</button>
           <button class="btn-danger" @click="executeDelete" :disabled="deleteModal.loading">
             {{ deleteModal.loading ? 'Menghapus…' : 'Hapus' }}
           </button>
@@ -1250,7 +1250,7 @@ function formatDate(val) {
   margin-bottom: 20px;
 }
 .page-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 4px;
@@ -1449,6 +1449,9 @@ function formatDate(val) {
 .pill-active { background: #dcfce7; color: #16a34a; }
 .pill-inactive { background: #f1f5f9; color: #94a3b8; }
 
+/* Inline SVG icon inside text buttons */
+.btn-icon-inline { width: 16px; height: 16px; flex-shrink: 0; }
+
 /* Action buttons */
 .btn-icon-sm {
   display: inline-flex;
@@ -1468,115 +1471,14 @@ function formatDate(val) {
 .btn-delete { color: #ef4444; margin-left: 2px; }
 .btn-delete:hover { background: #fef2f2; }
 
-/* Primary / secondary / danger buttons (overrides on global .btn) */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-.btn-primary:disabled { cursor: default; }
-.btn-icon { width: 16px; height: 16px; }
-
-.btn-secondary {
-  padding: 8px 18px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #374151;
-  font-weight: 500;
-}
-.btn-secondary:hover:not(:disabled) { background: #f8fafc; }
-.btn-secondary:disabled { cursor: default; }
-
-.btn-danger {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: none;
-  background: #ef4444;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.btn-danger:hover:not(:disabled) { background: #dc2626; }
-.btn-danger:disabled { opacity: 0.6; cursor: default; }
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.modal {
-  background: #fff;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 460px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-  overflow: hidden;
-}
+/* Modal max-width override for this page */
+.modal { max-width: 460px; }
 .modal-sm { max-width: 360px; }
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid #f1f5f9;
-}
-.modal-header h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-.btn-close {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-.btn-close:hover { background: #f1f5f9; color: #374151; }
-.btn-close svg { width: 16px; height: 16px; }
-.modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
-.modal-footer {
-  padding: 14px 20px 18px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  border-top: 1px solid #f1f5f9;
-}
 
 /* Form inside modal */
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group label { font-size: 13px; font-weight: 600; color: #374151; }
 .req { color: #ef4444; }
-.form-input {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 14px;
-  color: #1e293b;
-  outline: none;
-  transition: border-color 0.15s;
-  background: #fff;
-  width: 100%;
-  box-sizing: border-box;
-}
-.form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 .form-textarea { resize: vertical; min-height: 80px; }
 
 .delete-msg { font-size: 14px; color: #374151; line-height: 1.5; margin: 0; }
