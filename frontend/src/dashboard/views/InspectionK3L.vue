@@ -971,7 +971,7 @@
       </div>
 
       <div class="table-wrapper">
-        <table v-if="filteredRecords.length > 0">
+        <table v-if="pagedRecords.length > 0">
           <thead>
             <tr>
               <th>No</th>
@@ -991,8 +991,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in filteredRecords" :key="item.id">
-              <td>{{ idx + 1 }}</td>
+            <tr v-for="(item, idx) in pagedRecords" :key="item.id">
+              <td>{{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}</td>
               <td class="td-nowrap">{{ formatDate(item.tanggal) }}</td>
               <td>
                 <span
@@ -1135,6 +1135,15 @@
             </tr>
           </tbody>
         </table>
+        <PaginationBar
+          v-if="pagedRecords.length > 0"
+          :current-page="k3lCurrentPage"
+          :total-pages="k3lTotalPages"
+          :total-items="k3lTotalItems"
+          :per-page="k3lPerPage"
+          @page="k3lGoToPage"
+          @per-page="k3lSetPerPage"
+        />
         <div v-else-if="hasActiveFilters" class="empty-state">
           <p>Tidak ada data yang cocok dengan filter. <button class="btn-inline-link" @click="resetFilters">Reset filter</button></p>
         </div>
@@ -1155,6 +1164,8 @@ import {
 } from '@/services/inspectionK3LService.js';
 import { exportToCsv } from '@/services/exportCsvService.js';
 import { authService } from '@/services/authService.js';
+import { usePagination } from '@/composables/usePagination.js';
+import PaginationBar from '@/components/PaginationBar.vue';
 
 const currentUser = authService.getCurrentUser();
 
@@ -1250,6 +1261,16 @@ const filteredRecords = computed(() => {
 
   return result;
 });
+
+const {
+  currentPage: k3lCurrentPage,
+  perPage: k3lPerPage,
+  totalItems: k3lTotalItems,
+  totalPages: k3lTotalPages,
+  paginatedItems: pagedRecords,
+  goToPage: k3lGoToPage,
+  setPerPage: k3lSetPerPage,
+} = usePagination(filteredRecords);
 
 function resetFilters() {
   searchQuery.value = '';

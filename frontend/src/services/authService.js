@@ -63,6 +63,23 @@ export const authService = {
     localStorage.removeItem("user");
   },
 
+  getTokenExpiry() {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  },
+
+  isTokenExpired() {
+    const expiry = this.getTokenExpiry();
+    if (!expiry) return true;
+    return Date.now() >= expiry;
+  },
+
   async changePassword(currentPassword, newPassword) {
     const data = await gql(
       `mutation ChangePassword($currentPassword: String!, $newPassword: String!) {

@@ -83,6 +83,7 @@ function cancel() {
   border-radius: 7px;
   font-size: 14px;
   color: #1e293b;
+  background-color: #fff;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;

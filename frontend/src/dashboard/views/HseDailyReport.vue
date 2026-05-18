@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in filteredRecords" :key="r.id" @click="openView(r)" class="row-clickable">
+          <tr v-for="r in pagedRecords" :key="r.id" @click="openView(r)" class="row-clickable">
             <td>{{ formatDate(r.tanggal) }}</td>
             <td class="col-pekerjaan">{{ firstBullet(r.pekerjaan) }}</td>
             <td>{{ r.lokasiPekerjaan || '-' }}</td>
@@ -86,12 +86,20 @@
               </button>
             </td>
           </tr>
-          <tr v-if="filteredRecords.length === 0">
+          <tr v-if="pagedRecords.length === 0">
             <td colspan="8" class="no-results">Tidak ada data yang cocok</td>
           </tr>
         </tbody>
       </table>
       </div>
+      <PaginationBar
+        :current-page="hseCurrentPage"
+        :total-pages="hseTotalPages"
+        :total-items="hseTotalItems"
+        :per-page="hsePerPage"
+        @page="hseGoToPage"
+        @per-page="hseSetPerPage"
+      />
     </div>
 
     <!-- Modal -->
@@ -413,6 +421,8 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { authService } from '@/services/authService.js';
 import { hseDailyService, uploadImage } from '@/services/hseDailyService.js';
+import { usePagination } from '@/composables/usePagination.js';
+import PaginationBar from '@/components/PaginationBar.vue';
 
 const JENIS_OPTIONS = [
   'Ketinggian',
@@ -497,6 +507,16 @@ const filteredRecords = computed(() => {
     return true;
   });
 });
+
+const {
+  currentPage: hseCurrentPage,
+  perPage: hsePerPage,
+  totalItems: hseTotalItems,
+  totalPages: hseTotalPages,
+  paginatedItems: pagedRecords,
+  goToPage: hseGoToPage,
+  setPerPage: hseSetPerPage,
+} = usePagination(filteredRecords);
 
 let photoWarnTimer = null;
 function showPhotoWarning(msg) {

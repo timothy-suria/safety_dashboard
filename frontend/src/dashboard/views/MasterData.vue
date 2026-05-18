@@ -95,8 +95,8 @@
                   {{ buSearch ? 'Tidak ada hasil untuk "' + buSearch + '"' : 'Belum ada data Business Unit' }}
                 </td>
               </tr>
-              <tr v-for="(item, idx) in filteredBu" :key="item.id">
-                <td class="td-num">{{ idx + 1 }}</td>
+              <tr v-for="(item, idx) in pagedBu" :key="item.id">
+                <td class="td-num">{{ (buPage - 1) * buPer + idx + 1 }}</td>
                 <td class="td-name">{{ item.name }}</td>
                 <td><span class="code-badge">{{ item.code }}</span></td>
                 <td class="td-desc">{{ item.description || '-' }}</td>
@@ -124,6 +124,7 @@
               </tr>
             </tbody>
           </table>
+          <PaginationBar :current-page="buPage" :total-pages="buPages" :total-items="buTotal" :per-page="buPer" @page="buGo" @per-page="buSetPer" />
         </div>
       </div>
     </div>
@@ -181,8 +182,8 @@
                   {{ plantSearch ? 'Tidak ada hasil untuk "' + plantSearch + '"' : 'Belum ada data Plant' }}
                 </td>
               </tr>
-              <tr v-for="(item, idx) in filteredPlants" :key="item.id">
-                <td class="td-num">{{ idx + 1 }}</td>
+              <tr v-for="(item, idx) in pagedPlants" :key="item.id">
+                <td class="td-num">{{ (plantPage - 1) * plantPer + idx + 1 }}</td>
                 <td class="td-name">{{ item.name }}</td>
                 <td><span class="code-badge">{{ item.code }}</span></td>
                 <td>{{ buNameMap[item.businessUnitId] || '-' }}</td>
@@ -211,6 +212,7 @@
               </tr>
             </tbody>
           </table>
+          <PaginationBar :current-page="plantPage" :total-pages="plantPages" :total-items="plantTotal" :per-page="plantPer" @page="plantGo" @per-page="plantSetPer" />
         </div>
       </div>
     </div>
@@ -354,8 +356,8 @@
                   {{ userSearch ? 'Tidak ada hasil untuk "' + userSearch + '"' : 'Belum ada data User' }}
                 </td>
               </tr>
-              <tr v-for="(item, idx) in filteredUsers" :key="item.id">
-                <td class="td-num">{{ idx + 1 }}</td>
+              <tr v-for="(item, idx) in pagedUsers" :key="item.id">
+                <td class="td-num">{{ (userPage - 1) * userPer + idx + 1 }}</td>
                 <td class="td-name">{{ item.fullName || '-' }}</td>
                 <td><span class="code-badge">{{ item.username || '-' }}</span></td>
                 <td class="td-email">{{ item.email }}</td>
@@ -385,6 +387,7 @@
               </tr>
             </tbody>
           </table>
+          <PaginationBar :current-page="userPage" :total-pages="userPages" :total-items="userTotal" :per-page="userPer" @page="userGo" @per-page="userSetPer" />
         </div>
       </div>
     </div>
@@ -435,8 +438,8 @@
                   {{ roleSearch ? 'Tidak ada hasil untuk "' + roleSearch + '"' : 'Belum ada data Role' }}
                 </td>
               </tr>
-              <tr v-for="(item, idx) in filteredRoles" :key="item.id">
-                <td class="td-num">{{ idx + 1 }}</td>
+              <tr v-for="(item, idx) in pagedRoles" :key="item.id">
+                <td class="td-num">{{ (rolePage - 1) * rolePer + idx + 1 }}</td>
                 <td class="td-name">{{ item.name }}</td>
                 <td><span class="level-badge">Level {{ item.level }}</span></td>
                 <td class="td-desc">{{ item.description || '-' }}</td>
@@ -458,6 +461,7 @@
               </tr>
             </tbody>
           </table>
+          <PaginationBar :current-page="rolePage" :total-pages="rolePages" :total-items="roleTotal" :per-page="rolePer" @page="roleGo" @per-page="roleSetPer" />
         </div>
       </div>
     </div>
@@ -614,8 +618,8 @@
                   {{ deptSearch ? 'Tidak ada hasil untuk "' + deptSearch + '"' : 'Belum ada data Department' }}
                 </td>
               </tr>
-              <tr v-for="(item, idx) in filteredDepts" :key="item.id">
-                <td class="td-num">{{ idx + 1 }}</td>
+              <tr v-for="(item, idx) in pagedDepts" :key="item.id">
+                <td class="td-num">{{ (deptPage - 1) * deptPer + idx + 1 }}</td>
                 <td class="td-name">{{ item.name }}</td>
                 <td><span class="code-badge">{{ item.code }}</span></td>
                 <td class="td-desc">{{ item.description || '-' }}</td>
@@ -643,6 +647,7 @@
               </tr>
             </tbody>
           </table>
+          <PaginationBar :current-page="deptPage" :total-pages="deptPages" :total-items="deptTotal" :per-page="deptPer" @page="deptGo" @per-page="deptSetPer" />
         </div>
       </div>
     </div>
@@ -723,6 +728,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { masterDataService } from "@/services/masterDataService";
+import { usePagination } from "@/composables/usePagination.js";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 // ── State ────────────────────────────────────────────────────────────────
 const activeTab = ref("bu");
@@ -823,6 +830,13 @@ const filteredUsers = computed(() => {
       (buNameMap.value[u.businessUnitId] || "").toLowerCase().includes(q),
   );
 });
+
+// ── Pagination ───────────────────────────────────────────────────────────
+const { currentPage: buPage, perPage: buPer, totalItems: buTotal, totalPages: buPages, paginatedItems: pagedBu, goToPage: buGo, setPerPage: buSetPer } = usePagination(filteredBu);
+const { currentPage: plantPage, perPage: plantPer, totalItems: plantTotal, totalPages: plantPages, paginatedItems: pagedPlants, goToPage: plantGo, setPerPage: plantSetPer } = usePagination(filteredPlants);
+const { currentPage: rolePage, perPage: rolePer, totalItems: roleTotal, totalPages: rolePages, paginatedItems: pagedRoles, goToPage: roleGo, setPerPage: roleSetPer } = usePagination(filteredRoles);
+const { currentPage: userPage, perPage: userPer, totalItems: userTotal, totalPages: userPages, paginatedItems: pagedUsers, goToPage: userGo, setPerPage: userSetPer } = usePagination(filteredUsers);
+const { currentPage: deptPage, perPage: deptPer, totalItems: deptTotal, totalPages: deptPages, paginatedItems: pagedDepts, goToPage: deptGo, setPerPage: deptSetPer } = usePagination(filteredDepts);
 
 // ── Load data ────────────────────────────────────────────────────────────
 async function loadBu() {

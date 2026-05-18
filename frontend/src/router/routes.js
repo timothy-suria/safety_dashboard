@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "../login/Login.vue";
 import Register from "../login/Register.vue";
+import { authService } from "../services/authService.js";
 import Dashboard from "../dashboard/Dashboard.vue";
 import DashboardHome from "../dashboard/views/DashboardHome.vue";
 import SafetyModules from "../dashboard/views/SafetyModules.vue";
@@ -48,6 +49,13 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem("token");
+  const expired = token && authService.isTokenExpired();
+
+  if (expired) {
+    authService.logout();
+    return next({ name: "Login" });
+  }
+
   if (to.meta.requiresAuth && !token) {
     next({ name: "Login" });
   } else if ((to.name === "Login" || to.name === "Register") && token) {

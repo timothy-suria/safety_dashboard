@@ -129,6 +129,8 @@ const handleRegister = async () => {
   font-size: 14px;
   box-sizing: border-box;
   transition: border-color 0.3s;
+  background-color: #fff;
+  color: #333;
 }
 
 .form-group input:focus {
