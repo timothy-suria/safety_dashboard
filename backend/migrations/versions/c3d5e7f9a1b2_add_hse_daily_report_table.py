@@ -1,7 +1,7 @@
 """add_hse_daily_report_table
 
 Revision ID: c3d5e7f9a1b2
-Revises: a3f8c1d9e2b7
+Revises: b4c6d8e0a2f1
 Create Date: 2026-05-15 00:00:00.000000
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = 'c3d5e7f9a1b2'
-down_revision: Union[str, Sequence[str], None] = 'a3f8c1d9e2b7'
+down_revision: Union[str, Sequence[str], None] = 'b4c6d8e0a2f1'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
