@@ -29,6 +29,7 @@ const pageTitles = {
   "/dashboard/modules": "Safety Modules",
   "/dashboard/reports": "Reports",
   "/dashboard/reports/inspection-k3l": "Inspection K3L",
+  "/dashboard/reports/hse-daily": "HSE Daily Report",
   "/dashboard/master-data": "Master Data",
   "/dashboard/settings": "Settings",
 };
@@ -38,7 +39,8 @@ const pageTitle = computed(() => pageTitles[route.path] ?? "Dashboard");
 <style scoped>
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #f1f5f9;
 }
 
@@ -48,11 +50,13 @@ const pageTitle = computed(() => pageTitles[route.path] ?? "Dashboard");
   flex-direction: column;
   min-width: 0;
   width: 100%;
+  overflow: hidden;
 }
 
 .content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Backdrop — only visible/interactive on mobile */

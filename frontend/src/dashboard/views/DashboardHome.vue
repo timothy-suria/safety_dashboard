@@ -356,8 +356,8 @@
             <div v-for="rec in recentRecords" :key="rec.id" class="recent-item" @click="openRecord(rec.id)" style="cursor:pointer">
               <div class="recent-cat-dot" :style="{ background: categoryColor(rec.kategoriTemuan) }"></div>
               <div class="recent-info">
-                <div class="recent-cat">{{ rec.kategoriTemuan }}</div>
-                <div class="recent-loc">{{ rec.lokasi || 'No location specified' }}</div>
+                <div class="recent-cat">{{ rec.deskripsiTemuan || rec.kategoriTemuan }}</div>
+                <div class="recent-loc">{{ getLocationLabel(rec) }}</div>
               </div>
               <div class="recent-right">
                 <span :class="['status-chip', `sc-${rec.status.toLowerCase().replace(' ', '-')}`]">{{ rec.status }}</span>
@@ -635,7 +635,7 @@ const calendarDays = computed(() => {
   const reportMap = {};
   records.value.forEach(r => {
     if (!r.tanggal) return;
-    const d = new Date(r.tanggal + 'T00:00:00');
+    const d = new Date(r.tanggal.replace(' ', 'T'));
     if (d.getFullYear() === year && d.getMonth() === month) {
       const key = d.getDate();
       if (!reportMap[key]) reportMap[key] = { count: 0, cats: {} };
@@ -666,6 +666,10 @@ function nextMonth() {
 }
 
 // ── Recent records ─────────────────────────────────────────────────
+const businessUnits = ref([]);
+const plants = ref([]);
+const departments = ref([]);
+
 const recentRecords = computed(() =>
   [...filteredByDate.value]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
@@ -678,7 +682,19 @@ function openRecord(id) {
 
 function formatDate(s) {
   if (!s) return '—';
-  return new Date(s + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const d = new Date(s.replace ? s.replace(' ', 'T') : s);
+  if (isNaN(d)) return '—';
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function getLocationLabel(rec) {
+  const parts = [
+    rec.lokasi,
+    departments.value.find(d => d.id === rec.departmentId)?.name,
+    plants.value.find(p => p.id === rec.plantId)?.name,
+    businessUnits.value.find(b => b.id === rec.businessUnitId)?.name,
+  ].filter(Boolean);
+  return parts.join(' / ') || 'No location specified';
 }
 
 onMounted(async () => {
@@ -687,7 +703,12 @@ onMounted(async () => {
     loadFailed.value = true;
   }, 10000);
   try {
-    records.value = await inspectionK3LService.list();
+    [records.value, businessUnits.value, plants.value, departments.value] = await Promise.all([
+      inspectionK3LService.list(),
+      inspectionK3LService.listBusinessUnits(),
+      inspectionK3LService.listPlants(),
+      inspectionK3LService.listDepartments(),
+    ]);
   } catch (e) {
     console.error(e);
     loadFailed.value = true;
@@ -1427,7 +1448,9 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 600;
   color: #1e293b;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }

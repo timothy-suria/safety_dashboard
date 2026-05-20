@@ -1020,7 +1020,7 @@
         <table v-if="pagedRecords.length > 0">
           <thead>
             <tr>
-              <th>No</th>
+              <th style="text-align:center;width:48px;">No</th>
               <th>Tanggal</th>
               <th>Kategori Temuan</th>
               <th>Deskripsi Temuan</th>
@@ -1038,8 +1038,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in pagedRecords" :key="item.id">
-              <td>{{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}</td>
+            <tr v-for="(item, idx) in pagedRecords" :key="item.id" class="row-clickable" @click="viewRecord(item)">
+              <td style="text-align:center;">{{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}</td>
               <td class="td-nowrap">{{ formatDate(item.tanggal) }}</td>
               <td>
                 <span
@@ -1052,55 +1052,33 @@
                 </span>
               </td>
               <td class="td-truncate">{{ item.deskripsiTemuan || '-' }}</td>
-              <td class="td-center">
+              <td class="td-center" @click.stop>
                 <button
                   v-if="parsePhotos(item.fotoSebelum).length"
                   class="btn-icon btn-eye"
                   title="Lihat Foto Sebelum"
-                  @click="
-                    openPhotoModalFromUrls(parsePhotos(item.fotoSebelum), 0)
-                  "
+                  @click="openPhotoModalFromUrls(parsePhotos(item.fotoSebelum), 0)"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    width="16"
-                    height="16"
-                  >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  <span class="photo-count-badge">{{
-                    parsePhotos(item.fotoSebelum).length
-                  }}</span>
+                  <span class="photo-count-badge">{{ parsePhotos(item.fotoSebelum).length }}</span>
                 </button>
                 <span v-else class="text-muted">-</span>
               </td>
-              <td class="td-center">
+              <td class="td-center" @click.stop>
                 <button
                   v-if="parsePhotos(item.fotoSesudah).length"
                   class="btn-icon btn-eye btn-eye-after"
                   title="Lihat Foto Sesudah"
-                  @click="
-                    openPhotoModalFromUrls(parsePhotos(item.fotoSesudah), 0)
-                  "
+                  @click="openPhotoModalFromUrls(parsePhotos(item.fotoSesudah), 0)"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    width="16"
-                    height="16"
-                  >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  <span class="photo-count-badge photo-count-badge-after">{{
-                    parsePhotos(item.fotoSesudah).length
-                  }}</span>
+                  <span class="photo-count-badge photo-count-badge-after">{{ parsePhotos(item.fotoSesudah).length }}</span>
                 </button>
                 <span v-else class="text-muted">-</span>
               </td>
@@ -1123,26 +1101,7 @@
                   {{ item.status }}
                 </span>
               </td>
-              <td class="td-actions">
-                <button
-                  class="btn-icon btn-view"
-                  title="Lihat Detail"
-                  @click="viewRecord(item)"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    width="16"
-                    height="16"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    <line x1="11" y1="8" x2="11" y2="14" />
-                    <line x1="8" y1="11" x2="14" y2="11" />
-                  </svg>
-                </button>
+              <td class="td-actions" @click.stop>
                 <button class="btn-icon" title="Edit" @click="editRecord(item)">
                   <svg
                     viewBox="0 0 24 24"
@@ -1183,21 +1142,21 @@
             </tr>
           </tbody>
         </table>
-        <PaginationBar
-          v-if="pagedRecords.length > 0"
-          :current-page="k3lCurrentPage"
-          :total-pages="k3lTotalPages"
-          :total-items="k3lTotalItems"
-          :per-page="k3lPerPage"
-          @page="k3lGoToPage"
-          @per-page="k3lSetPerPage"
-        />
-        <div v-else-if="hasActiveFilters" class="empty-state">
-          <p>Tidak ada data yang cocok dengan filter. <button class="btn-inline-link" @click="resetFilters">Reset filter</button></p>
-        </div>
-        <div v-else class="empty-state">
-          <p>Belum ada data temuan. Klik "Tambah Temuan" untuk menambahkan.</p>
-        </div>
+      </div>
+      <PaginationBar
+        v-if="pagedRecords.length > 0"
+        :current-page="k3lCurrentPage"
+        :total-pages="k3lTotalPages"
+        :total-items="k3lTotalItems"
+        :per-page="k3lPerPage"
+        @page="k3lGoToPage"
+        @per-page="k3lSetPerPage"
+      />
+      <div v-else-if="hasActiveFilters" class="empty-state">
+        <p>Tidak ada data yang cocok dengan filter. <button class="btn-inline-link" @click="resetFilters">Reset filter</button></p>
+      </div>
+      <div v-else class="empty-state">
+        <p>Belum ada data temuan. Klik "Tambah Temuan" untuk menambahkan.</p>
       </div>
     </div>
 
@@ -2305,6 +2264,7 @@ onMounted(async () => {
 .inspection-k3l {
   padding: 32px;
   max-width: 1400px;
+  overflow-x: hidden;
 }
 
 .page-header {
@@ -2356,11 +2316,11 @@ onMounted(async () => {
 }
 
 .btn-icon {
-  background: none;
+  background: #f1f5f9;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 5px;
+  padding: 6px;
+  border-radius: 7px;
   color: #64748b;
   display: inline-flex;
   align-items: center;
@@ -2371,37 +2331,50 @@ onMounted(async () => {
   position: relative;
 }
 .btn-icon:hover {
-  background: #f1f5f9;
+  background: #e2e8f0;
   color: #3b82f6;
 }
-.btn-danger:hover {
+.btn-danger {
   background: #fef2f2;
   color: #ef4444;
 }
-.btn-view:hover {
-  background: #f0f9ff;
-  color: #0284c7;
+.btn-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
 }
-.btn-eye:hover {
-  background: #fdf4ff;
+.btn-eye {
+  background: #faf5ff;
   color: #9333ea;
 }
-.btn-eye-after {
-  color: #16a34a;
+.btn-eye:hover {
+  background: #f3e8ff;
+  color: #7e22ce;
 }
-.btn-eye-after:hover {
+.btn-eye-after {
   background: #f0fdf4;
   color: #16a34a;
 }
+.btn-eye-after:hover {
+  background: #dcfce7;
+  color: #15803d;
+}
 
 .photo-count-badge {
-  font-size: 10px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 9px;
   font-weight: 700;
   background: #9333ea;
   color: #fff;
-  border-radius: 8px;
-  padding: 1px 5px;
-  line-height: 1.4;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .photo-count-badge-after {
   background: #16a34a;
@@ -2422,6 +2395,7 @@ onMounted(async () => {
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  overscroll-behavior: contain;
 }
 
 .modal-container {
@@ -2556,6 +2530,7 @@ onMounted(async () => {
 .modal-body {
   overflow-y: auto;
   padding: 20px 24px 24px;
+  overscroll-behavior: contain;
 }
 
 .modal-enter-active,
@@ -3308,6 +3283,10 @@ td {
 
 tbody tr:hover {
   background: #f8fafc;
+}
+
+tbody tr.row-clickable {
+  cursor: pointer;
 }
 
 /* ── Badges ── */

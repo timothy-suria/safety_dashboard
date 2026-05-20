@@ -1097,7 +1097,7 @@ async function downloadMonthlyPDF() {
 
 <style scoped>
 /* Page */
-.page { padding: var(--sp-8) var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-5); }
+.page { padding: var(--sp-8) var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-5); overflow-x: hidden; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .page-title { font-size: 22px; font-weight: 700; color: #1e293b; margin: 0 0 4px; }
 .page-sub { font-size: 13px; color: #64748b; margin: 0; }

@@ -122,12 +122,13 @@ const reportsOpen = ref(isReportsActive.value);
 <style scoped>
 .sidebar {
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
   background: #1e2a3a;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   transition: width 0.25s ease;
 }
 
