@@ -42,15 +42,14 @@
                 <svg v-if="n.type === 'new_chat'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                <svg v-else-if="n.type === 'new_comment'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                <svg v-else-if="n.type.startsWith('delete_')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
                 </svg>
-                <svg v-else-if="n.type === 'new_safety_module'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <svg v-else-if="n.type.startsWith('update_')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
                 <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
                 </svg>
               </div>
               <div class="notif-body">
@@ -77,9 +76,18 @@
           class="toast-item"
           @click="handleToastClick(t)"
         >
-          <div class="toast-icon icon-chat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="toast-icon" :class="iconClass(t.notif.type)">
+            <svg v-if="t.notif.type === 'new_chat'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <svg v-else-if="t.notif.type.startsWith('delete_')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+            </svg>
+            <svg v-else-if="t.notif.type.startsWith('update_')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
             </svg>
           </div>
           <div class="toast-body">
@@ -262,13 +270,13 @@ function startSubscription() {
         const n = data?.notificationStream;
         if (!n) return;
 
-        // Chat notifications: show toast if tab is active, otherwise go straight to bell
-        if (n.type === "new_chat" && document.visibilityState === "visible") {
+        // Show toast if tab is active, otherwise go straight to bell
+        if (document.visibilityState === "visible") {
           showToast(n);
           return;
         }
 
-        // All other types (or chat when tab is hidden): add to bell list
+        // Tab hidden: add directly to bell list
         const exists = n.id > 0 && notifications.value.some((x) => x.id === n.id);
         if (!exists) notifications.value.unshift(n);
       },
@@ -297,10 +305,10 @@ onUnmounted(() => {
 
 // ── Helpers ────────────────────────────────────────────────────────
 function iconClass(type) {
+  if (type.startsWith("delete_")) return "icon-delete";
+  if (type.startsWith("update_")) return "icon-update";
   if (type === "new_chat") return "icon-chat";
-  if (type === "new_comment") return "icon-comment";
-  if (type === "new_safety_module") return "icon-module";
-  return "icon-report";
+  return "icon-new";
 }
 
 function timeAgo(ts) {
@@ -528,10 +536,10 @@ function timeAgo(ts) {
 
 .notif-icon svg { width: 16px; height: 16px; }
 
-.icon-chat    { background: #ede9fe; color: #7c3aed; }
-.icon-comment { background: #dcfce7; color: #16a34a; }
-.icon-module  { background: #fef9c3; color: #ca8a04; }
-.icon-report  { background: #dbeafe; color: #2563eb; }
+.icon-new    { background: #dcfce7; color: #16a34a; }
+.icon-chat   { background: #ede9fe; color: #7c3aed; }
+.icon-update { background: #dbeafe; color: #2563eb; }
+.icon-delete { background: #fee2e2; color: #dc2626; }
 
 .notif-body {
   flex: 1;
@@ -620,9 +628,12 @@ function timeAgo(ts) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: #ede9fe;
-  color: #7c3aed;
 }
+
+.toast-item .icon-new    { background: #dcfce7; color: #16a34a; }
+.toast-item .icon-chat   { background: #ede9fe; color: #7c3aed; }
+.toast-item .icon-update { background: #dbeafe; color: #2563eb; }
+.toast-item .icon-delete { background: #fee2e2; color: #dc2626; }
 
 .toast-item .toast-icon svg {
   width: 16px;

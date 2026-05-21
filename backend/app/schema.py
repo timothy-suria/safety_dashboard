@@ -1228,8 +1228,8 @@ class Mutation:
             db.refresh(record)
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_report", "Temuan Inspeksi K3L Diperbarui", f"Diperbarui oleh {actor}: {record.deskripsi_temuan or record.kategori_temuan}", "/dashboard/reports/inspection-k3l", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "update_report", "Temuan Inspeksi K3L Diperbarui", f"Diperbarui oleh {actor}: {record.deskripsi_temuan or record.kategori_temuan}", "/dashboard/reports/inspection-k3l", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -1288,8 +1288,8 @@ class Mutation:
 
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_report", "Temuan Inspeksi K3L Dihapus", f"Dihapus oleh {actor}: {label}", "/dashboard/reports/inspection-k3l", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "delete_report", "Temuan Inspeksi K3L Dihapus", f"Dihapus oleh {actor}: {label}", "/dashboard/reports/inspection-k3l", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -1919,8 +1919,8 @@ class Mutation:
             db.refresh(record)
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_safety_module", f"Modul Diperbarui: {record.title}", f"Diperbarui oleh {actor}", "/dashboard/modules", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "update_safety_module", f"Modul Diperbarui: {record.title}", f"Diperbarui oleh {actor}", "/dashboard/modules", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -1950,8 +1950,8 @@ class Mutation:
             _delete_module_files(files_json)
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_safety_module", f"Modul Dihapus: {module_title}", f"Dihapus oleh {actor}", "/dashboard/modules", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "delete_safety_module", f"Modul Dihapus: {module_title}", f"Dihapus oleh {actor}", "/dashboard/modules", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -2102,8 +2102,8 @@ class Mutation:
             db.refresh(record)
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_report", "Laporan HSE Daily Diperbarui", f"Diperbarui oleh {actor}: {record.pekerjaan}", "/dashboard/reports/hse-daily", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "update_report", "Laporan HSE Daily Diperbarui", f"Diperbarui oleh {actor}: {record.pekerjaan}", "/dashboard/reports/hse-daily", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -2140,8 +2140,8 @@ class Mutation:
             db.commit()
             try:
                 actor = user.full_name or user.username or user.email
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_report", "Laporan HSE Daily Dihapus", f"Dihapus oleh {actor}: {pekerjaan_label}", "/dashboard/reports/hse-daily", exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "delete_report", "Laporan HSE Daily Dihapus", f"Dihapus oleh {actor}: {pekerjaan_label}", "/dashboard/reports/hse-daily", exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -2234,8 +2234,8 @@ class Mutation:
                 actor = user.full_name or user.username or user.email
                 link = "/dashboard/reports/inspection-k3l" if report_type == "inspection_k3l" else "/dashboard/reports/hse-daily"
                 label = "Inspeksi K3L" if report_type == "inspection_k3l" else "HSE Daily"
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_comment", f"Komentar Diperbarui pada {label}", f"{actor}: {content[:80]}", link, exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "update_comment", f"Komentar Diperbarui pada {label}", f"{actor}: {content[:80]}", link, exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
@@ -2267,8 +2267,8 @@ class Mutation:
                 actor = user.full_name or user.username or user.email
                 link = "/dashboard/reports/inspection-k3l" if report_type == "inspection_k3l" else "/dashboard/reports/hse-daily"
                 label = "Inspeksi K3L" if report_type == "inspection_k3l" else "HSE Daily"
-                all_user_ids = [u.id for u in db.query(models.User.id).filter(models.User.is_active == True).all()]
-                _notify_users(db, all_user_ids, "new_comment", f"Komentar Dihapus pada {label}", f"{actor}: {snippet}", link, exclude_id=user.id)
+                level3_ids = [u.id for u in db.query(models.User.id).join(models.Role, models.User.role_id == models.Role.id).filter(models.User.is_active == True, models.Role.level == 0).all()]
+                _notify_users(db, level3_ids, "delete_comment", f"Komentar Dihapus pada {label}", f"{actor}: {snippet}", link, exclude_id=user.id)
                 db.commit()
             except Exception:
                 pass
