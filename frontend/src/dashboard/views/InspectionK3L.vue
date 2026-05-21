@@ -974,15 +974,15 @@
       <!-- Date filter row -->
       <div class="date-filter-row">
         <button v-for="opt in DATE_PRESETS" :key="opt.value" class="date-chip" :class="{ active: filterDate === opt.value }" @click="setDatePreset(opt.value)">{{ opt.label }}</button>
-        <template v-if="filterDate === 'custom'">
-          <label class="toolbar-date-wrap">
-            <input type="date" v-model="customDateFrom" class="toolbar-date" @click="$event.target.showPicker?.()" />
-          </label>
-          <span class="date-sep">–</span>
-          <label class="toolbar-date-wrap">
-            <input type="date" v-model="customDateTo" class="toolbar-date" @click="$event.target.showPicker?.()" />
-          </label>
-        </template>
+      </div>
+      <div v-if="filterDate === 'custom'" class="custom-date-row">
+        <label class="toolbar-date-wrap">
+          <input type="date" v-model="customDateFrom" class="toolbar-date" @click="$event.target.showPicker?.()" />
+        </label>
+        <span class="date-sep">–</span>
+        <label class="toolbar-date-wrap">
+          <input type="date" v-model="customDateTo" class="toolbar-date" @click="$event.target.showPicker?.()" />
+        </label>
       </div>
 
       <!-- Filter bar -->
@@ -2287,10 +2287,12 @@ onMounted(async () => {
 
 <style scoped>
 .inspection-k3l {
-  padding: 32px;
+  padding: 28px 32px;
   max-width: 1400px;
   overflow-x: hidden;
 }
+@media (max-width: 1024px) { .inspection-k3l { padding: 20px 20px; } }
+@media (max-width: 640px)  { .inspection-k3l { padding: 16px 14px; } }
 
 .page-header {
   margin-bottom: 16px;
@@ -3141,8 +3143,10 @@ onMounted(async () => {
 
 
 /* ── Date filter row ── */
-.date-filter-row { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
-.date-chip { background: #f1f5f9; border: 1px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.date-filter-row { display: flex; align-items: center; gap: 6px; padding: 10px 16px 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.date-filter-row::-webkit-scrollbar { display: none; }
+.custom-date-row { display: flex; align-items: center; gap: 8px; padding: 0 16px 10px; flex-wrap: wrap; border-bottom: 1px solid #f1f5f9; }
+.date-chip { background: #f1f5f9; border: 1px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .date-chip:hover { background: #e2e8f0; color: #1e293b; }
 .date-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 .toolbar-date-wrap { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
@@ -3157,15 +3161,20 @@ onMounted(async () => {
   gap: 10px;
   padding: 12px 20px;
   border-bottom: 1px solid #f1f5f9;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+
+.filter-bar::-webkit-scrollbar { display: none; }
 
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
-  min-width: 200px;
+  flex-shrink: 0;
+  width: 200px;
 }
 
 .search-icon {
@@ -3218,6 +3227,8 @@ onMounted(async () => {
   cursor: pointer;
   outline: none;
   transition: border-color 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .filter-select:focus { border-color: #3b82f6; }
 

@@ -1240,9 +1240,11 @@ function formatDate(val) {
 
 <style scoped>
 .master-data {
-  padding: 32px;
+  padding: 28px 32px;
   max-width: 1400px;
 }
+@media (max-width: 1024px) { .master-data { padding: 20px 20px; } }
+@media (max-width: 640px)  { .master-data { padding: 16px 14px; } }
 
 /* Header */
 .page-header {
@@ -1268,8 +1270,12 @@ function formatDate(val) {
   border-radius: 10px;
   padding: 4px;
   margin-bottom: 20px;
-  width: fit-content;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.tabs::-webkit-scrollbar { display: none; }
 .tab-btn {
   padding: 8px 20px;
   border-radius: 7px;
@@ -1280,6 +1286,8 @@ function formatDate(val) {
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .tab-btn.active {
   background: #fff;
@@ -1294,13 +1302,18 @@ function formatDate(val) {
   justify-content: space-between;
   margin-bottom: 12px;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.section-bar::-webkit-scrollbar { display: none; }
 .filter-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 .total-badge {
   font-size: 13px;
@@ -1318,6 +1331,8 @@ function formatDate(val) {
   color: #1e293b;
   background: #fff;
   outline: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .filter-select:focus { border-color: #3b82f6; }
 

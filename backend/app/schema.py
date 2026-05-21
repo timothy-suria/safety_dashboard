@@ -246,6 +246,9 @@ class SafetyModuleType:
     id: int
     title: str
     video_url: Optional[str] = None
+    media_type: Optional[str] = None
+    files: Optional[str] = None  # JSON string
+    peraturan: Optional[str] = None
     description: Optional[str] = None
     created_by: Optional[int] = None
     created_at: Optional[str] = None
@@ -264,6 +267,9 @@ def _module_to_type(r: models.SafetyModule) -> SafetyModuleType:
         id=r.id,
         title=r.title,
         video_url=r.video_url,
+        media_type=r.media_type or "video",
+        files=r.files,
+        peraturan=r.peraturan,
         description=r.description,
         created_by=r.created_by,
         created_at=str(r.created_at) if r.created_at else None,
@@ -1715,6 +1721,9 @@ class Mutation:
         info: strawberry.types.Info,
         title: str,
         video_url: Optional[str] = None,
+        media_type: Optional[str] = "video",
+        files: Optional[str] = None,
+        peraturan: Optional[str] = None,
         description: Optional[str] = None,
     ) -> SafetyModulePayload:
         user = _get_current_user(info)
@@ -1727,6 +1736,9 @@ class Mutation:
             record = models.SafetyModule(
                 title=title,
                 video_url=video_url,
+                media_type=media_type or "video",
+                files=files,
+                peraturan=peraturan,
                 description=description,
                 created_by=user.id,
             )
@@ -1747,6 +1759,9 @@ class Mutation:
         id: int,
         title: Optional[str] = None,
         video_url: Optional[str] = None,
+        media_type: Optional[str] = None,
+        files: Optional[str] = None,
+        peraturan: Optional[str] = None,
         description: Optional[str] = None,
     ) -> SafetyModulePayload:
         user = _get_current_user(info)
@@ -1763,8 +1778,14 @@ class Mutation:
                 record.title = title
             if video_url is not None:
                 record.video_url = video_url
+            if media_type is not None:
+                record.media_type = media_type
+            if files is not None:
+                record.files = files
+            if peraturan is not None:
+                record.peraturan = peraturan if peraturan != "" else None
             if description is not None:
-                record.description = description
+                record.description = description if description != "" else None
             db.commit()
             db.refresh(record)
             return SafetyModulePayload(success=True, message="Module updated", module=_module_to_type(record))

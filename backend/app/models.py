@@ -191,6 +191,9 @@ class SafetyModule(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     video_url = Column(String(500))
+    media_type = Column(String(20), default="video")
+    files = Column(Text)  # JSON array: [{url, mediaType, name}]
+    peraturan = Column(String(100))
     description = Column(Text)
     created_by = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.current_timestamp())

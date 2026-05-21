@@ -1,6 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 const GRAPHQL_URL = `${API_BASE}/graphql`;
 const UPLOAD_VIDEO_URL = `${API_BASE}/upload-video`;
+const UPLOAD_DOC_URL = `${API_BASE}/upload-document`;
 
 async function gql(query, variables = {}) {
   const token = localStorage.getItem("token");
@@ -19,12 +20,42 @@ async function gql(query, variables = {}) {
   return data;
 }
 
-export async function uploadVideo(file) {
+async function uploadToEndpoint(url, file) {
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(UPLOAD_VIDEO_URL, {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Upload failed: ${res.status}`);
+  }
+
+  const { url: fileUrl } = await res.json();
+  return fileUrl;
+}
+
+export function getMediaType(file) {
+  if (file.type.startsWith("video/")) return "video";
+  if (file.type.startsWith("image/")) return "image";
+  return "document";
+}
+
+export async function uploadVideo(file) {
+  return uploadToEndpoint(UPLOAD_VIDEO_URL, file);
+}
+
+export async function uploadImage(file) {
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/upload`, {
     method: "POST",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData,
@@ -39,29 +70,61 @@ export async function uploadVideo(file) {
   return url;
 }
 
+export async function uploadDocument(file) {
+  return uploadToEndpoint(UPLOAD_DOC_URL, file);
+}
+
+export async function uploadFile(file) {
+  const type = getMediaType(file);
+  if (type === "video") return { url: await uploadVideo(file), mediaType: "video" };
+  if (type === "image") return { url: await uploadImage(file), mediaType: "image" };
+  return { url: await uploadDocument(file), mediaType: "document" };
+}
+
 export const safetyModulesService = {
   async list() {
     const data = await gql(`
       query {
         safetyModules {
-          id title videoUrl description createdBy createdAt updatedAt
+          id title videoUrl mediaType files peraturan description createdBy createdAt updatedAt
         }
       }
     `);
     return data.safetyModules;
   },
 
-  async create(title, videoUrl, description = null) {
+  async create(title, files, description = null, peraturan = null) {
+    // files: [{url, mediaType, name}]
+    const filesJson = JSON.stringify(files);
+    // use first file as legacy video_url/media_type for backwards compat
+    const first = files[0] ?? {};
     const data = await gql(
-      `mutation CreateSafetyModule($title: String!, $videoUrl: String, $description: String) {
-        createSafetyModule(title: $title, videoUrl: $videoUrl, description: $description) {
+      `mutation CreateSafetyModule($title: String!, $videoUrl: String, $mediaType: String, $files: String, $peraturan: String, $description: String) {
+        createSafetyModule(title: $title, videoUrl: $videoUrl, mediaType: $mediaType, files: $files, peraturan: $peraturan, description: $description) {
           success message
-          module { id title videoUrl description createdAt }
+          module { id title videoUrl mediaType files peraturan description createdAt }
         }
       }`,
-      { title, videoUrl, description },
+      { title, videoUrl: first.url ?? null, mediaType: first.mediaType ?? "video", files: filesJson, peraturan, description },
     );
     const result = data.createSafetyModule;
+    if (!result.success) throw new Error(result.message);
+    return result.module;
+  },
+
+  async update(id, title, files, description, peraturan) {
+    const filesJson = JSON.stringify(files);
+    const first = files[0] ?? {};
+    const data = await gql(
+      `mutation UpdateSafetyModule($id: Int!, $title: String, $videoUrl: String, $mediaType: String, $files: String, $peraturan: String, $description: String) {
+        updateSafetyModule(id: $id, title: $title, videoUrl: $videoUrl, mediaType: $mediaType, files: $files, peraturan: $peraturan, description: $description) {
+          success message
+          module { id title videoUrl mediaType files peraturan description createdAt }
+        }
+      }`,
+      { id, title, videoUrl: first.url ?? null, mediaType: first.mediaType ?? "video", files: filesJson, peraturan: peraturan || "", description: description || "" },
+    );
+    const result = data.updateSafetyModule;
     if (!result.success) throw new Error(result.message);
     return result.module;
   },

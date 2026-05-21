@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 from app.schema import graphql_router
-from app.cloudinary_utils import upload_image, upload_video
+from app.cloudinary_utils import upload_image, upload_video, upload_document
 from app.database import get_db
 from app import models as _models
 from app import auth as _auth
@@ -114,5 +114,44 @@ async def upload_chat_media(request: Request, file: UploadFile = File(...)):
         url = upload_image(contents, folder="safety_dashboard/chat") if kind == "image" \
             else upload_video(contents, folder="safety_dashboard/chat")
         return {"url": url, "type": kind}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+ALLOWED_DOC_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+
+
+@app.post("/upload-document")
+async def upload_document_file(request: Request, file: UploadFile = File(...)):
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.removeprefix("Bearer ").strip()
+    email = _auth.decode_token(token) if token else None
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    db = next(get_db())
+    try:
+        user = db.query(_models.User).filter(_models.User.email == email).first()
+    finally:
+        db.close()
+
+    if not user or user.role_id != 1:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    if file.content_type not in ALLOWED_DOC_TYPES:
+        raise HTTPException(status_code=400, detail="Only document files are allowed (PDF, Word, Excel, PowerPoint)")
+
+    try:
+        contents = await file.read()
+        url = upload_document(contents)
+        return {"url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
