@@ -84,6 +84,7 @@
       </router-link>
 
       <router-link
+        v-if="canAccessMasterData"
         to="/dashboard/master-data"
         class="nav-item"
         active-class="active"
@@ -156,6 +157,8 @@ const isReportsActive = computed(() => route.path.startsWith("/dashboard/reports
 const reportsOpen = ref(isReportsActive.value);
 
 const user = authService.getCurrentUser();
+const isAdmin = authService.isAdmin();
+const canAccessMasterData = authService.canAccessMasterData();
 const displayName = computed(() => user?.fullName || user?.username || user?.email || "");
 const initials = computed(() => {
   const name = user?.fullName || user?.username || user?.email || "U";

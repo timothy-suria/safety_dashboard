@@ -944,7 +944,7 @@
               <button class="export-dropdown-item" @click="exportCsv(); showExportDropdown = false" :disabled="filteredRecords.length === 0">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 <div>
-                  <div class="export-item-label">CSV (Semua Data)</div>
+                  <div class="export-item-label">Excel (Semua Data)</div>
                   <div class="export-item-desc">Export data yang tampil saat ini</div>
                 </div>
               </button>
@@ -952,7 +952,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <div>
                   <div class="export-item-label">Laporan Bulanan</div>
-                  <div class="export-item-desc">Export CSV atau PDF per bulan</div>
+                  <div class="export-item-desc">Export Excel atau PDF per bulan</div>
                 </div>
               </button>
             </div>
@@ -1209,9 +1209,9 @@
         <div class="modal-footer-bar">
           <button class="btn-secondary" @click="showExportModal = false">Batal</button>
           <div class="export-btn-group">
-            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file CSV">
+            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file Excel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              CSV
+              Excel
             </button>
             <button class="btn btn-export-pdf" @click="downloadMonthlyPDF(exportMonth, exportYear, true)" :disabled="pdfGenerating" title="Download sebagai file PDF">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1811,63 +1811,66 @@ async function confirmDelete() {
   }
 }
 
-function exportCsv() {
-  const source = filteredRecords.value;
-  // Parse all photo URL arrays upfront to determine column count
-  const parsedPhotos = source.map((row) => {
-    if (!row.fotoSebelum) return [];
-    try {
-      const parsed = JSON.parse(row.fotoSebelum);
-      return Array.isArray(parsed) ? parsed : [row.fotoSebelum];
-    } catch {
-      return [row.fotoSebelum];
-    }
-  });
+function buildK3LExport(source) {
+  const parsedBefore = source.map((r) => parsePhotos(r.fotoSebelum));
+  const parsedAfter  = source.map((r) => parsePhotos(r.fotoSesudah));
+  const maxBefore = Math.max(parsedBefore.reduce((m, p) => Math.max(m, p.length), 0), 1);
+  const maxAfter  = Math.max(parsedAfter.reduce((m, p) => Math.max(m, p.length), 0), 1);
 
-  const maxPhotos = parsedPhotos.reduce((max, p) => Math.max(max, p.length), 0);
+  const beforeCols = Array.from({ length: maxBefore }, (_, i) => ({
+    label: maxBefore === 1 ? 'Foto Sebelum' : `Foto Sebelum ${i + 1}`,
+    key: `sb_${i}`,
+    image: true,
+  }));
+  const afterCols = Array.from({ length: maxAfter }, (_, i) => ({
+    label: maxAfter === 1 ? 'Foto Sesudah' : `Foto Sesudah ${i + 1}`,
+    key: `sa_${i}`,
+    image: true,
+  }));
+
+  const columns = [
+    { label: 'No',                key: 'no' },
+    { label: 'Bulan',             key: 'bulan' },
+    { label: 'Tanggal',           key: 'tanggal' },
+    ...beforeCols,
+    ...afterCols,
+    { label: 'Lokasi',            key: 'lokasi' },
+    { label: 'Deskripsi Temuan',  key: 'deskripsiTemuan' },
+    { label: 'Tindakan Perbaikan',key: 'tindakanPerbaikan' },
+    { label: 'Target Selesai',    key: 'targetSelesai' },
+    { label: 'Status',            key: 'status' },
+    { label: 'Aktual Close',      key: 'aktualClose' },
+  ];
 
   const rows = source.map((row, idx) => {
-    const photos = parsedPhotos[idx];
-    const photoFields = {};
-    for (let i = 0; i < maxPhotos; i++) {
-      // =IMAGE("url") renders the image inline in Excel 365
-      photoFields[`foto_${i + 1}`] = photos[i] ? `=IMAGE("${photos[i]}")` : '';
-    }
+    const before = parsedBefore[idx];
+    const after  = parsedAfter[idx];
+    const sbFields = {};
+    for (let i = 0; i < maxBefore; i++) sbFields[`sb_${i}`] = before[i] || '';
+    const saFields = {};
+    for (let i = 0; i < maxAfter; i++)  saFields[`sa_${i}`] = after[i]  || '';
     return {
       no: idx + 1,
+      bulan: row.tanggal ? MONTH_NAMES[new Date(row.tanggal).getMonth()] : '',
       tanggal: row.tanggal || '',
-      kategoriTemuan: row.kategoriTemuan || '',
-      deskripsiTemuan: row.deskripsiTemuan || '',
+      ...sbFields,
+      ...saFields,
       lokasi: row.lokasi || '',
+      deskripsiTemuan: row.deskripsiTemuan || '',
       tindakanPerbaikan: row.tindakanPerbaikan || '',
       targetSelesai: row.targetSelesai || '',
       status: row.status || '',
       aktualClose: row.aktualClose || '',
-      ...photoFields,
     };
   });
 
-  const photoColumnDefs = Array.from({ length: maxPhotos }, (_, i) => ({
-    label: `Foto ${i + 1}`,
-    key: `foto_${i + 1}`,
-    formula: true,
-  }));
+  return { columns, rows };
+}
 
-  const columns = [
-    { label: 'No', key: 'no' },
-    { label: 'Tanggal', key: 'tanggal' },
-    { label: 'Kategori Temuan', key: 'kategoriTemuan' },
-    { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
-    { label: 'Lokasi', key: 'lokasi' },
-    { label: 'Tindakan Perbaikan', key: 'tindakanPerbaikan' },
-    { label: 'Target Selesai', key: 'targetSelesai' },
-    { label: 'Status', key: 'status' },
-    { label: 'Aktual Close', key: 'aktualClose' },
-    ...photoColumnDefs,
-  ];
-
+async function exportCsv() {
+  const { columns, rows } = buildK3LExport(filteredRecords.value);
   const today = new Date().toISOString().slice(0, 10);
-  exportToCsv(`inspection-k3l-${today}.csv`, columns, rows);
+  await exportToCsv(`inspection-k3l-${today}.xlsx`, columns, rows);
 }
 
 // ── Monthly Export (Option 1) ──────────────────────────────────────────────
@@ -1878,7 +1881,7 @@ const exportYear = ref(new Date().getFullYear());
 
 const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-function exportMonthlyCSV() {
+async function exportMonthlyCSV() {
   const m = Number(exportMonth.value);
   const y = Number(exportYear.value);
   const rows = records.value.filter((r) => {
@@ -1887,19 +1890,8 @@ function exportMonthlyCSV() {
     return d.getMonth() + 1 === m && d.getFullYear() === y;
   });
   if (!rows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
-  const columns = [
-    { label: 'No', key: 'no' },
-    { label: 'Tanggal', key: 'tanggal' },
-    { label: 'Kategori Temuan', key: 'kategoriTemuan' },
-    { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
-    { label: 'Lokasi', key: 'lokasi' },
-    { label: 'Tindakan Perbaikan', key: 'tindakanPerbaikan' },
-    { label: 'Target Selesai', key: 'targetSelesai' },
-    { label: 'Status', key: 'status' },
-    { label: 'Aktual Close', key: 'aktualClose' },
-  ];
-  const mapped = rows.map((r, i) => ({ no: i + 1, tanggal: r.tanggal || '', kategoriTemuan: r.kategoriTemuan || '', deskripsiTemuan: r.deskripsiTemuan || '', lokasi: r.lokasi || '', tindakanPerbaikan: r.tindakanPerbaikan || '', targetSelesai: r.targetSelesai || '', status: r.status || '', aktualClose: r.aktualClose || '' }));
-  exportToCsv(`inspection-k3l-${y}-${String(m).padStart(2,'0')}.csv`, columns, mapped);
+  const { columns, rows: mapped } = buildK3LExport(rows);
+  await exportToCsv(`inspection-k3l-${y}-${String(m).padStart(2,'0')}.xlsx`, columns, mapped);
   showExportModal.value = false;
 }
 

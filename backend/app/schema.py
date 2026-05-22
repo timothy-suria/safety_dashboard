@@ -60,6 +60,7 @@ class UserType:
     full_name: Optional[str] = None
     username: Optional[str] = None
     role_id: Optional[int] = None
+    role_level: Optional[int] = None
     business_unit_id: Optional[int] = None
     plant_id: Optional[int] = None
 
@@ -999,6 +1000,7 @@ class Mutation:
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
+                    role_level=role_name.level if role_name else None,
                     business_unit_id=user.business_unit_id,
                     plant_id=user.plant_id,
                 ),
@@ -1038,6 +1040,7 @@ class Mutation:
                     full_name=user.full_name,
                     username=user.username,
                     role_id=user.role_id,
+                    role_level=role_name.level if role_name else None,
                     business_unit_id=user.business_unit_id,
                     plant_id=user.plant_id,
                 ),

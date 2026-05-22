@@ -33,7 +33,7 @@ const routes = [
         component: HseDailyReport,
       },
 { path: "chat", name: "Chat", component: Chat },
-{ path: "master-data", name: "MasterData", component: MasterData },
+{ path: "master-data", name: "MasterData", component: MasterData, meta: { requiresAdmin: true } },
       {
         path: "settings",
         name: "Settings",
@@ -58,12 +58,18 @@ router.beforeEach((to, _from, next) => {
   }
 
   if (to.meta.requiresAuth && !token) {
-    next({ name: "Login" });
-  } else if (to.name === "Login" && token) {
-    next({ name: "DashboardHome" });
-  } else {
-    next();
+    return next({ name: "Login" });
   }
+
+  if (to.name === "Login" && token) {
+    return next({ name: "DashboardHome" });
+  }
+
+  if (to.meta.requiresAdmin && !authService.canAccessMasterData()) {
+    return next({ name: "DashboardHome" });
+  }
+
+  next();
 });
 
 export default router;

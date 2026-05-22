@@ -38,7 +38,7 @@
               <button class="export-dropdown-item" @click="exportCsvAll(); showExportDropdown = false" :disabled="filteredRecords.length === 0">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 <div>
-                  <div class="export-item-label">CSV (Semua Data)</div>
+                  <div class="export-item-label">Excel (Semua Data)</div>
                   <div class="export-item-desc">Export data yang tampil saat ini</div>
                 </div>
               </button>
@@ -513,9 +513,9 @@
         <div class="modal-footer-bar">
           <button class="btn-secondary" @click="showHseExportModal = false">Batal</button>
           <div class="export-btn-group">
-            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file CSV">
+            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file Excel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              CSV
+              Excel
             </button>
             <button class="btn btn-export-pdf" @click="downloadMonthlyPDF" :disabled="pdfGenerating" title="Download sebagai file PDF">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -967,12 +967,12 @@ function recordsToCsvRows(rows) {
   }));
 }
 
-function exportCsvAll() {
+async function exportCsvAll() {
   const today = new Date().toISOString().slice(0, 10);
-  exportToCsv(`hse-daily-${today}.csv`, CSV_COLUMNS, recordsToCsvRows(filteredRecords.value));
+  await exportToCsv(`hse-daily-${today}.xlsx`, CSV_COLUMNS, recordsToCsvRows(filteredRecords.value));
 }
 
-function exportMonthlyCSV() {
+async function exportMonthlyCSV() {
   const m = hseExportMonth.value;
   const y = hseExportYear.value;
   const rows = records.value.filter(r => {
@@ -981,7 +981,7 @@ function exportMonthlyCSV() {
     return d.getFullYear() === y && d.getMonth() + 1 === m;
   });
   if (!rows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
-  exportToCsv(`hse-daily-${y}-${String(m).padStart(2,'0')}.csv`, CSV_COLUMNS, recordsToCsvRows(rows));
+  await exportToCsv(`hse-daily-${y}-${String(m).padStart(2,'0')}.xlsx`, CSV_COLUMNS, recordsToCsvRows(rows));
   showHseExportModal.value = false;
 }
 

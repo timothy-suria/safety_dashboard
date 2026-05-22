@@ -24,7 +24,7 @@ export const authService = {
       `mutation Register($email: String!, $password: String!) {
         register(email: $email, password: $password) {
           success message token
-          user { id email fullName username role roleId businessUnit plant businessUnitId plantId }
+          user { id email fullName username role roleId roleLevel businessUnit plant businessUnitId plantId }
         }
       }`,
       { email, password },
@@ -41,7 +41,7 @@ export const authService = {
       `mutation Login($email: String!, $password: String!) {
         login(email: $email, password: $password) {
           success message token
-          user { id email fullName username role roleId businessUnit plant businessUnitId plantId }
+          user { id email fullName username role roleId roleLevel businessUnit plant businessUnitId plantId }
         }
       }`,
       { email, password },
@@ -56,6 +56,19 @@ export const authService = {
   getCurrentUser() {
     const raw = localStorage.getItem("user");
     return raw ? JSON.parse(raw) : null;
+  },
+
+  getRoleLevel() {
+    const user = this.getCurrentUser();
+    return user?.roleLevel ?? 999;
+  },
+
+  isAdmin() {
+    return this.getRoleLevel() === 0;
+  },
+
+  canAccessMasterData() {
+    return this.getRoleLevel() <= 3;
   },
 
   logout() {
