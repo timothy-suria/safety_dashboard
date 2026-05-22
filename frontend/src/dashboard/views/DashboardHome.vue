@@ -4,7 +4,9 @@
     <div class="dash-header">
       <div>
         <h2>Dashboard Overview</h2>
-        <p class="dash-sub">K3L Safety inspection summary &middot; {{ currentMonthYear }}</p>
+        <p class="dash-sub">
+          K3L Safety inspection summary &middot; {{ currentMonthYear }}
+        </p>
       </div>
       <div class="welcome-pill">
         <span class="welcome-dot"></span>
@@ -20,53 +22,148 @@
 
     <!-- Error state -->
     <div v-else-if="loadFailed" class="dashboard-empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" width="48" height="48">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#ef4444"
+        stroke-width="1.5"
+        width="48"
+        height="48"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
       <h3>Tidak dapat memuat data</h3>
       <p>Pastikan server backend sudah berjalan, lalu refresh halaman ini.</p>
-      <button class="empty-btn" @click="() => window.location.reload()">Refresh</button>
+      <button class="empty-btn" @click="() => window.location.reload()">
+        Refresh
+      </button>
     </div>
 
     <!-- Empty state -->
     <div v-else-if="records.length === 0" class="dashboard-empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" width="48" height="48">
-        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-        <rect x="9" y="3" width="6" height="4" rx="1"/>
-        <line x1="9" y1="12" x2="15" y2="12"/>
-        <line x1="9" y1="16" x2="13" y2="16"/>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#94a3b8"
+        stroke-width="1.5"
+        width="48"
+        height="48"
+      >
+        <path
+          d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+        />
+        <rect x="9" y="3" width="6" height="4" rx="1" />
+        <line x1="9" y1="12" x2="15" y2="12" />
+        <line x1="9" y1="16" x2="13" y2="16" />
       </svg>
       <h3>Belum ada data temuan</h3>
-      <p>Data Inspection K3L belum tersedia. Mulai dengan menambahkan temuan pertama.</p>
-      <button class="empty-btn" @click="() => $router.push('/dashboard/reports/inspection-k3l')">+ Tambah Temuan</button>
+      <p>
+        Data Inspection K3L belum tersedia. Mulai dengan menambahkan temuan
+        pertama.
+      </p>
+      <button
+        class="empty-btn"
+        @click="() => $router.push('/dashboard/reports/inspection-k3l')"
+      >
+        + Tambah Temuan
+      </button>
     </div>
 
     <template v-else>
       <!-- Date filter row -->
       <div class="date-filter-row">
-        <button v-for="opt in DATE_PRESETS" :key="opt.value" class="date-chip" :class="{ active: filterDate === opt.value }" @click="setDatePreset(opt.value)">{{ opt.label }}</button>
+        <button
+          v-for="opt in DATE_PRESETS"
+          :key="opt.value"
+          class="date-chip"
+          :class="{ active: filterDate === opt.value }"
+          @click="setDatePreset(opt.value)"
+        >
+          {{ opt.label }}
+        </button>
       </div>
       <div v-if="filterDate === 'custom'" class="custom-date-row">
         <label class="toolbar-date-wrap">
-          <input type="date" v-model="customDateFrom" class="toolbar-date" @click="$event.target.showPicker?.()" />
+          <input
+            type="date"
+            v-model="customDateFrom"
+            class="toolbar-date"
+            @click="$event.target.showPicker?.()"
+          />
         </label>
         <span class="date-sep">–</span>
         <label class="toolbar-date-wrap">
-          <input type="date" v-model="customDateTo" class="toolbar-date" @click="$event.target.showPicker?.()" />
+          <input
+            type="date"
+            v-model="customDateTo"
+            class="toolbar-date"
+            @click="$event.target.showPicker?.()"
+          />
         </label>
+      </div>
+
+      <!-- Scope filter: BU + Plant -->
+      <div v-if="roleLevel <= 2" class="scope-filter-row">
+        <select v-model="filterBU" class="scope-select">
+          <option :value="null">Semua Business Unit</option>
+          <option v-for="bu in businessUnits" :key="bu.id" :value="bu.id">
+            {{ bu.name }}
+          </option>
+        </select>
+        <select v-model="filterPlant" class="scope-select">
+          <option :value="null">Semua Plant</option>
+          <option v-for="p in availablePlants" :key="p.id" :value="p.id">
+            {{ p.name }}
+          </option>
+        </select>
+        <button
+          v-if="filterBU || filterPlant"
+          class="scope-reset-btn"
+          @click="resetScopeFilter"
+        >
+          Reset
+        </button>
+      </div>
+      <div v-else-if="roleLevel <= 4" class="scope-filter-row">
+        <span class="scope-bu-label">{{
+          businessUnits.find((b) => b.id === user.businessUnitId)?.name ||
+          'Business Unit'
+        }}</span>
+        <select v-model="filterPlant" class="scope-select">
+          <option :value="null">Semua Plant</option>
+          <option v-for="p in availablePlants" :key="p.id" :value="p.id">
+            {{ p.name }}
+          </option>
+        </select>
+        <button
+          v-if="filterPlant"
+          class="scope-reset-btn"
+          @click="filterPlant = null"
+        >
+          Reset
+        </button>
       </div>
 
       <!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-icon-wrap" style="background:#eff6ff">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" width="22" height="22">
-              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-              <rect x="9" y="3" width="6" height="4" rx="1"/>
-              <line x1="9" y1="12" x2="15" y2="12"/>
-              <line x1="9" y1="16" x2="13" y2="16"/>
+          <div class="kpi-icon-wrap" style="background: #eff6ff">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#3b82f6"
+              stroke-width="2"
+              width="22"
+              height="22"
+            >
+              <path
+                d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+              />
+              <rect x="9" y="3" width="6" height="4" rx="1" />
+              <line x1="9" y1="12" x2="15" y2="12" />
+              <line x1="9" y1="16" x2="13" y2="16" />
             </svg>
           </div>
           <div class="kpi-body">
@@ -74,15 +171,22 @@
             <div class="kpi-label">Total Reports</div>
             <div class="kpi-meta">All time</div>
           </div>
-          <div class="kpi-bar" style="background:#3b82f6"></div>
+          <div class="kpi-bar" style="background: #3b82f6"></div>
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-icon-wrap" style="background:#fffbeb">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="22" height="22">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+          <div class="kpi-icon-wrap" style="background: #fffbeb">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#f59e0b"
+              stroke-width="2"
+              width="22"
+              height="22"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
           <div class="kpi-body">
@@ -90,13 +194,20 @@
             <div class="kpi-label">Open</div>
             <div class="kpi-meta">Needs attention</div>
           </div>
-          <div class="kpi-bar" style="background:#f59e0b"></div>
+          <div class="kpi-bar" style="background: #f59e0b"></div>
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-icon-wrap" style="background:#eef2ff">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" width="22" height="22">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          <div class="kpi-icon-wrap" style="background: #eef2ff">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#6366f1"
+              stroke-width="2"
+              width="22"
+              height="22"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
           </div>
           <div class="kpi-body">
@@ -104,14 +215,21 @@
             <div class="kpi-label">In Progress</div>
             <div class="kpi-meta">Being resolved</div>
           </div>
-          <div class="kpi-bar" style="background:#6366f1"></div>
+          <div class="kpi-bar" style="background: #6366f1"></div>
         </div>
 
         <div class="kpi-card">
-          <div class="kpi-icon-wrap" style="background:#f0fdf4">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" width="22" height="22">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
+          <div class="kpi-icon-wrap" style="background: #f0fdf4">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#10b981"
+              stroke-width="2"
+              width="22"
+              height="22"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
           <div class="kpi-body">
@@ -119,7 +237,7 @@
             <div class="kpi-label">Resolved</div>
             <div class="kpi-meta">Closed reports</div>
           </div>
-          <div class="kpi-bar" style="background:#10b981"></div>
+          <div class="kpi-bar" style="background: #10b981"></div>
         </div>
       </div>
 
@@ -146,76 +264,126 @@
           <div class="chart-header">
             <div>
               <div class="chart-title">Monthly Trend</div>
-              <div class="chart-subtitle">Reports by category per month (last 6 months)</div>
+              <div class="chart-subtitle">
+                Reports by category per month (last 6 months)
+              </div>
             </div>
             <div class="grouped-legend">
-              <span v-for="s in activeCategories" :key="s.label" class="gl-item">
-                <span class="gl-dot" :style="{ background: s.color }"></span>{{ s.label }}
+              <span
+                v-for="s in activeCategories"
+                :key="s.label"
+                class="gl-item"
+              >
+                <span class="gl-dot" :style="{ background: s.color }"></span
+                >{{ s.label }}
               </span>
             </div>
           </div>
           <div class="chart-body chart-grouped-wrap">
-            <div class="bar-scroll-outer" ref="barScrollRef" @mousemove="onChartMouseMove" @mouseleave="hideTooltip">
-            <svg viewBox="0 0 520 185" class="bar-svg" xmlns="http://www.w3.org/2000/svg">
-              <!-- Horizontal grid lines -->
-              <line v-for="gl in gridLines" :key="gl.y"
-                x1="44" :y1="gl.y" x2="512" :y2="gl.y"
-                stroke="#f1f5f9" stroke-width="1.5"/>
-              <!-- Y-axis labels -->
-              <text v-for="gl in gridLines" :key="`y${gl.y}`"
-                x="38" :y="gl.y + 4"
-                text-anchor="end" font-size="10" fill="#94a3b8">{{ gl.label }}</text>
-              <!-- Groups -->
-              <g
-                v-for="(grp, i) in groupedBarData" :key="i"
-                @mouseenter="showGroupTooltip(grp)"
-                @mouseleave="hideTooltip"
-                style="cursor:default"
-              >
-                <!-- hover hit area -->
-                <rect
-                  :x="grp.bars[0].x - 4"
-                  y="0"
-                  :width="grp.groupW + 8"
-                  height="165"
-                  fill="transparent"
-                />
-                <rect
-                  v-for="(bar, j) in grp.bars" :key="j"
-                  :x="bar.x" :y="bar.y" :width="bar.w" :height="Math.max(bar.h, 2)"
-                  rx="4"
-                  :fill="bar.color"
-                  :opacity="tooltipData && tooltipData.label !== grp.label ? 0.4 : 1"
-                  style="transition: opacity 0.15s"
-                />
-                <!-- Total above group -->
-                <text v-if="grp.total > 0"
-                  :x="grp.labelX" :y="grp.topY"
-                  text-anchor="middle" font-size="11" font-weight="700" fill="#475569">
-                  {{ grp.total }}
-                </text>
-                <!-- Month label -->
-                <text
-                  :x="grp.labelX" :y="178"
-                  text-anchor="middle" font-size="11" fill="#64748b">
-                  {{ grp.label }}
-                </text>
-              </g>
-            </svg>
-            <!-- Tooltip -->
             <div
-              v-if="tooltipData"
-              class="bar-tooltip"
-              :style="{ left: tooltipPos.x + 'px', top: tooltipPos.y + 'px' }"
+              class="bar-scroll-outer"
+              ref="barScrollRef"
+              @mousemove="onChartMouseMove"
+              @mouseleave="hideTooltip"
             >
-              <div class="tt-month">{{ tooltipData.label }}</div>
-              <div v-for="s in activeCategories" :key="s.key" class="tt-row">
-                <span class="tt-dot" :style="{ background: s.color }"></span>
-                <span class="tt-label">{{ s.label }}</span>
-                <span class="tt-val">{{ tooltipData[s.key] }}</span>
+              <svg
+                viewBox="0 0 520 185"
+                class="bar-svg"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <!-- Horizontal grid lines -->
+                <line
+                  v-for="gl in gridLines"
+                  :key="gl.y"
+                  x1="44"
+                  :y1="gl.y"
+                  x2="512"
+                  :y2="gl.y"
+                  stroke="#f1f5f9"
+                  stroke-width="1.5"
+                />
+                <!-- Y-axis labels -->
+                <text
+                  v-for="gl in gridLines"
+                  :key="`y${gl.y}`"
+                  x="38"
+                  :y="gl.y + 4"
+                  text-anchor="end"
+                  font-size="10"
+                  fill="#94a3b8"
+                >
+                  {{ gl.label }}
+                </text>
+                <!-- Groups -->
+                <g
+                  v-for="(grp, i) in groupedBarData"
+                  :key="i"
+                  @mouseenter="showGroupTooltip(grp)"
+                  @mouseleave="hideTooltip"
+                  style="cursor: default"
+                >
+                  <!-- hover hit area -->
+                  <rect
+                    v-if="grp.bars.length"
+                    :x="grp.bars[0].x - 4"
+                    y="0"
+                    :width="grp.groupW + 8"
+                    height="165"
+                    fill="transparent"
+                  />
+                  <rect
+                    v-for="(bar, j) in grp.bars"
+                    :key="j"
+                    :x="bar.x"
+                    :y="bar.y"
+                    :width="bar.w"
+                    :height="Math.max(bar.h, 2)"
+                    rx="4"
+                    :fill="bar.color"
+                    :opacity="
+                      tooltipData && tooltipData.label !== grp.label ? 0.4 : 1
+                    "
+                    style="transition: opacity 0.15s"
+                  />
+                  <!-- Total above group -->
+                  <text
+                    v-if="grp.total > 0"
+                    :x="grp.labelX"
+                    :y="grp.topY"
+                    text-anchor="middle"
+                    font-size="11"
+                    font-weight="700"
+                    fill="#475569"
+                  >
+                    {{ grp.total }}
+                  </text>
+                  <!-- Month label -->
+                  <text
+                    :x="grp.labelX"
+                    :y="178"
+                    text-anchor="middle"
+                    font-size="11"
+                    fill="#64748b"
+                  >
+                    {{ grp.label }}
+                  </text>
+                </g>
+              </svg>
+              <!-- Tooltip -->
+              <div
+                v-if="tooltipData"
+                class="bar-tooltip"
+                :style="{ left: tooltipPos.x + 'px', top: tooltipPos.y + 'px' }"
+              >
+                <div class="tt-month">{{ tooltipData.label }}</div>
+                <div v-for="s in activeCategories" :key="s.key" class="tt-row">
+                  <span class="tt-dot" :style="{ background: s.color }"></span>
+                  <span class="tt-label">{{ s.label }}</span>
+                  <span class="tt-val">{{ tooltipData[s.key] }}</span>
+                </div>
               </div>
             </div>
-            </div><!-- end bar-scroll-outer -->
+            <!-- end bar-scroll-outer -->
           </div>
         </div>
 
@@ -227,12 +395,30 @@
               <div class="chart-subtitle">Finding distribution</div>
             </div>
           </div>
-          <div class="donut-body" @mousemove="onDonutMouseMove" @mouseleave="hideDonutTooltip">
-            <svg viewBox="0 0 200 200" class="donut-svg" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="100" cy="100" r="65" fill="none" stroke="#f1f5f9" stroke-width="30"/>
+          <div
+            class="donut-body"
+            @mousemove="onDonutMouseMove"
+            @mouseleave="hideDonutTooltip"
+          >
+            <svg
+              viewBox="0 0 200 200"
+              class="donut-svg"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <circle
-                v-for="seg in donutSegments" :key="seg.category"
-                cx="100" cy="100" r="65"
+                cx="100"
+                cy="100"
+                r="65"
+                fill="none"
+                stroke="#f1f5f9"
+                stroke-width="30"
+              />
+              <circle
+                v-for="seg in donutSegments"
+                :key="seg.category"
+                cx="100"
+                cy="100"
+                r="65"
                 fill="none"
                 :stroke="seg.color"
                 stroke-width="30"
@@ -240,27 +426,68 @@
                 :stroke-dashoffset="-seg.offset"
                 transform="rotate(-90 100 100)"
                 stroke-linecap="butt"
-                :opacity="hoveredDonut && hoveredDonut.category !== seg.category ? 0.3 : 1"
+                :opacity="
+                  hoveredDonut && hoveredDonut.category !== seg.category
+                    ? 0.3
+                    : 1
+                "
                 style="transition: opacity 0.15s; cursor: pointer"
                 @mouseenter="hoveredDonut = seg"
                 @mouseleave="hoveredDonut = null"
               />
-              <text x="100" y="95" text-anchor="middle" font-size="26" font-weight="800" fill="#1e293b">{{ stats.total }}</text>
-              <text x="100" y="113" text-anchor="middle" font-size="10" fill="#94a3b8" letter-spacing="1">REPORTS</text>
+              <text
+                x="100"
+                y="95"
+                text-anchor="middle"
+                font-size="26"
+                font-weight="800"
+                fill="#1e293b"
+              >
+                {{ stats.total }}
+              </text>
+              <text
+                x="100"
+                y="113"
+                text-anchor="middle"
+                font-size="10"
+                fill="#94a3b8"
+                letter-spacing="1"
+              >
+                REPORTS
+              </text>
             </svg>
             <div
               v-if="hoveredDonut"
               class="donut-tooltip"
-              :style="{ left: donutTooltipPos.x + 'px', top: donutTooltipPos.y + 'px' }"
+              :style="{
+                left: donutTooltipPos.x + 'px',
+                top: donutTooltipPos.y + 'px',
+              }"
             >
-              <span class="dt-dot" :style="{ background: hoveredDonut.color }"></span>
+              <span
+                class="dt-dot"
+                :style="{ background: hoveredDonut.color }"
+              ></span>
               <span class="dt-cat">{{ hoveredDonut.category }}</span>
               <span class="dt-count">{{ hoveredDonut.count }}</span>
-              <span class="dt-pct">{{ stats.total ? Math.round(hoveredDonut.count / stats.total * 100) : 0 }}%</span>
+              <span class="dt-pct"
+                >{{
+                  stats.total
+                    ? Math.round((hoveredDonut.count / stats.total) * 100)
+                    : 0
+                }}%</span
+              >
             </div>
             <div class="donut-legend">
-              <div v-for="seg in donutSegments" :key="seg.category" class="legend-item">
-                <span class="legend-dot" :style="{ background: seg.color }"></span>
+              <div
+                v-for="seg in donutSegments"
+                :key="seg.category"
+                class="legend-item"
+              >
+                <span
+                  class="legend-dot"
+                  :style="{ background: seg.color }"
+                ></span>
                 <span class="legend-label">{{ seg.category }}</span>
                 <span class="legend-count">{{ seg.count }}</span>
               </div>
@@ -280,47 +507,94 @@
             </div>
             <div class="cal-nav">
               <button class="cal-btn" @click="prevMonth">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <polyline points="15 18 9 12 15 6"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="16"
+                  height="16"
+                >
+                  <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
               <button class="cal-btn" @click="nextMonth">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <polyline points="9 18 15 12 9 6"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="16"
+                  height="16"
+                >
+                  <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             </div>
           </div>
-          <div class="cal-body" @mousemove="onCalMouseMove" @mouseleave="hoveredDay = null">
+          <div
+            class="cal-body"
+            @mousemove="onCalMouseMove"
+            @mouseleave="hoveredDay = null"
+          >
             <div class="cal-weekdays">
-              <div v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d" class="cal-wd">{{ d }}</div>
+              <div
+                v-for="d in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+                :key="d"
+                class="cal-wd"
+              >
+                {{ d }}
+              </div>
             </div>
             <div class="cal-grid">
               <div
-                v-for="(day, i) in calendarDays" :key="i"
+                v-for="(day, i) in calendarDays"
+                :key="i"
                 class="cal-day"
                 :class="{
                   'cal-other': !day.currentMonth,
                   'cal-today': day.isToday,
                   'cal-active': day.currentMonth && day.count > 0,
                 }"
-                @mouseenter="day.currentMonth && day.count > 0 ? hoveredDay = day : null"
+                @mouseenter="
+                  day.currentMonth && day.count > 0 ? (hoveredDay = day) : null
+                "
                 @mouseleave="hoveredDay = null"
               >
                 <span class="cal-num">{{ day.date }}</span>
-                <span v-if="day.count > 0 && day.currentMonth" class="cal-badge">{{ day.count }}</span>
+                <span
+                  v-if="day.count > 0 && day.currentMonth"
+                  class="cal-badge"
+                  >{{ day.count }}</span
+                >
               </div>
             </div>
             <!-- Day tooltip -->
             <div
               v-if="hoveredDay"
               class="cal-tooltip"
-              :style="{ left: dayTooltipPos.x + 'px', top: dayTooltipPos.y + 'px' }"
+              :style="{
+                left: dayTooltipPos.x + 'px',
+                top: dayTooltipPos.y + 'px',
+              }"
             >
-              <div class="cal-tt-date">{{ calendarMonthYear.split(' ')[0] }} {{ hoveredDay.date }}</div>
-              <div class="cal-tt-total">{{ hoveredDay.count }} report{{ hoveredDay.count !== 1 ? 's' : '' }}</div>
-              <div v-for="(cnt, cat) in hoveredDay.cats" :key="cat" class="cal-tt-row">
-                <span class="cal-tt-dot" :style="{ background: categoryColor(cat) }"></span>
+              <div class="cal-tt-date">
+                {{ calendarMonthYear.split(' ')[0] }} {{ hoveredDay.date }}
+              </div>
+              <div class="cal-tt-total">
+                {{ hoveredDay.count }} report{{
+                  hoveredDay.count !== 1 ? 's' : ''
+                }}
+              </div>
+              <div
+                v-for="(cnt, cat) in hoveredDay.cats"
+                :key="cat"
+                class="cal-tt-row"
+              >
+                <span
+                  class="cal-tt-dot"
+                  :style="{ background: categoryColor(cat) }"
+                ></span>
                 <span class="cal-tt-cat">{{ cat }}</span>
                 <span class="cal-tt-cnt">{{ cnt }}</span>
               </div>
@@ -328,8 +602,13 @@
           </div>
           <!-- Calendar legend -->
           <div class="cal-legend">
-            <span class="cal-leg-item"><span class="cal-leg-dot" style="background:#3b82f6"></span> Has reports</span>
-            <span class="cal-leg-item"><span class="cal-leg-today"></span> Today</span>
+            <span class="cal-leg-item"
+              ><span class="cal-leg-dot" style="background: #3b82f6"></span> Has
+              reports</span
+            >
+            <span class="cal-leg-item"
+              ><span class="cal-leg-today"></span> Today</span
+            >
           </div>
         </div>
 
@@ -340,27 +619,65 @@
               <div class="chart-title">Recent Reports</div>
               <div class="chart-subtitle">Latest K3L findings</div>
             </div>
-            <router-link to="/dashboard/reports/inspection-k3l" class="view-all-link">
+            <router-link
+              to="/dashboard/reports/inspection-k3l"
+              class="view-all-link"
+            >
               View all
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="9 18 15 12 9 6"/></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                width="13"
+                height="13"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </router-link>
           </div>
           <div class="recent-list">
             <div v-if="recentRecords.length === 0" class="empty-recent">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" width="40" height="40">
-                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#cbd5e1"
+                stroke-width="1.5"
+                width="40"
+                height="40"
+              >
+                <path
+                  d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
+                />
+                <rect x="9" y="3" width="6" height="4" rx="1" />
               </svg>
               <p>No reports yet</p>
             </div>
-            <div v-for="rec in recentRecords" :key="rec.id" class="recent-item" @click="openRecord(rec.id)" style="cursor:pointer">
-              <div class="recent-cat-dot" :style="{ background: categoryColor(rec.kategoriTemuan) }"></div>
+            <div
+              v-for="rec in recentRecords"
+              :key="rec.id"
+              class="recent-item"
+              @click="openRecord(rec.id)"
+              style="cursor: pointer"
+            >
+              <div
+                class="recent-cat-dot"
+                :style="{ background: categoryColor(rec.kategoriTemuan) }"
+              ></div>
               <div class="recent-info">
-                <div class="recent-cat">{{ rec.deskripsiTemuan || rec.kategoriTemuan }}</div>
+                <div class="recent-cat">
+                  {{ rec.deskripsiTemuan || rec.kategoriTemuan }}
+                </div>
                 <div class="recent-loc">{{ getLocationLabel(rec) }}</div>
               </div>
               <div class="recent-right">
-                <span :class="['status-chip', `sc-${rec.status.toLowerCase().replace(' ', '-')}`]">{{ rec.status }}</span>
+                <span
+                  :class="[
+                    'status-chip',
+                    `sc-${rec.status.toLowerCase().replace(' ', '-')}`,
+                  ]"
+                  >{{ rec.status }}</span
+                >
                 <span class="recent-date">{{ formatDate(rec.tanggal) }}</span>
               </div>
             </div>
@@ -372,7 +689,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { inspectionK3LService } from '@/services/inspectionK3LService.js';
 import { authService } from '@/services/authService.js';
@@ -389,6 +706,10 @@ const filterDate = ref('all');
 const customDateFrom = ref('');
 const customDateTo = ref('');
 
+const filterBU = ref(null);
+const filterPlant = ref(null);
+const roleLevel = authService.getRoleLevel();
+
 const DATE_PRESETS = [
   { label: 'Semua', value: 'all' },
   { label: 'Hari ini', value: 'today' },
@@ -399,25 +720,88 @@ const DATE_PRESETS = [
 
 function setDatePreset(val) {
   filterDate.value = val;
-  if (val !== 'custom') { customDateFrom.value = ''; customDateTo.value = ''; }
+  if (val !== 'custom') {
+    customDateFrom.value = '';
+    customDateTo.value = '';
+  }
+}
+
+// Master data lists (needed before availablePlants watchEffect)
+const businessUnits = ref([]);
+const plants = ref([]);
+const departments = ref([]);
+
+// Plants available in the scope filter dropdown (refetched from API on BU change)
+const availablePlants = ref([]);
+
+watch(filterBU, async (newBuId) => {
+  filterPlant.value = null;
+  availablePlants.value = await inspectionK3LService.listPlants(newBuId);
+});
+
+// Role-based scope + UI BU/plant filter applied before date filter
+const scopedRecords = computed(() => {
+  let src = records.value;
+  if (roleLevel >= 5) {
+    src = src.filter(
+      (r) =>
+        Number(r.businessUnitId) === Number(user?.businessUnitId) &&
+        Number(r.plantId) === Number(user?.plantId),
+    );
+  } else if (roleLevel >= 3) {
+    src = src.filter(
+      (r) => Number(r.businessUnitId) === Number(user?.businessUnitId),
+    );
+    if (filterPlant.value != null)
+      src = src.filter((r) => Number(r.plantId) === Number(filterPlant.value));
+  } else {
+    if (filterBU.value != null)
+      src = src.filter(
+        (r) => Number(r.businessUnitId) === Number(filterBU.value),
+      );
+    if (filterPlant.value != null)
+      src = src.filter((r) => Number(r.plantId) === Number(filterPlant.value));
+  }
+  return src;
+});
+
+function resetScopeFilter() {
+  filterBU.value = null;
+  filterPlant.value = null;
 }
 
 const filteredByDate = computed(() => {
-  if (filterDate.value === 'all') return records.value;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return records.value.filter(r => {
+  if (filterDate.value === 'all') return scopedRecords.value;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return scopedRecords.value.filter((r) => {
     if (!r.tanggal) return false;
-    const d = new Date(r.tanggal); d.setHours(0, 0, 0, 0);
+    const d = new Date(r.tanggal);
+    d.setHours(0, 0, 0, 0);
     if (filterDate.value === 'today') return d.getTime() === today.getTime();
     if (filterDate.value === 'week') {
-      const start = new Date(today); start.setDate(today.getDate() - today.getDay());
-      const end = new Date(start); end.setDate(start.getDate() + 6);
+      const start = new Date(today);
+      start.setDate(today.getDate() - today.getDay());
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
       return d >= start && d <= end;
     }
-    if (filterDate.value === 'month') return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+    if (filterDate.value === 'month')
+      return (
+        d.getMonth() === today.getMonth() &&
+        d.getFullYear() === today.getFullYear()
+      );
     if (filterDate.value === 'custom') {
-      if (customDateFrom.value) { const from = new Date(customDateFrom.value); from.setHours(0,0,0,0); if (d < from) return false; }
-      if (customDateTo.value)   { const to   = new Date(customDateTo.value);   to.setHours(0,0,0,0);   if (d > to)   return false; }
+      if (customDateFrom.value) {
+        const from = new Date(customDateFrom.value);
+        from.setHours(0, 0, 0, 0);
+        if (d < from) return false;
+      }
+      if (customDateTo.value) {
+        const to = new Date(customDateTo.value);
+        to.setHours(0, 0, 0, 0);
+        if (d > to) return false;
+      }
     }
     return true;
   });
@@ -438,15 +822,16 @@ const greeting = computed(() => {
 });
 
 const currentMonthYear = computed(() =>
-  new Date().toLocaleString('default', { month: 'long', year: 'numeric' })
+  new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
 );
 
 // ── Stats ──────────────────────────────────────────────────────────
 const stats = computed(() => ({
   total: filteredByDate.value.length,
-  open: filteredByDate.value.filter(r => r.status === 'Open').length,
-  inProgress: filteredByDate.value.filter(r => r.status === 'In Progress').length,
-  closed: filteredByDate.value.filter(r => r.status === 'Closed').length,
+  open: filteredByDate.value.filter((r) => r.status === 'Open').length,
+  inProgress: filteredByDate.value.filter((r) => r.status === 'In Progress')
+    .length,
+  closed: filteredByDate.value.filter((r) => r.status === 'Closed').length,
 }));
 
 const resolutionRate = computed(() => {
@@ -456,16 +841,24 @@ const resolutionRate = computed(() => {
 
 // ── Grouped bar chart (by category) ───────────────────────────────
 const CAT_COLORS = {
-  'Low':    '#4ade80',
-  'Medium': '#fbbf24',
-  'High':   '#f87171',
+  Low: '#4ade80',
+  Medium: '#fbbf24',
+  High: '#f87171',
 };
 
 const activeCategories = computed(() => {
-  const seen = new Set(records.value.map(r => r.kategoriTemuan).filter(Boolean));
-  const ordered = Object.keys(CAT_COLORS).filter(c => seen.has(c));
-  seen.forEach(c => { if (!CAT_COLORS[c]) ordered.push(c); });
-  return ordered.map(cat => ({ key: cat, label: cat, color: CAT_COLORS[cat] || '#94a3b8' }));
+  const seen = new Set(
+    scopedRecords.value.map((r) => r.kategoriTemuan).filter(Boolean),
+  );
+  const ordered = Object.keys(CAT_COLORS).filter((c) => seen.has(c));
+  seen.forEach((c) => {
+    if (!CAT_COLORS[c]) ordered.push(c);
+  });
+  return ordered.map((cat) => ({
+    key: cat,
+    label: cat,
+    color: CAT_COLORS[cat] || '#94a3b8',
+  }));
 });
 
 const monthlyData = computed(() => {
@@ -474,13 +867,22 @@ const monthlyData = computed(() => {
   const months = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
     const counts = {};
-    cats.forEach(c => { counts[c.key] = 0; });
-    return { label: d.toLocaleString('default', { month: 'short' }), year: d.getFullYear(), month: d.getMonth(), counts };
+    cats.forEach((c) => {
+      counts[c.key] = 0;
+    });
+    return {
+      label: d.toLocaleString('default', { month: 'short' }),
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      counts,
+    };
   });
-  records.value.forEach(r => {
+  scopedRecords.value.forEach((r) => {
     if (!r.tanggal || !r.kategoriTemuan) return;
     const d = new Date(r.tanggal);
-    const idx = months.findIndex(m => m.year === d.getFullYear() && m.month === d.getMonth());
+    const idx = months.findIndex(
+      (m) => m.year === d.getFullYear() && m.month === d.getMonth(),
+    );
     if (idx >= 0 && months[idx].counts[r.kategoriTemuan] !== undefined) {
       months[idx].counts[r.kategoriTemuan]++;
     }
@@ -507,25 +909,50 @@ const groupedBarData = computed(() => {
   const data = monthlyData.value;
   const cats = activeCategories.value;
   const { barW, barInnerGap, groupGap, groupW } = barLayout.value;
-  const maxVal = Math.max(...data.flatMap(d => cats.map(c => d.counts[c.key] || 0)), 1);
+  const maxVal = Math.max(
+    ...data.flatMap((d) => cats.map((c) => d.counts[c.key] || 0)),
+    1,
+  );
   return data.map((d, i) => {
     const gx = CHART_LEFT + i * (groupW + groupGap);
     const bars = cats.map((c, j) => {
       const count = d.counts[c.key] || 0;
       const h = (count / maxVal) * CHART_H;
-      return { x: gx + j * (barW + barInnerGap), y: CHART_TOP + CHART_H - h, w: barW, h, count, color: c.color };
+      return {
+        x: gx + j * (barW + barInnerGap),
+        y: CHART_TOP + CHART_H - h,
+        w: barW,
+        h,
+        count,
+        color: c.color,
+      };
     });
     const total = cats.reduce((s, c) => s + (d.counts[c.key] || 0), 0);
-    const topY = Math.min(...bars.map(b => b.y)) - 8;
+    const topY = bars.length
+      ? Math.min(...bars.map((b) => b.y)) - 8
+      : CHART_TOP - 8;
     const catCounts = {};
-    cats.forEach(c => { catCounts[c.key] = d.counts[c.key] || 0; });
-    return { bars, label: d.label, labelX: gx + groupW / 2, groupW, total, topY, ...catCounts };
+    cats.forEach((c) => {
+      catCounts[c.key] = d.counts[c.key] || 0;
+    });
+    return {
+      bars,
+      label: d.label,
+      labelX: gx + groupW / 2,
+      groupW,
+      total,
+      topY,
+      ...catCounts,
+    };
   });
 });
 
 const gridLines = computed(() => {
   const cats = activeCategories.value;
-  const maxVal = Math.max(...monthlyData.value.flatMap(d => cats.map(c => d.counts[c.key] || 0)), 1);
+  const maxVal = Math.max(
+    ...monthlyData.value.flatMap((d) => cats.map((c) => d.counts[c.key] || 0)),
+    1,
+  );
   const step = maxVal <= 4 ? 1 : Math.ceil(maxVal / 4);
   const ticks = [];
   for (let v = 0; v <= maxVal; v += step) {
@@ -539,7 +966,7 @@ const gridLines = computed(() => {
 
 // ── Tooltip ────────────────────────────────────────────────────────
 const tooltipData = ref(null);
-const tooltipPos  = ref({ x: 0, y: 0 });
+const tooltipPos = ref({ x: 0, y: 0 });
 
 function showGroupTooltip(grp) {
   tooltipData.value = grp;
@@ -582,7 +1009,9 @@ const CIRC = 2 * Math.PI * 65;
 const donutSegments = computed(() => {
   if (!stats.value.total) return [];
   const counts = {};
-  records.value.forEach(r => { counts[r.kategoriTemuan] = (counts[r.kategoriTemuan] || 0) + 1; });
+  filteredByDate.value.forEach((r) => {
+    counts[r.kategoriTemuan] = (counts[r.kategoriTemuan] || 0) + 1;
+  });
   let cumulative = 0;
   const order = Object.keys(CAT_COLORS);
   return Object.entries(counts)
@@ -620,7 +1049,10 @@ function onCalMouseMove(e) {
   dayTooltipPos.value = { x, y };
 }
 const calendarMonthYear = computed(() =>
-  calendarDate.value.toLocaleString('default', { month: 'long', year: 'numeric' })
+  calendarDate.value.toLocaleString('default', {
+    month: 'long',
+    year: 'numeric',
+  }),
 );
 
 const calendarDays = computed(() => {
@@ -633,24 +1065,49 @@ const calendarDays = computed(() => {
   const daysInPrev = new Date(year, month, 0).getDate();
 
   const reportMap = {};
-  records.value.forEach(r => {
+  scopedRecords.value.forEach((r) => {
     if (!r.tanggal) return;
     const d = new Date(r.tanggal.replace(' ', 'T'));
     if (d.getFullYear() === year && d.getMonth() === month) {
       const key = d.getDate();
       if (!reportMap[key]) reportMap[key] = { count: 0, cats: {} };
       reportMap[key].count++;
-      if (r.kategoriTemuan) reportMap[key].cats[r.kategoriTemuan] = (reportMap[key].cats[r.kategoriTemuan] || 0) + 1;
+      if (r.kategoriTemuan)
+        reportMap[key].cats[r.kategoriTemuan] =
+          (reportMap[key].cats[r.kategoriTemuan] || 0) + 1;
     }
   });
 
   const days = [];
-  for (let i = firstDow - 1; i >= 0; i--) days.push({ date: daysInPrev - i, currentMonth: false, isToday: false, count: 0, cats: {} });
+  for (let i = firstDow - 1; i >= 0; i--)
+    days.push({
+      date: daysInPrev - i,
+      currentMonth: false,
+      isToday: false,
+      count: 0,
+      cats: {},
+    });
   for (let d = 1; d <= daysInMonth; d++) {
-    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-    days.push({ date: d, currentMonth: true, isToday, count: reportMap[d]?.count || 0, cats: reportMap[d]?.cats || {} });
+    const isToday =
+      d === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear();
+    days.push({
+      date: d,
+      currentMonth: true,
+      isToday,
+      count: reportMap[d]?.count || 0,
+      cats: reportMap[d]?.cats || {},
+    });
   }
-  for (let d = 1; days.length < 42; d++) days.push({ date: d, currentMonth: false, isToday: false, count: 0, cats: {} });
+  for (let d = 1; days.length < 42; d++)
+    days.push({
+      date: d,
+      currentMonth: false,
+      isToday: false,
+      count: 0,
+      cats: {},
+    });
   return days;
 });
 
@@ -666,33 +1123,36 @@ function nextMonth() {
 }
 
 // ── Recent records ─────────────────────────────────────────────────
-const businessUnits = ref([]);
-const plants = ref([]);
-const departments = ref([]);
-
 const recentRecords = computed(() =>
   [...filteredByDate.value]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-    .slice(0, 6)
+    .slice(0, 6),
 );
 
 function openRecord(id) {
-  router.push({ path: '/dashboard/reports/inspection-k3l', query: { view: id } });
+  router.push({
+    path: '/dashboard/reports/inspection-k3l',
+    query: { view: id },
+  });
 }
 
 function formatDate(s) {
   if (!s) return '—';
   const d = new Date(s.replace ? s.replace(' ', 'T') : s);
   if (isNaN(d)) return '—';
-  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 function getLocationLabel(rec) {
   const parts = [
     rec.lokasi,
-    departments.value.find(d => d.id === rec.departmentId)?.name,
-    plants.value.find(p => p.id === rec.plantId)?.name,
-    businessUnits.value.find(b => b.id === rec.businessUnitId)?.name,
+    departments.value.find((d) => d.id === rec.departmentId)?.name,
+    plants.value.find((p) => p.id === rec.plantId)?.name,
+    businessUnits.value.find((b) => b.id === rec.businessUnitId)?.name,
   ].filter(Boolean);
   return parts.join(' / ') || 'No location specified';
 }
@@ -703,12 +1163,21 @@ onMounted(async () => {
     loadFailed.value = true;
   }, 10000);
   try {
-    [records.value, businessUnits.value, plants.value, departments.value] = await Promise.all([
-      inspectionK3LService.list(),
-      inspectionK3LService.listBusinessUnits(),
-      inspectionK3LService.listPlants(),
-      inspectionK3LService.listDepartments(),
-    ]);
+    [records.value, businessUnits.value, plants.value, departments.value] =
+      await Promise.all([
+        inspectionK3LService.list(),
+        inspectionK3LService.listBusinessUnits(),
+        inspectionK3LService.listPlants(),
+        inspectionK3LService.listDepartments(),
+      ]);
+    // Init plant dropdown: levels 3-4 scoped to their BU, levels 0-2 see all
+    if (roleLevel >= 3 && roleLevel < 5) {
+      availablePlants.value = await inspectionK3LService.listPlants(
+        user?.businessUnitId,
+      );
+    } else {
+      availablePlants.value = plants.value;
+    }
   } catch (e) {
     console.error(e);
     loadFailed.value = true;
@@ -728,20 +1197,132 @@ onMounted(async () => {
   padding: 28px 32px;
   max-width: 1400px;
 }
-@media (max-width: 1024px) { .dash { padding: 20px 20px; } }
-@media (max-width: 640px)  { .dash { padding: 16px 14px; } }
+@media (max-width: 1024px) {
+  .dash {
+    padding: 20px 20px;
+  }
+}
+@media (max-width: 640px) {
+  .dash {
+    padding: 16px 14px;
+  }
+}
 
 /* ── Date filter ─────────────────────────────────────────────────── */
-.date-filter-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.date-filter-row::-webkit-scrollbar { display: none; }
-.date-chip { background: #f1f5f9; border: 1px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
-.date-chip:hover { background: #e2e8f0; color: #1e293b; }
-.date-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.custom-date-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-.toolbar-date-wrap { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
-.toolbar-date-wrap:focus-within { border-color: #3b82f6; }
-.toolbar-date { border: none; background: transparent; color: #1e293b; font-size: 13px; padding: 6px 10px; outline: none; cursor: pointer; color-scheme: light; width: 140px; }
-.date-sep { color: #94a3b8; font-size: 13px; }
+.date-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.date-filter-row::-webkit-scrollbar {
+  display: none;
+}
+.date-chip {
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.date-chip:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.date-chip.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.custom-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.toolbar-date-wrap {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.toolbar-date-wrap:focus-within {
+  border-color: #3b82f6;
+}
+.toolbar-date {
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  color-scheme: light;
+  width: 140px;
+}
+.date-sep {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ── Scope filter ───────────────────────────────────────────────── */
+.scope-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.scope-select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.scope-select:focus {
+  border-color: #3b82f6;
+}
+.scope-bu-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+.scope-reset-btn {
+  font-size: 13px;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.scope-reset-btn:hover {
+  background: #fef2f2;
+}
 
 /* ── Header ─────────────────────────────────────────────────────── */
 .dash-header {
@@ -776,7 +1357,7 @@ onMounted(async () => {
   padding: 6px 16px;
   font-size: 13px;
   color: #475569;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .welcome-dot {
@@ -807,7 +1388,11 @@ onMounted(async () => {
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ── Empty / error state ────────────────────────────────────────── */
 .dashboard-empty-state {
@@ -848,7 +1433,9 @@ onMounted(async () => {
   transition: background 0.15s;
 }
 
-.empty-btn:hover { background: #2563eb; }
+.empty-btn:hover {
+  background: #2563eb;
+}
 
 /* ── KPI cards ──────────────────────────────────────────────────── */
 .kpi-grid {
@@ -862,18 +1449,20 @@ onMounted(async () => {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 18px 20px;
   position: relative;
   overflow: hidden;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .kpi-card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
   transform: translateY(-2px);
 }
 
@@ -926,7 +1515,7 @@ onMounted(async () => {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 16px 20px;
   margin-bottom: 20px;
 }
@@ -965,9 +1554,18 @@ onMounted(async () => {
   font-size: 12px;
 }
 
-.rb-open   { color: #f59e0b; font-weight: 600; }
-.rb-progress { color: #6366f1; font-weight: 600; }
-.rb-closed { color: #10b981; font-weight: 600; }
+.rb-open {
+  color: #f59e0b;
+  font-weight: 600;
+}
+.rb-progress {
+  color: #6366f1;
+  font-weight: 600;
+}
+.rb-closed {
+  color: #10b981;
+  font-weight: 600;
+}
 
 /* ── Chart cards ────────────────────────────────────────────────── */
 .charts-row {
@@ -981,7 +1579,7 @@ onMounted(async () => {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
@@ -1066,7 +1664,7 @@ onMounted(async () => {
   border-radius: 10px;
   padding: 10px 14px;
   min-width: 140px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   z-index: 10;
 }
 
@@ -1085,7 +1683,9 @@ onMounted(async () => {
   margin-bottom: 4px;
 }
 
-.tt-row:last-child { margin-bottom: 0; }
+.tt-row:last-child {
+  margin-bottom: 0;
+}
 
 .tt-dot {
   width: 8px;
@@ -1135,7 +1735,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 7px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   z-index: 10;
   white-space: nowrap;
 }
@@ -1215,7 +1815,7 @@ onMounted(async () => {
   background: #1e293b;
   border-radius: 10px;
   padding: 9px 13px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   z-index: 10;
   min-width: 130px;
 }
@@ -1241,7 +1841,9 @@ onMounted(async () => {
   margin-bottom: 3px;
 }
 
-.cal-tt-row:last-child { margin-bottom: 0; }
+.cal-tt-row:last-child {
+  margin-bottom: 0;
+}
 
 .cal-tt-dot {
   width: 8px;
@@ -1483,9 +2085,18 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-.sc-open         { background: #fef3c7; color: #92400e; }
-.sc-in-progress  { background: #e0e7ff; color: #3730a3; }
-.sc-closed       { background: #dcfce7; color: #166534; }
+.sc-open {
+  background: #fef3c7;
+  color: #92400e;
+}
+.sc-in-progress {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.sc-closed {
+  background: #dcfce7;
+  color: #166534;
+}
 
 .recent-date {
   font-size: 11px;
@@ -1494,13 +2105,23 @@ onMounted(async () => {
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .charts-row { grid-template-columns: 1fr; }
-  .bottom-row { grid-template-columns: 1fr; }
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .dash { padding: 20px 16px; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .dash {
+    padding: 20px 16px;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

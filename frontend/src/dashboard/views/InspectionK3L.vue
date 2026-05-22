@@ -173,7 +173,7 @@
                                 accept="image/*"
                                 multiple
                                 @change="onPhotoSelect"
-                                style="display:none"
+                                style="display: none"
                               />
                             </label>
                             <label class="photo-btn">
@@ -196,7 +196,7 @@
                                 accept="image/*"
                                 capture="environment"
                                 @change="onPhotoSelect"
-                                style="display:none"
+                                style="display: none"
                               />
                             </label>
                           </div>
@@ -305,7 +305,7 @@
                                 accept="image/*"
                                 multiple
                                 @change="onPhotoAfterSelect"
-                                style="display:none"
+                                style="display: none"
                               />
                             </label>
                             <label class="photo-btn">
@@ -328,7 +328,7 @@
                                 accept="image/*"
                                 capture="environment"
                                 @change="onPhotoAfterSelect"
-                                style="display:none"
+                                style="display: none"
                               />
                             </label>
                           </div>
@@ -366,7 +366,10 @@
                   </div>
                   <div class="form-row">
                     <div class="form-group form-group-fill">
-                      <label>Business Unit <span class="field-auto-tag">Otomatis</span></label>
+                      <label
+                        >Business Unit
+                        <span class="field-auto-tag">Otomatis</span></label
+                      >
                       <input
                         type="text"
                         :value="getBusinessUnitName(form.businessUnitId)"
@@ -376,7 +379,10 @@
                       />
                     </div>
                     <div class="form-group form-group-fill">
-                      <label>Plant <span class="field-auto-tag">Otomatis</span></label>
+                      <label
+                        >Plant
+                        <span class="field-auto-tag">Otomatis</span></label
+                      >
                       <input
                         type="text"
                         :value="getPlantName(form.plantId)"
@@ -448,7 +454,10 @@
                         <option value="Closed">Closed</option>
                       </select>
                     </div>
-                    <div class="form-group" v-if="editingId && form.status === 'Closed'">
+                    <div
+                      class="form-group"
+                      v-if="editingId && form.status === 'Closed'"
+                    >
                       <label>Aktual Close</label>
                       <div class="date-input-wrapper">
                         <input
@@ -466,10 +475,17 @@
                           width="18"
                           height="18"
                         >
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                          <line x1="16" y1="2" x2="16" y2="6"/>
-                          <line x1="8" y1="2" x2="8" y2="6"/>
-                          <line x1="3" y1="10" x2="21" y2="10"/>
+                          <rect
+                            x="3"
+                            y="4"
+                            width="18"
+                            height="18"
+                            rx="2"
+                            ry="2"
+                          />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
                       </div>
                     </div>
@@ -707,8 +723,14 @@
           v-if="showPhotoModal"
           class="lightbox-overlay"
           @click.self="showPhotoModal = false"
-          @keydown.left="photoModalIndex = (photoModalIndex - 1 + photoModalImages.length) % photoModalImages.length"
-          @keydown.right="photoModalIndex = (photoModalIndex + 1) % photoModalImages.length"
+          @keydown.left="
+            photoModalIndex =
+              (photoModalIndex - 1 + photoModalImages.length) %
+              photoModalImages.length
+          "
+          @keydown.right="
+            photoModalIndex = (photoModalIndex + 1) % photoModalImages.length
+          "
           @keydown.esc="showPhotoModal = false"
           tabindex="0"
         >
@@ -753,7 +775,13 @@
             />
           </div>
           <div v-if="photoModalImages.length > 1" class="lightbox-dots">
-            <span v-for="(_, i) in photoModalImages" :key="i" class="lightbox-dot" :class="{ active: i === photoModalIndex }" @click.stop="photoModalIndex = i"></span>
+            <span
+              v-for="(_, i) in photoModalImages"
+              :key="i"
+              class="lightbox-dot"
+              :class="{ active: i === photoModalIndex }"
+              @click.stop="photoModalIndex = i"
+            ></span>
           </div>
           <button
             class="lightbox-nav lightbox-next"
@@ -889,22 +917,42 @@
     <!-- Discard Confirm Dialog -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showDiscardConfirm" class="modal-overlay" style="z-index:1100">
+        <div
+          v-if="showDiscardConfirm"
+          class="modal-overlay"
+          style="z-index: 1100"
+        >
           <div class="modal-container modal-sm">
-            <div class="modal-body" style="padding:28px 24px 20px">
+            <div class="modal-body" style="padding: 28px 24px 20px">
               <div class="discard-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="36"
+                  height="36"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
               </div>
               <h4 class="discard-title">Batalkan perubahan?</h4>
-              <p class="discard-desc">Anda memiliki data yang belum disimpan. Apakah yakin ingin menutup form ini?</p>
+              <p class="discard-desc">
+                Anda memiliki data yang belum disimpan. Apakah yakin ingin
+                menutup form ini?
+              </p>
             </div>
             <div class="discard-footer">
-              <button class="btn-secondary" @click="showDiscardConfirm = false">Kembali</button>
-              <button class="btn btn-discard-confirm" @click="forceCloseForm">Ya, Batalkan</button>
+              <button class="btn-secondary" @click="showDiscardConfirm = false">
+                Kembali
+              </button>
+              <button class="btn btn-discard-confirm" @click="forceCloseForm">
+                Ya, Batalkan
+              </button>
             </div>
           </div>
         </div>
@@ -926,33 +974,96 @@
       <div class="table-header">
         <h3>Data Temuan</h3>
         <div class="table-header-actions">
-          <div class="export-dropdown-wrap" v-click-outside="() => showExportDropdown = false">
+          <div
+            class="export-dropdown-wrap"
+            v-click-outside="() => (showExportDropdown = false)"
+          >
             <button
               class="btn btn-sm btn-export"
               @click="showExportDropdown = !showExportDropdown"
               title="Pilih format export"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                width="14"
+                height="14"
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
               Export
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                width="10"
+                height="10"
+                style="margin-left: 2px"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
             <div v-if="showExportDropdown" class="export-dropdown-menu">
-              <button class="export-dropdown-item" @click="exportCsv(); showExportDropdown = false" :disabled="filteredRecords.length === 0">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <button
+                class="export-dropdown-item"
+                @click="
+                  exportCsv();
+                  showExportDropdown = false;
+                "
+                :disabled="filteredRecords.length === 0"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="13"
+                  height="13"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
                 <div>
                   <div class="export-item-label">Excel (Semua Data)</div>
-                  <div class="export-item-desc">Export data yang tampil saat ini</div>
+                  <div class="export-item-desc">
+                    Export data yang tampil saat ini
+                  </div>
                 </div>
               </button>
-              <button class="export-dropdown-item" @click="showExportModal = true; showExportDropdown = false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <button
+                class="export-dropdown-item"
+                @click="
+                  showExportModal = true;
+                  showExportDropdown = false;
+                "
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="13"
+                  height="13"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
                 <div>
                   <div class="export-item-label">Laporan Bulanan</div>
-                  <div class="export-item-desc">Export Excel atau PDF per bulan</div>
+                  <div class="export-item-desc">
+                    Export Excel atau PDF per bulan
+                  </div>
                 </div>
               </button>
             </div>
@@ -962,7 +1073,18 @@
             @click="openSummaryModal"
             title="Lihat ringkasan statistik bulanan"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              width="14"
+              height="14"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
             Ringkasan
           </button>
           <button class="btn btn-sm" @click="loadData" :disabled="loading">
@@ -973,24 +1095,50 @@
 
       <!-- Date filter row -->
       <div class="date-filter-row">
-        <button v-for="opt in DATE_PRESETS" :key="opt.value" class="date-chip" :class="{ active: filterDate === opt.value }" @click="setDatePreset(opt.value)">{{ opt.label }}</button>
+        <button
+          v-for="opt in DATE_PRESETS"
+          :key="opt.value"
+          class="date-chip"
+          :class="{ active: filterDate === opt.value }"
+          @click="setDatePreset(opt.value)"
+        >
+          {{ opt.label }}
+        </button>
       </div>
       <div v-if="filterDate === 'custom'" class="custom-date-row">
         <label class="toolbar-date-wrap">
-          <input type="date" v-model="customDateFrom" class="toolbar-date" @click="$event.target.showPicker?.()" />
+          <input
+            type="date"
+            v-model="customDateFrom"
+            class="toolbar-date"
+            @click="$event.target.showPicker?.()"
+          />
         </label>
         <span class="date-sep">–</span>
         <label class="toolbar-date-wrap">
-          <input type="date" v-model="customDateTo" class="toolbar-date" @click="$event.target.showPicker?.()" />
+          <input
+            type="date"
+            v-model="customDateTo"
+            class="toolbar-date"
+            @click="$event.target.showPicker?.()"
+          />
         </label>
       </div>
 
       <!-- Filter bar -->
       <div class="filter-bar">
         <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <svg
+            class="search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            width="15"
+            height="15"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             type="text"
@@ -998,7 +1146,13 @@
             class="search-input"
             placeholder="Cari deskripsi, lokasi, tanggal..."
           />
-          <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">&times;</button>
+          <button
+            v-if="searchQuery"
+            class="search-clear"
+            @click="searchQuery = ''"
+          >
+            &times;
+          </button>
         </div>
 
         <select v-model="filterKategori" class="filter-select">
@@ -1015,7 +1169,11 @@
           <option value="Closed">Closed</option>
         </select>
 
-        <button v-if="hasActiveFilters" class="btn-reset-filters" @click="resetFilters">
+        <button
+          v-if="hasActiveFilters"
+          class="btn-reset-filters"
+          @click="resetFilters"
+        >
           Reset
         </button>
 
@@ -1028,7 +1186,7 @@
         <table v-if="pagedRecords.length > 0">
           <thead>
             <tr>
-              <th style="text-align:center;width:48px;">No</th>
+              <th style="text-align: center; width: 48px">No</th>
               <th>Tanggal</th>
               <th>Kategori Temuan</th>
               <th>Deskripsi Temuan</th>
@@ -1042,13 +1200,20 @@
               <th>Target Selesai</th>
               <th>Aktual Close</th>
               <th>Status</th>
-              <th style="text-align:center;">Komentar</th>
+              <th style="text-align: center">Komentar</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in pagedRecords" :key="item.id" class="row-clickable" @click="viewRecord(item)">
-              <td style="text-align:center;">{{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}</td>
+            <tr
+              v-for="(item, idx) in pagedRecords"
+              :key="item.id"
+              class="row-clickable"
+              @click="viewRecord(item)"
+            >
+              <td style="text-align: center">
+                {{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}
+              </td>
               <td class="td-nowrap">{{ formatDate(item.tanggal) }}</td>
               <td>
                 <span
@@ -1066,13 +1231,24 @@
                   v-if="parsePhotos(item.fotoSebelum).length"
                   class="btn-icon btn-eye"
                   title="Lihat Foto Sebelum"
-                  @click="openPhotoModalFromUrls(parsePhotos(item.fotoSebelum), 0)"
+                  @click="
+                    openPhotoModalFromUrls(parsePhotos(item.fotoSebelum), 0)
+                  "
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="16"
+                    height="16"
+                  >
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  <span class="photo-count-badge">{{ parsePhotos(item.fotoSebelum).length }}</span>
+                  <span class="photo-count-badge">{{
+                    parsePhotos(item.fotoSebelum).length
+                  }}</span>
                 </button>
                 <span v-else class="text-muted">-</span>
               </td>
@@ -1081,24 +1257,39 @@
                   v-if="parsePhotos(item.fotoSesudah).length"
                   class="btn-icon btn-eye btn-eye-after"
                   title="Lihat Foto Sesudah"
-                  @click="openPhotoModalFromUrls(parsePhotos(item.fotoSesudah), 0)"
+                  @click="
+                    openPhotoModalFromUrls(parsePhotos(item.fotoSesudah), 0)
+                  "
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="16"
+                    height="16"
+                  >
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                     <circle cx="12" cy="12" r="3" />
                   </svg>
-                  <span class="photo-count-badge photo-count-badge-after">{{ parsePhotos(item.fotoSesudah).length }}</span>
+                  <span class="photo-count-badge photo-count-badge-after">{{
+                    parsePhotos(item.fotoSesudah).length
+                  }}</span>
                 </button>
                 <span v-else class="text-muted">-</span>
               </td>
               <td class="td-nowrap">{{ item.lokasi || '-' }}</td>
-              <td class="td-nowrap">{{ getDepartmentName(item.departmentId) }}</td>
+              <td class="td-nowrap">
+                {{ getDepartmentName(item.departmentId) }}
+              </td>
               <td class="td-nowrap">
                 {{ getBusinessUnitName(item.businessUnitId) }}
               </td>
               <td class="td-nowrap">{{ getPlantName(item.plantId) }}</td>
               <td class="td-truncate">{{ item.tindakanPerbaikan || '-' }}</td>
-              <td class="td-nowrap">{{ formatDateOnly(item.targetSelesai) }}</td>
+              <td class="td-nowrap">
+                {{ formatDateOnly(item.targetSelesai) }}
+              </td>
               <td class="td-nowrap">{{ formatDate(item.aktualClose) }}</td>
               <td>
                 <span
@@ -1111,9 +1302,21 @@
                 </span>
               </td>
               <td class="td-center">
-                <span class="comment-badge" :class="{ 'has-comments': (item.commentCount || 0) > 0 }">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <span
+                  class="comment-badge"
+                  :class="{ 'has-comments': (item.commentCount || 0) > 0 }"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="13"
+                    height="13"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
                   </svg>
                   {{ item.commentCount || 0 }}
                 </span>
@@ -1170,7 +1373,12 @@
         @per-page="k3lSetPerPage"
       />
       <div v-else-if="hasActiveFilters" class="empty-state">
-        <p>Tidak ada data yang cocok dengan filter. <button class="btn-inline-link" @click="resetFilters">Reset filter</button></p>
+        <p>
+          Tidak ada data yang cocok dengan filter.
+          <button class="btn-inline-link" @click="resetFilters">
+            Reset filter
+          </button>
+        </p>
       </div>
       <div v-else class="empty-state">
         <p>Belum ada data temuan. Klik "Tambah Temuan" untuk menambahkan.</p>
@@ -1178,43 +1386,109 @@
     </div>
 
     <!-- ── Modal: Export Bulanan (Option 1 + PDF) ──────────────────────── -->
-    <div v-if="showExportModal" class="modal-overlay" @click.self="showExportModal = false">
+    <div
+      v-if="showExportModal"
+      class="modal-overlay"
+      @click.self="showExportModal = false"
+    >
       <div class="modal-container modal-export-monthly">
         <div class="modal-header">
           <h3 class="modal-title">Export Data Bulanan</h3>
           <button class="modal-close" @click="showExportModal = false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              width="16"
+              height="16"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
         <div class="modal-body">
-          <p class="modal-desc">Pilih bulan dan tahun untuk mengexport data Inspection K3L.</p>
+          <p class="modal-desc">
+            Pilih bulan dan tahun untuk mengexport data Inspection K3L.
+          </p>
           <div class="export-month-row">
             <div class="export-field">
               <label class="export-label">Bulan</label>
               <select v-model="exportMonth" class="export-select">
-                <option v-for="(name, idx) in MONTH_NAMES" :key="idx+1" :value="idx+1">{{ name }}</option>
+                <option
+                  v-for="(name, idx) in MONTH_NAMES"
+                  :key="idx + 1"
+                  :value="idx + 1"
+                >
+                  {{ name }}
+                </option>
               </select>
             </div>
             <div class="export-field">
               <label class="export-label">Tahun</label>
               <select v-model="exportYear" class="export-select">
-                <option v-for="y in Array.from({length:5},(_,i)=>new Date().getFullYear()-i)" :key="y" :value="y">{{ y }}</option>
+                <option
+                  v-for="y in Array.from(
+                    { length: 5 },
+                    (_, i) => new Date().getFullYear() - i,
+                  )"
+                  :key="y"
+                  :value="y"
+                >
+                  {{ y }}
+                </option>
               </select>
             </div>
           </div>
           <div class="export-preview-text">
-            Export data bulan <strong>{{ MONTH_NAMES[exportMonth-1] }} {{ exportYear }}</strong>
+            Export data bulan
+            <strong>{{ MONTH_NAMES[exportMonth - 1] }} {{ exportYear }}</strong>
           </div>
         </div>
         <div class="modal-footer-bar">
-          <button class="btn-secondary" @click="showExportModal = false">Batal</button>
+          <button class="btn-secondary" @click="showExportModal = false">
+            Batal
+          </button>
           <div class="export-btn-group">
-            <button class="btn btn-export-csv" @click="exportMonthlyCSV" title="Download sebagai file Excel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <button
+              class="btn btn-export-csv"
+              @click="exportMonthlyCSV"
+              title="Download sebagai file Excel"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                width="13"
+                height="13"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
               Excel
             </button>
-            <button class="btn btn-export-pdf" @click="downloadMonthlyPDF(exportMonth, exportYear, true)" :disabled="pdfGenerating" title="Download sebagai file PDF">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <button
+              class="btn btn-export-pdf"
+              @click="downloadMonthlyPDF(exportMonth, exportYear, true)"
+              :disabled="pdfGenerating"
+              title="Download sebagai file PDF"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                width="13"
+                height="13"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
               {{ pdfGenerating ? 'Generating...' : 'PDF' }}
             </button>
           </div>
@@ -1223,22 +1497,59 @@
     </div>
 
     <!-- ── Modal: Ringkasan Bulanan (Option 2) ──────────────────────────── -->
-    <div v-if="showSummaryModal" class="modal-overlay" @click.self="showSummaryModal = false">
+    <div
+      v-if="showSummaryModal"
+      class="modal-overlay"
+      @click.self="showSummaryModal = false"
+    >
       <div class="modal-container modal-summary">
         <div class="modal-header">
           <h3 class="modal-title">Ringkasan Bulanan — Inspection K3L</h3>
           <button class="modal-close" @click="showSummaryModal = false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              width="16"
+              height="16"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
         <div class="modal-body">
           <!-- Month/year selector -->
           <div class="summary-month-row">
-            <select v-model="summaryMonth" class="export-select" @change="renderSummaryCharts">
-              <option v-for="(name, idx) in MONTH_NAMES" :key="idx+1" :value="idx+1">{{ name }}</option>
+            <select
+              v-model="summaryMonth"
+              class="export-select"
+              @change="renderSummaryCharts"
+            >
+              <option
+                v-for="(name, idx) in MONTH_NAMES"
+                :key="idx + 1"
+                :value="idx + 1"
+              >
+                {{ name }}
+              </option>
             </select>
-            <select v-model="summaryYear" class="export-select" @change="renderSummaryCharts">
-              <option v-for="y in Array.from({length:5},(_,i)=>new Date().getFullYear()-i)" :key="y" :value="y">{{ y }}</option>
+            <select
+              v-model="summaryYear"
+              class="export-select"
+              @change="renderSummaryCharts"
+            >
+              <option
+                v-for="y in Array.from(
+                  { length: 5 },
+                  (_, i) => new Date().getFullYear() - i,
+                )"
+                :key="y"
+                :value="y"
+              >
+                {{ y }}
+              </option>
             </select>
           </div>
 
@@ -1278,24 +1589,52 @@
             </div>
           </div>
           <div v-else class="empty-state">
-            <p>Tidak ada data untuk {{ MONTH_NAMES[summaryMonth-1] }} {{ summaryYear }}.</p>
+            <p>
+              Tidak ada data untuk {{ MONTH_NAMES[summaryMonth - 1] }}
+              {{ summaryYear }}.
+            </p>
           </div>
         </div>
         <div class="modal-footer-bar">
-          <button class="btn-secondary" @click="showSummaryModal = false">Tutup</button>
-          <button class="btn btn-export-pdf" @click="downloadMonthlyPDF(summaryMonth, summaryYear, false)" :disabled="pdfGenerating">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <button class="btn-secondary" @click="showSummaryModal = false">
+            Tutup
+          </button>
+          <button
+            class="btn btn-export-pdf"
+            @click="downloadMonthlyPDF(summaryMonth, summaryYear, false)"
+            :disabled="pdfGenerating"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              width="13"
+              height="13"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
             {{ pdfGenerating ? 'Generating...' : 'Download PDF' }}
           </button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+import {
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  watch,
+} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   inspectionK3LService,
@@ -1312,10 +1651,14 @@ import autoTable from 'jspdf-autotable';
 
 const vClickOutside = {
   mounted(el, binding) {
-    el._clickOutsideHandler = (e) => { if (!el.contains(e.target)) binding.value(e); };
+    el._clickOutsideHandler = (e) => {
+      if (!el.contains(e.target)) binding.value(e);
+    };
     document.addEventListener('mousedown', el._clickOutsideHandler);
   },
-  unmounted(el) { document.removeEventListener('mousedown', el._clickOutsideHandler); },
+  unmounted(el) {
+    document.removeEventListener('mousedown', el._clickOutsideHandler);
+  },
 };
 
 const currentUser = authService.getCurrentUser();
@@ -1359,11 +1702,18 @@ const DATE_PRESETS = [
 
 function setDatePreset(val) {
   filterDate.value = val;
-  if (val !== 'custom') { customDateFrom.value = ''; customDateTo.value = ''; }
+  if (val !== 'custom') {
+    customDateFrom.value = '';
+    customDateTo.value = '';
+  }
 }
 
 const hasActiveFilters = computed(
-  () => searchQuery.value.trim() !== '' || filterKategori.value !== '' || filterStatus.value !== '' || filterDate.value !== 'all',
+  () =>
+    searchQuery.value.trim() !== '' ||
+    filterKategori.value !== '' ||
+    filterStatus.value !== '' ||
+    filterDate.value !== 'all',
 );
 
 const filteredRecords = computed(() => {
@@ -1391,20 +1741,36 @@ const filteredRecords = computed(() => {
   }
 
   if (filterDate.value !== 'all') {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     result = result.filter((r) => {
       if (!r.tanggal) return false;
-      const d = new Date(r.tanggal); d.setHours(0, 0, 0, 0);
+      const d = new Date(r.tanggal);
+      d.setHours(0, 0, 0, 0);
       if (filterDate.value === 'today') return d.getTime() === today.getTime();
       if (filterDate.value === 'week') {
-        const start = new Date(today); start.setDate(today.getDate() - today.getDay());
-        const end = new Date(start); end.setDate(start.getDate() + 6);
+        const start = new Date(today);
+        start.setDate(today.getDate() - today.getDay());
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
         return d >= start && d <= end;
       }
-      if (filterDate.value === 'month') return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+      if (filterDate.value === 'month')
+        return (
+          d.getMonth() === today.getMonth() &&
+          d.getFullYear() === today.getFullYear()
+        );
       if (filterDate.value === 'custom') {
-        if (customDateFrom.value) { const from = new Date(customDateFrom.value); from.setHours(0,0,0,0); if (d < from) return false; }
-        if (customDateTo.value)   { const to   = new Date(customDateTo.value);   to.setHours(0,0,0,0);   if (d > to)   return false; }
+        if (customDateFrom.value) {
+          const from = new Date(customDateFrom.value);
+          from.setHours(0, 0, 0, 0);
+          if (d < from) return false;
+        }
+        if (customDateTo.value) {
+          const to = new Date(customDateTo.value);
+          to.setHours(0, 0, 0, 0);
+          if (d > to) return false;
+        }
       }
       return true;
     });
@@ -1450,8 +1816,9 @@ function closeViewModal() {
 function onCommentCountChange(count) {
   if (!viewingRecord.value) return;
   viewingRecord.value.commentCount = count;
-  const idx = records.value.findIndex(r => r.id === viewingRecord.value.id);
-  if (idx !== -1) records.value[idx] = { ...records.value[idx], commentCount: count };
+  const idx = records.value.findIndex((r) => r.id === viewingRecord.value.id);
+  if (idx !== -1)
+    records.value[idx] = { ...records.value[idx], commentCount: count };
 }
 
 // ── Photo lightbox ──
@@ -1619,9 +1986,16 @@ function hasFormChanges() {
   if (!editingId.value) {
     const f = form.value;
     return !!(
-      f.tanggal || f.kategoriTemuan || f.deskripsiTemuan || f.lokasi ||
-      f.tindakanPerbaikan || f.targetSelesai || f.businessUnitId ||
-      f.plantId || f.departmentId || photos.value.length > 0
+      f.tanggal ||
+      f.kategoriTemuan ||
+      f.deskripsiTemuan ||
+      f.lokasi ||
+      f.tindakanPerbaikan ||
+      f.targetSelesai ||
+      f.businessUnitId ||
+      f.plantId ||
+      f.departmentId ||
+      photos.value.length > 0
     );
   } else {
     if (!originalForm.value) return false;
@@ -1667,14 +2041,13 @@ function cancelForm() {
   clearPhotosAfter();
 }
 
-
 // ── Data loading ──
 async function loadData() {
   loading.value = true;
   try {
     records.value = await inspectionK3LService.list();
   } catch (e) {
-    console.error("[InspectionK3L] loadData:", e);
+    console.error('[InspectionK3L] loadData:', e);
   } finally {
     loading.value = false;
   }
@@ -1691,7 +2064,7 @@ async function loadLocationOptions() {
     plants.value = plantOptions;
     departments.value = deptOptions;
   } catch (e) {
-    console.error("[InspectionK3L] loadLocationOptions:", e);
+    console.error('[InspectionK3L] loadLocationOptions:', e);
   }
 }
 
@@ -1719,7 +2092,8 @@ async function submitForm() {
       tindakanPerbaikan: form.value.tindakanPerbaikan || null,
       targetSelesai: form.value.targetSelesai || null,
       status: form.value.status || 'Open',
-      aktualClose: form.value.status === 'Closed' ? (form.value.aktualClose || null) : null,
+      aktualClose:
+        form.value.status === 'Closed' ? form.value.aktualClose || null : null,
       businessUnitId: form.value.businessUnitId || null,
       plantId: form.value.plantId || null,
       departmentId: form.value.departmentId || null,
@@ -1745,7 +2119,7 @@ async function submitForm() {
     cancelForm();
     await loadData();
   } catch (e) {
-    console.error("[InspectionK3L] submitForm:", e);
+    console.error('[InspectionK3L] submitForm:', e);
   } finally {
     submitting.value = false;
   }
@@ -1761,7 +2135,16 @@ function editRecord(item) {
     tindakanPerbaikan: item.tindakanPerbaikan || '',
     targetSelesai: item.targetSelesai || '',
     status: item.status,
-    aktualClose: item.aktualClose ? item.aktualClose.replace(' ', 'T').slice(0, 16) : (item.status === 'Closed' ? (() => { const now = new Date(); return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16); })() : ''),
+    aktualClose: item.aktualClose
+      ? item.aktualClose.replace(' ', 'T').slice(0, 16)
+      : item.status === 'Closed'
+        ? (() => {
+            const now = new Date();
+            return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+              .toISOString()
+              .slice(0, 16);
+          })()
+        : '',
     businessUnitId: item.businessUnitId || null,
     plantId: item.plantId || null,
     departmentId: item.departmentId || null,
@@ -1805,7 +2188,7 @@ async function confirmDelete() {
     deletingRecord.value = null;
     await loadData();
   } catch (e) {
-    console.error("[InspectionK3L] confirmDelete:", e);
+    console.error('[InspectionK3L] confirmDelete:', e);
   } finally {
     deleting.value = false;
   }
@@ -1813,9 +2196,15 @@ async function confirmDelete() {
 
 function buildK3LExport(source) {
   const parsedBefore = source.map((r) => parsePhotos(r.fotoSebelum));
-  const parsedAfter  = source.map((r) => parsePhotos(r.fotoSesudah));
-  const maxBefore = Math.max(parsedBefore.reduce((m, p) => Math.max(m, p.length), 0), 1);
-  const maxAfter  = Math.max(parsedAfter.reduce((m, p) => Math.max(m, p.length), 0), 1);
+  const parsedAfter = source.map((r) => parsePhotos(r.fotoSesudah));
+  const maxBefore = Math.max(
+    parsedBefore.reduce((m, p) => Math.max(m, p.length), 0),
+    1,
+  );
+  const maxAfter = Math.max(
+    parsedAfter.reduce((m, p) => Math.max(m, p.length), 0),
+    1,
+  );
 
   const beforeCols = Array.from({ length: maxBefore }, (_, i) => ({
     label: maxBefore === 1 ? 'Foto Sebelum' : `Foto Sebelum ${i + 1}`,
@@ -1829,26 +2218,29 @@ function buildK3LExport(source) {
   }));
 
   const columns = [
-    { label: 'No',                key: 'no' },
-    { label: 'Bulan',             key: 'bulan' },
-    { label: 'Tanggal',           key: 'tanggal' },
+    { label: 'No', key: 'no' },
+    { label: 'Bulan', key: 'bulan' },
+    { label: 'Tanggal', key: 'tanggal' },
     ...beforeCols,
     ...afterCols,
-    { label: 'Lokasi',            key: 'lokasi' },
-    { label: 'Deskripsi Temuan',  key: 'deskripsiTemuan' },
-    { label: 'Tindakan Perbaikan',key: 'tindakanPerbaikan' },
-    { label: 'Target Selesai',    key: 'targetSelesai' },
-    { label: 'Status',            key: 'status' },
-    { label: 'Aktual Close',      key: 'aktualClose' },
+    { label: 'Lokasi', key: 'lokasi' },
+    { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
+    { label: 'Tindakan Perbaikan', key: 'tindakanPerbaikan' },
+    { label: 'Target Selesai', key: 'targetSelesai' },
+    { label: 'Status', key: 'status' },
+    { label: 'Aktual Close', key: 'aktualClose' },
+    { label: 'Department', key: 'department' },
+    { label: 'Plant', key: 'plant' },
+    { label: 'Business Unit', key: 'businessUnit' },
   ];
 
   const rows = source.map((row, idx) => {
     const before = parsedBefore[idx];
-    const after  = parsedAfter[idx];
+    const after = parsedAfter[idx];
     const sbFields = {};
     for (let i = 0; i < maxBefore; i++) sbFields[`sb_${i}`] = before[i] || '';
     const saFields = {};
-    for (let i = 0; i < maxAfter; i++)  saFields[`sa_${i}`] = after[i]  || '';
+    for (let i = 0; i < maxAfter; i++) saFields[`sa_${i}`] = after[i] || '';
     return {
       no: idx + 1,
       bulan: row.tanggal ? MONTH_NAMES[new Date(row.tanggal).getMonth()] : '',
@@ -1861,6 +2253,9 @@ function buildK3LExport(source) {
       targetSelesai: row.targetSelesai || '',
       status: row.status || '',
       aktualClose: row.aktualClose || '',
+      department: getDepartmentName(row.departmentId),
+      plant: getPlantName(row.plantId),
+      businessUnit: getBusinessUnitName(row.businessUnitId),
     };
   });
 
@@ -1879,7 +2274,20 @@ const showExportDropdown = ref(false);
 const exportMonth = ref(new Date().getMonth() + 1);
 const exportYear = ref(new Date().getFullYear());
 
-const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MONTH_NAMES = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
 
 async function exportMonthlyCSV() {
   const m = Number(exportMonth.value);
@@ -1889,9 +2297,16 @@ async function exportMonthlyCSV() {
     const d = new Date(r.tanggal);
     return d.getMonth() + 1 === m && d.getFullYear() === y;
   });
-  if (!rows.length) { alert(`Tidak ada data untuk ${MONTH_NAMES[m-1]} ${y}.`); return; }
+  if (!rows.length) {
+    alert(`Tidak ada data untuk ${MONTH_NAMES[m - 1]} ${y}.`);
+    return;
+  }
   const { columns, rows: mapped } = buildK3LExport(rows);
-  await exportToCsv(`inspection-k3l-${y}-${String(m).padStart(2,'0')}.xlsx`, columns, mapped);
+  await exportToCsv(
+    `inspection-k3l-${y}-${String(m).padStart(2, '0')}.xlsx`,
+    columns,
+    mapped,
+  );
   showExportModal.value = false;
 }
 
@@ -1912,8 +2327,14 @@ const summaryData = computed(() => {
     const d = new Date(r.tanggal);
     return d.getMonth() + 1 === m && d.getFullYear() === y;
   });
-  const today = new Date(); today.setHours(0,0,0,0);
-  const overdue = rows.filter((r) => r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < today).length;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const overdue = rows.filter(
+    (r) =>
+      r.status !== 'Closed' &&
+      r.targetSelesai &&
+      new Date(r.targetSelesai) < today,
+  ).length;
   const byKategori = { Low: 0, Medium: 0, High: 0 };
   const byStatus = { Open: 0, 'In Progress': 0, Closed: 0 };
   rows.forEach((r) => {
@@ -1921,12 +2342,27 @@ const summaryData = computed(() => {
     if (r.status in byStatus) byStatus[r.status]++;
     else byStatus[r.status] = (byStatus[r.status] || 0) + 1;
   });
-  return { total: rows.length, open: byStatus['Open'] || 0, inProgress: byStatus['In Progress'] || 0, closed: byStatus['Closed'] || 0, overdue, byKategori, byStatus, rows };
+  return {
+    total: rows.length,
+    open: byStatus['Open'] || 0,
+    inProgress: byStatus['In Progress'] || 0,
+    closed: byStatus['Closed'] || 0,
+    overdue,
+    byKategori,
+    byStatus,
+    rows,
+  };
 });
 
 function destroyCharts() {
-  if (chartKategori) { chartKategori.destroy(); chartKategori = null; }
-  if (chartStatus) { chartStatus.destroy(); chartStatus = null; }
+  if (chartKategori) {
+    chartKategori.destroy();
+    chartKategori = null;
+  }
+  if (chartStatus) {
+    chartStatus.destroy();
+    chartStatus = null;
+  }
 }
 
 async function openSummaryModal() {
@@ -1943,35 +2379,70 @@ function renderSummaryCharts() {
       type: 'bar',
       data: {
         labels: Object.keys(sd.byKategori),
-        datasets: [{ label: 'Jumlah Temuan', data: Object.values(sd.byKategori), backgroundColor: ['#22c55e','#f59e0b','#ef4444'], borderRadius: 6, borderSkipped: false }],
+        datasets: [
+          {
+            label: 'Jumlah Temuan',
+            data: Object.values(sd.byKategori),
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+            borderRadius: 6,
+            borderSkipped: false,
+          },
+        ],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+      },
     });
   }
   if (summaryChartStatusRef.value) {
     chartStatus = new Chart(summaryChartStatusRef.value, {
       type: 'doughnut',
       data: {
-        labels: ['Open','In Progress','Closed'],
-        datasets: [{ data: [sd.byStatus['Open']||0, sd.byStatus['In Progress']||0, sd.byStatus['Closed']||0], backgroundColor: ['#ef4444','#f59e0b','#22c55e'], hoverOffset: 6 }],
+        labels: ['Open', 'In Progress', 'Closed'],
+        datasets: [
+          {
+            data: [
+              sd.byStatus['Open'] || 0,
+              sd.byStatus['In Progress'] || 0,
+              sd.byStatus['Closed'] || 0,
+            ],
+            backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
+            hoverOffset: 6,
+          },
+        ],
       },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+      },
     });
   }
 }
 
 watch([summaryMonth, summaryYear], async () => {
-  if (showSummaryModal.value) { await nextTick(); renderSummaryCharts(); }
-});
-
-watch(() => form.value.status, (newStatus) => {
-  if (newStatus === 'Closed' && !form.value.aktualClose) {
-    const now = new Date();
-    form.value.aktualClose = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  } else if (newStatus !== 'Closed') {
-    form.value.aktualClose = '';
+  if (showSummaryModal.value) {
+    await nextTick();
+    renderSummaryCharts();
   }
 });
+
+watch(
+  () => form.value.status,
+  (newStatus) => {
+    if (newStatus === 'Closed' && !form.value.aktualClose) {
+      const now = new Date();
+      form.value.aktualClose = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .slice(0, 16);
+    } else if (newStatus !== 'Closed') {
+      form.value.aktualClose = '';
+    }
+  },
+);
 
 // ── Download Monthly PDF (Option 3) ────────────────────────────────────────
 const pdfGenerating = ref(false);
@@ -1981,22 +2452,44 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
   try {
     const m = Number(month);
     const y = Number(year);
-    const monthRows = records.value.filter((r) => {
-      if (!r.tanggal) return false;
-      const d = new Date(r.tanggal);
-      return d.getMonth() + 1 === m && d.getFullYear() === y;
-    }).sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+    const monthRows = records.value
+      .filter((r) => {
+        if (!r.tanggal) return false;
+        const d = new Date(r.tanggal);
+        return d.getMonth() + 1 === m && d.getFullYear() === y;
+      })
+      .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
-    const todayDate = new Date(); todayDate.setHours(0,0,0,0);
-    const fmtDate = (v) => { if (!v) return '-'; const d = new Date(v); return isNaN(d) ? v : d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }); };
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const fmtDate = (v) => {
+      if (!v) return '-';
+      const d = new Date(v);
+      return isNaN(d)
+        ? v
+        : d.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          });
+    };
 
     const total = monthRows.length;
-    const open = monthRows.filter(r => r.status === 'Open').length;
-    const inProg = monthRows.filter(r => r.status === 'In Progress').length;
-    const closed = monthRows.filter(r => r.status === 'Closed').length;
-    const overdue = monthRows.filter(r => r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < todayDate).length;
+    const open = monthRows.filter((r) => r.status === 'Open').length;
+    const inProg = monthRows.filter((r) => r.status === 'In Progress').length;
+    const closed = monthRows.filter((r) => r.status === 'Closed').length;
+    const overdue = monthRows.filter(
+      (r) =>
+        r.status !== 'Closed' &&
+        r.targetSelesai &&
+        new Date(r.targetSelesai) < todayDate,
+    ).length;
 
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+    });
     const pageW = doc.internal.pageSize.getWidth();
 
     // Header bar
@@ -2005,15 +2498,26 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('LAPORAN BULANAN INSPEKSI K3L', pageW / 2, 10, { align: 'center' });
+    doc.text('LAPORAN BULANAN INSPEKSI K3L', pageW / 2, 10, {
+      align: 'center',
+    });
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(`PT Charoen Pokphand Indonesia  |  Periode: ${MONTH_NAMES[m-1]} ${y}`, pageW / 2, 17, { align: 'center' });
+    doc.text(
+      `PT Charoen Pokphand Indonesia  |  Periode: ${MONTH_NAMES[m - 1]} ${y}`,
+      pageW / 2,
+      17,
+      { align: 'center' },
+    );
 
     // Generated date
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
-    const genDate = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const genDate = new Date().toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
     doc.text(`Dibuat: ${genDate}`, pageW - 14, 27, { align: 'right' });
 
     // KPI summary table
@@ -2024,10 +2528,34 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
 
     autoTable(doc, {
       startY: 37,
-      head: [['Total Temuan', 'Open', 'In Progress', 'Closed', 'Overdue', 'Close Rate']],
-      body: [[total, open, inProg, closed, overdue, `${total > 0 ? Math.round((closed/total)*100) : 0}%`]],
+      head: [
+        [
+          'Total Temuan',
+          'Open',
+          'In Progress',
+          'Closed',
+          'Overdue',
+          'Close Rate',
+        ],
+      ],
+      body: [
+        [
+          total,
+          open,
+          inProg,
+          closed,
+          overdue,
+          `${total > 0 ? Math.round((closed / total) * 100) : 0}%`,
+        ],
+      ],
       theme: 'grid',
-      headStyles: { fillColor: [30, 58, 95], textColor: 255, fontStyle: 'bold', fontSize: 9, halign: 'center' },
+      headStyles: {
+        fillColor: [30, 58, 95],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'center',
+      },
       bodyStyles: { fontSize: 11, fontStyle: 'bold', halign: 'center' },
       columnStyles: {
         0: { cellWidth: 35 },
@@ -2047,19 +2575,35 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     doc.setFont('helvetica', 'bold');
     doc.text('BREAKDOWN PER KATEGORI', 14, breakdownY);
 
-    const breakdownRows = ['Low', 'Medium', 'High'].map(k => {
-      const rows = monthRows.filter(r => r.kategoriTemuan === k);
-      const closed = rows.filter(r=>r.status==='Closed').length;
-      const pct = rows.length > 0 ? `${Math.round((closed/rows.length)*100)}%` : '-';
-      return [k, rows.length, rows.filter(r=>r.status==='Open').length, rows.filter(r=>r.status==='In Progress').length, closed, pct];
+    const breakdownRows = ['Low', 'Medium', 'High'].map((k) => {
+      const rows = monthRows.filter((r) => r.kategoriTemuan === k);
+      const closed = rows.filter((r) => r.status === 'Closed').length;
+      const pct =
+        rows.length > 0 ? `${Math.round((closed / rows.length) * 100)}%` : '-';
+      return [
+        k,
+        rows.length,
+        rows.filter((r) => r.status === 'Open').length,
+        rows.filter((r) => r.status === 'In Progress').length,
+        closed,
+        pct,
+      ];
     });
 
     autoTable(doc, {
       startY: breakdownY + 3,
-      head: [['Kategori', 'Jumlah', 'Open', 'In Progress', 'Closed', '% Close']],
+      head: [
+        ['Kategori', 'Jumlah', 'Open', 'In Progress', 'Closed', '% Close'],
+      ],
       body: breakdownRows,
       theme: 'striped',
-      headStyles: { fillColor: [71, 85, 105], textColor: 255, fontSize: 8, fontStyle: 'bold', halign: 'center' },
+      headStyles: {
+        fillColor: [71, 85, 105],
+        textColor: 255,
+        fontSize: 8,
+        fontStyle: 'bold',
+        halign: 'center',
+      },
       bodyStyles: { fontSize: 9, halign: 'center' },
       columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
       margin: { left: 14, right: 14 },
@@ -2073,59 +2617,90 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     doc.text('BREAKDOWN PER DEPARTEMEN', 14, deptBreakdownY);
 
     const allDepts = departments.value;
-    const headerBg  = [200, 210, 220];
-    const redBg     = [220, 38, 38];
-    const amberBg   = [217, 119, 6];
-    const greenBg   = [22, 163, 74];
-    const white      = [255, 255, 255];
-    const dark       = [30, 41, 59];
+    const headerBg = [200, 210, 220];
+    const redBg = [220, 38, 38];
+    const amberBg = [217, 119, 6];
+    const greenBg = [22, 163, 74];
+    const white = [255, 255, 255];
+    const dark = [30, 41, 59];
 
     const catStats = (rows, kat) => ({
-      O: rows.filter(r => r.kategoriTemuan === kat && r.status === 'Open').length,
-      I: rows.filter(r => r.kategoriTemuan === kat && r.status === 'In Progress').length,
-      C: rows.filter(r => r.kategoriTemuan === kat && r.status === 'Closed').length,
+      O: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Open')
+        .length,
+      I: rows.filter(
+        (r) => r.kategoriTemuan === kat && r.status === 'In Progress',
+      ).length,
+      C: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Closed')
+        .length,
     });
 
     const deptBodyRows = allDepts.map((dept, idx) => {
-      const rows   = monthRows.filter(r => r.departmentId === dept.id);
-      const low    = catStats(rows, 'Low');
-      const med    = catStats(rows, 'Medium');
-      const high   = catStats(rows, 'High');
-      const dTotal  = rows.length;
+      const rows = monthRows.filter((r) => r.departmentId === dept.id);
+      const low = catStats(rows, 'Low');
+      const med = catStats(rows, 'Medium');
+      const high = catStats(rows, 'High');
+      const dTotal = rows.length;
       const dClosed = low.C + med.C + high.C;
-      const pct    = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : '-';
-      return [idx + 1, dept.name.toUpperCase(), low.O, low.I, low.C, med.O, med.I, med.C, high.O, high.I, high.C, pct];
+      const pct = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : '-';
+      return [
+        idx + 1,
+        dept.name.toUpperCase(),
+        low.O,
+        low.I,
+        low.C,
+        med.O,
+        med.I,
+        med.C,
+        high.O,
+        high.I,
+        high.C,
+        pct,
+      ];
     });
 
     // Totals row
-    const tLow  = catStats(monthRows, 'Low');
-    const tMed  = catStats(monthRows, 'Medium');
+    const tLow = catStats(monthRows, 'Low');
+    const tMed = catStats(monthRows, 'Medium');
     const tHigh = catStats(monthRows, 'High');
-    const tAll    = monthRows.length;
+    const tAll = monthRows.length;
     const tClosed = tLow.C + tMed.C + tHigh.C;
-    const tPct    = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : '-';
-    const totalCellStyle = (color) => ({ styles: { fontStyle: 'bold', textColor: color } });
+    const tPct = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : '-';
+    const totalCellStyle = (color) => ({
+      styles: { fontStyle: 'bold', textColor: color },
+    });
     deptBodyRows.push([
-      { content: 'TOTAL TEMUAN', colSpan: 2, styles: { fontStyle: 'bold', halign: 'center', fillColor: [220, 230, 242], textColor: dark } },
-      { content: tLow.O,  ...totalCellStyle(redBg) },
-      { content: tLow.I,  ...totalCellStyle(amberBg) },
-      { content: tLow.C,  ...totalCellStyle(greenBg) },
-      { content: tMed.O,  ...totalCellStyle(redBg) },
-      { content: tMed.I,  ...totalCellStyle(amberBg) },
-      { content: tMed.C,  ...totalCellStyle(greenBg) },
+      {
+        content: 'TOTAL TEMUAN',
+        colSpan: 2,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'center',
+          fillColor: [220, 230, 242],
+          textColor: dark,
+        },
+      },
+      { content: tLow.O, ...totalCellStyle(redBg) },
+      { content: tLow.I, ...totalCellStyle(amberBg) },
+      { content: tLow.C, ...totalCellStyle(greenBg) },
+      { content: tMed.O, ...totalCellStyle(redBg) },
+      { content: tMed.I, ...totalCellStyle(amberBg) },
+      { content: tMed.C, ...totalCellStyle(greenBg) },
       { content: tHigh.O, ...totalCellStyle(redBg) },
       { content: tHigh.I, ...totalCellStyle(amberBg) },
       { content: tHigh.C, ...totalCellStyle(greenBg) },
-      { content: tPct,    styles: { fontStyle: 'bold', textColor: dark } },
+      { content: tPct, styles: { fontStyle: 'bold', textColor: dark } },
     ]);
 
     const monthLabel = MONTH_NAMES[m - 1].toUpperCase();
 
     // Column layout (must match columnStyles below)
-    const colW   = [10, 45, 13, 13, 13, 13, 13, 13, 13, 13, 13, 18];
+    const colW = [10, 45, 13, 13, 13, 13, 13, 13, 13, 13, 13, 18];
     const margin = 14;
-    const colX   = colW.reduce((acc, w, i) => { acc.push(i === 0 ? margin : acc[i - 1] + colW[i - 1]); return acc; }, []);
-    const hRowH  = 6.5;
+    const colX = colW.reduce((acc, w, i) => {
+      acc.push(i === 0 ? margin : acc[i - 1] + colW[i - 1]);
+      return acc;
+    }, []);
+    const hRowH = 6.5;
     const borderClr = [160, 175, 190];
     let hdrY = deptBreakdownY + 3;
 
@@ -2137,36 +2712,71 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(fs);
         doc.setTextColor(...fg);
-        doc.text(String(txt), x + w / 2, y + rh / 2, { align: 'center', baseline: 'middle' });
+        doc.text(String(txt), x + w / 2, y + rh / 2, {
+          align: 'center',
+          baseline: 'middle',
+        });
       }
     };
 
     const totalHdrH = hRowH * 3;
 
     // NO, DEPARTEMEN, % CLOSE — span all 3 rows vertically
-    fillText('NO',         colX[0],  hdrY, colW[0],  totalHdrH, headerBg, dark);
-    fillText('DEPARTEMEN', colX[1],  hdrY, colW[1],  totalHdrH, headerBg, dark);
-    fillText('% CLOSE',    colX[11], hdrY, colW[11], totalHdrH, headerBg, dark);
+    fillText('NO', colX[0], hdrY, colW[0], totalHdrH, headerBg, dark);
+    fillText('DEPARTEMEN', colX[1], hdrY, colW[1], totalHdrH, headerBg, dark);
+    fillText('% CLOSE', colX[11], hdrY, colW[11], totalHdrH, headerBg, dark);
 
     // Header row 1 (cols 2-10): MONTH label merged
-    fillText(monthLabel, colX[2], hdrY, colW.slice(2, 11).reduce((a, b) => a + b, 0), hRowH, headerBg, dark);
+    fillText(
+      monthLabel,
+      colX[2],
+      hdrY,
+      colW.slice(2, 11).reduce((a, b) => a + b, 0),
+      hRowH,
+      headerBg,
+      dark,
+    );
     hdrY += hRowH;
 
     // Header row 2: LOW | MEDIUM | HIGH
-    fillText('LOW',    colX[2], hdrY, colW.slice(2, 5).reduce((a, b) => a + b, 0),  hRowH, headerBg, dark);
-    fillText('MEDIUM', colX[5], hdrY, colW.slice(5, 8).reduce((a, b) => a + b, 0),  hRowH, headerBg, dark);
-    fillText('HIGH',   colX[8], hdrY, colW.slice(8, 11).reduce((a, b) => a + b, 0), hRowH, headerBg, dark);
+    fillText(
+      'LOW',
+      colX[2],
+      hdrY,
+      colW.slice(2, 5).reduce((a, b) => a + b, 0),
+      hRowH,
+      headerBg,
+      dark,
+    );
+    fillText(
+      'MEDIUM',
+      colX[5],
+      hdrY,
+      colW.slice(5, 8).reduce((a, b) => a + b, 0),
+      hRowH,
+      headerBg,
+      dark,
+    );
+    fillText(
+      'HIGH',
+      colX[8],
+      hdrY,
+      colW.slice(8, 11).reduce((a, b) => a + b, 0),
+      hRowH,
+      headerBg,
+      dark,
+    );
     hdrY += hRowH;
 
     // Header row 3: O I C repeated
-    fillText('O', colX[2],  hdrY, colW[2],  hRowH, redBg,   white);
-    fillText('I', colX[3],  hdrY, colW[3],  hRowH, amberBg, white);
-    fillText('C', colX[4],  hdrY, colW[4],  hRowH, greenBg, white);
-    fillText('O', colX[5],  hdrY, colW[5],  hRowH, redBg,   white);
-    fillText('I', colX[6],  hdrY, colW[6],  hRowH, amberBg, white);
-    fillText('C', colX[7],  hdrY, colW[7],  hRowH, greenBg, white);
-    fillText('O', colX[8],  hdrY, colW[8],  hRowH, redBg,   white);
-    fillText('I', colX[9],  hdrY, colW[9],  hRowH, amberBg, white);
+    fillText('O', colX[2], hdrY, colW[2], hRowH, redBg, white);
+    fillText('I', colX[3], hdrY, colW[3], hRowH, amberBg, white);
+    fillText('C', colX[4], hdrY, colW[4], hRowH, greenBg, white);
+    fillText('O', colX[5], hdrY, colW[5], hRowH, redBg, white);
+    fillText('I', colX[6], hdrY, colW[6], hRowH, amberBg, white);
+    fillText('C', colX[7], hdrY, colW[7], hRowH, greenBg, white);
+    fillText('O', colX[8], hdrY, colW[8], hRowH, redBg, white);
+    fillText('I', colX[9], hdrY, colW[9], hRowH, amberBg, white);
     fillText('C', colX[10], hdrY, colW[10], hRowH, greenBg, white);
     hdrY += hRowH;
 
@@ -2177,16 +2787,16 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       theme: 'grid',
       bodyStyles: { fontSize: 8, halign: 'center', textColor: dark },
       columnStyles: {
-        0:  { cellWidth: colW[0],  halign: 'center' },
-        1:  { cellWidth: colW[1],  halign: 'left', fontStyle: 'bold' },
-        2:  { cellWidth: colW[2]  },
-        3:  { cellWidth: colW[3]  },
-        4:  { cellWidth: colW[4]  },
-        5:  { cellWidth: colW[5]  },
-        6:  { cellWidth: colW[6]  },
-        7:  { cellWidth: colW[7]  },
-        8:  { cellWidth: colW[8]  },
-        9:  { cellWidth: colW[9]  },
+        0: { cellWidth: colW[0], halign: 'center' },
+        1: { cellWidth: colW[1], halign: 'left', fontStyle: 'bold' },
+        2: { cellWidth: colW[2] },
+        3: { cellWidth: colW[3] },
+        4: { cellWidth: colW[4] },
+        5: { cellWidth: colW[5] },
+        6: { cellWidth: colW[6] },
+        7: { cellWidth: colW[7] },
+        8: { cellWidth: colW[8] },
+        9: { cellWidth: colW[9] },
         10: { cellWidth: colW[10] },
         11: { cellWidth: colW[11] },
       },
@@ -2204,13 +2814,32 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(148, 163, 184);
-      doc.text(`Tidak ada data temuan untuk ${MONTH_NAMES[m-1]} ${y}.`, 14, detailY + 6);
+      doc.text(
+        `Tidak ada data temuan untuk ${MONTH_NAMES[m - 1]} ${y}.`,
+        14,
+        detailY + 6,
+      );
     } else {
       autoTable(doc, {
         startY: detailY + 3,
-        head: [['No', 'Tanggal', 'Kategori', 'Deskripsi Temuan', 'Lokasi', 'Tindakan Perbaikan', 'Target', 'Status', 'Aktual Close']],
+        head: [
+          [
+            'No',
+            'Tanggal',
+            'Kategori',
+            'Deskripsi Temuan',
+            'Lokasi',
+            'Tindakan Perbaikan',
+            'Target',
+            'Status',
+            'Aktual Close',
+          ],
+        ],
         body: monthRows.map((r, i) => {
-          const isOvd = r.status !== 'Closed' && r.targetSelesai && new Date(r.targetSelesai) < todayDate;
+          const isOvd =
+            r.status !== 'Closed' &&
+            r.targetSelesai &&
+            new Date(r.targetSelesai) < todayDate;
           return [
             i + 1,
             fmtDate(r.tanggal),
@@ -2224,7 +2853,12 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
           ];
         }),
         theme: 'striped',
-        headStyles: { fillColor: [71, 85, 105], textColor: 255, fontSize: 7.5, fontStyle: 'bold' },
+        headStyles: {
+          fillColor: [71, 85, 105],
+          textColor: 255,
+          fontSize: 7.5,
+          fontStyle: 'bold',
+        },
         bodyStyles: { fontSize: 8, textColor: [51, 65, 85] },
         columnStyles: {
           0: { cellWidth: 8, halign: 'center' },
@@ -2240,9 +2874,14 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         didParseCell(data) {
           if (data.section === 'body') {
             const row = monthRows[data.row.index];
-            const isOvd = row && row.status !== 'Closed' && row.targetSelesai && new Date(row.targetSelesai) < todayDate;
+            const isOvd =
+              row &&
+              row.status !== 'Closed' &&
+              row.targetSelesai &&
+              new Date(row.targetSelesai) < todayDate;
             if (isOvd) data.cell.styles.textColor = [220, 38, 38];
-            if (row && row.status === 'Closed') data.cell.styles.textColor = [148, 163, 184];
+            if (row && row.status === 'Closed')
+              data.cell.styles.textColor = [148, 163, 184];
           }
         },
         margin: { left: 14, right: 14 },
@@ -2255,23 +2894,32 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       doc.setPage(i);
       doc.setFontSize(7);
       doc.setTextColor(148, 163, 184);
-      doc.text(`Halaman ${i} dari ${pageCount}`, pageW / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+      doc.text(
+        `Halaman ${i} dari ${pageCount}`,
+        pageW / 2,
+        doc.internal.pageSize.getHeight() - 6,
+        { align: 'center' },
+      );
     }
 
-    doc.save(`laporan-k3l-${y}-${String(m).padStart(2,'0')}.pdf`);
+    doc.save(`laporan-k3l-${y}-${String(m).padStart(2, '0')}.pdf`);
     if (closeModal) showExportModal.value = false;
   } finally {
     pdfGenerating.value = false;
   }
 }
 
-onBeforeUnmount(() => { destroyCharts(); });
+onBeforeUnmount(() => {
+  destroyCharts();
+});
 
 onMounted(async () => {
   await loadData(true);
   loadLocationOptions(true);
   if (route.query.view) {
-    const target = records.value.find(r => String(r.id) === String(route.query.view));
+    const target = records.value.find(
+      (r) => String(r.id) === String(route.query.view),
+    );
     if (target) viewRecord(target);
   }
 });
@@ -2283,8 +2931,16 @@ onMounted(async () => {
   max-width: 1400px;
   overflow-x: hidden;
 }
-@media (max-width: 1024px) { .inspection-k3l { padding: 20px 20px; } }
-@media (max-width: 640px)  { .inspection-k3l { padding: 16px 14px; } }
+@media (max-width: 1024px) {
+  .inspection-k3l {
+    padding: 20px 20px;
+  }
+}
+@media (max-width: 640px) {
+  .inspection-k3l {
+    padding: 16px 14px;
+  }
+}
 
 .page-header {
   margin-bottom: 16px;
@@ -2807,7 +3463,9 @@ onMounted(async () => {
   font-size: 14px;
   color: #1e293b;
   background: #fff;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .form-group select {
   cursor: pointer;
@@ -3133,18 +3791,76 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
-
 /* ── Date filter row ── */
-.date-filter-row { display: flex; align-items: center; gap: 6px; padding: 10px 16px 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.date-filter-row::-webkit-scrollbar { display: none; }
-.custom-date-row { display: flex; align-items: center; gap: 8px; padding: 0 16px 10px; flex-wrap: wrap; border-bottom: 1px solid #f1f5f9; }
-.date-chip { background: #f1f5f9; border: 1px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
-.date-chip:hover { background: #e2e8f0; color: #1e293b; }
-.date-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.toolbar-date-wrap { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
-.toolbar-date-wrap:focus-within { border-color: #3b82f6; }
-.toolbar-date { border: none; background: transparent; color: #1e293b; font-size: 13px; padding: 6px 10px; outline: none; cursor: pointer; color-scheme: light; width: 140px; }
-.date-sep { color: #94a3b8; font-size: 13px; }
+.date-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.date-filter-row::-webkit-scrollbar {
+  display: none;
+}
+.custom-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #f1f5f9;
+}
+.date-chip {
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.date-chip:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+.date-chip.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.toolbar-date-wrap {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.toolbar-date-wrap:focus-within {
+  border-color: #3b82f6;
+}
+.toolbar-date {
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  color-scheme: light;
+  width: 140px;
+}
+.date-sep {
+  color: #94a3b8;
+  font-size: 13px;
+}
 
 /* ── Filter bar ── */
 .filter-bar {
@@ -3159,7 +3875,9 @@ onMounted(async () => {
   scrollbar-width: none;
 }
 
-.filter-bar::-webkit-scrollbar { display: none; }
+.filter-bar::-webkit-scrollbar {
+  display: none;
+}
 
 .search-wrapper {
   position: relative;
@@ -3185,7 +3903,9 @@ onMounted(async () => {
   color: #1e293b;
   background: #f8fafc;
   outline: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 }
 
 .search-input:focus {
@@ -3207,7 +3927,9 @@ onMounted(async () => {
   border-radius: 4px;
   transition: color 0.15s;
 }
-.search-clear:hover { color: #475569; }
+.search-clear:hover {
+  color: #475569;
+}
 
 .filter-select {
   padding: 7px 10px;
@@ -3222,7 +3944,9 @@ onMounted(async () => {
   flex-shrink: 0;
   white-space: nowrap;
 }
-.filter-select:focus { border-color: #3b82f6; }
+.filter-select:focus {
+  border-color: #3b82f6;
+}
 
 .btn-reset-filters {
   padding: 6px 12px;
@@ -3234,9 +3958,14 @@ onMounted(async () => {
   color: #64748b;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
-.btn-reset-filters:hover { background: #f1f5f9; color: #334155; }
+.btn-reset-filters:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
 
 .filter-count {
   font-size: 12px;
@@ -3347,9 +4076,21 @@ tbody tr.row-clickable {
   font-weight: 600;
   white-space: nowrap;
 }
-.kategori-low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-.kategori-medium { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-.kategori-high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.kategori-low {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.kategori-medium {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+.kategori-high {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
 
 .comment-badge {
   display: inline-flex;
@@ -3420,7 +4161,9 @@ tbody tr.row-clickable {
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-discard-confirm:hover { background: #dc2626; }
+.btn-discard-confirm:hover {
+  background: #dc2626;
+}
 
 /* ── Mobile responsive ── */
 @media (max-width: 640px) {
@@ -3532,7 +4275,10 @@ tbody tr.row-clickable {
   align-items: center;
   gap: 5px;
 }
-.btn-summary:hover { background: #dbeafe; border-color: #93c5fd; }
+.btn-summary:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
 
 .btn-print-report {
   background: #faf5ff;
@@ -3542,7 +4288,10 @@ tbody tr.row-clickable {
   align-items: center;
   gap: 5px;
 }
-.btn-print-report:hover { background: #ede9fe; border-color: #c4b5fd; }
+.btn-print-report:hover {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
 
 /* ── Monthly modals shared container overrides ──────────────────────────── */
 .modal-export-monthly {
@@ -3599,9 +4348,14 @@ tbody tr.row-clickable {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
-.btn-export-csv:hover { background: #dcfce7; border-color: #4ade80; }
+.btn-export-csv:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+}
 .btn-export-pdf {
   display: inline-flex;
   align-items: center;
@@ -3616,8 +4370,14 @@ tbody tr.row-clickable {
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-export-pdf:hover:not(:disabled) { background: #6d28d9; border-color: #6d28d9; }
-.btn-export-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-export-pdf:hover:not(:disabled) {
+  background: #6d28d9;
+  border-color: #6d28d9;
+}
+.btn-export-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* ── Monthly Summary Modal ──────────────────────────────────────────────── */
 .summary-month-row {
@@ -3653,11 +4413,31 @@ tbody tr.row-clickable {
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
-.kpi-total     { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
-.kpi-open      { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
-.kpi-inprogress{ background: #fffbeb; color: #b45309; border-color: #fcd34d; }
-.kpi-closed    { background: #f0fdf4; color: #15803d; border-color: #86efac; }
-.kpi-overdue   { background: #faf5ff; color: #7c3aed; border-color: #d8b4fe; }
+.kpi-total {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+.kpi-open {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.kpi-inprogress {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+.kpi-closed {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #86efac;
+}
+.kpi-overdue {
+  background: #faf5ff;
+  color: #7c3aed;
+  border-color: #d8b4fe;
+}
 
 .charts-row {
   display: flex;
