@@ -1,6 +1,10 @@
+import { makeCache } from '@/utils/apiCache.js';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 const GRAPHQL_URL = `${API_BASE}/graphql`;
 const UPLOAD_URL = `${API_BASE}/upload`;
+
+const _cache = makeCache();
 
 async function gql(query, variables = {}) {
   const token = localStorage.getItem("token");
@@ -50,12 +54,18 @@ const REPORT_FIELDS = `
 
 export const hseDailyService = {
   async listDepartments() {
+    const hit = _cache.get('dept');
+    if (hit) return hit;
     const data = await gql(`query { departments { id name } }`);
+    _cache.set('dept', data.departments);
     return data.departments;
   },
 
   async list() {
+    const hit = _cache.get('list');
+    if (hit) return hit;
     const data = await gql(`query { hseDailyList { ${REPORT_FIELDS} } }`);
+    _cache.set('list', data.hseDailyList);
     return data.hseDailyList;
   },
 
@@ -90,6 +100,7 @@ export const hseDailyService = {
     );
     const result = data.createHseDaily;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 
@@ -116,6 +127,7 @@ export const hseDailyService = {
     );
     const result = data.updateHseDaily;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 
@@ -128,6 +140,7 @@ export const hseDailyService = {
     );
     const result = data.deleteHseDaily;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 };

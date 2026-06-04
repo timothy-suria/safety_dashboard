@@ -45,7 +45,10 @@
       </div>
     </div>
 
-    <div v-if="loading" class="state-msg">Memuat modul...</div>
+    <div v-if="loading" class="state-msg loading-row">
+      <div class="spinner"></div>
+      <span>Memuat modul…</span>
+    </div>
     <div v-else-if="error" class="state-msg error">{{ error }}</div>
     <div v-else-if="modules.length === 0" class="state-msg">Belum ada modul yang diunggah.</div>
     <div v-else-if="filteredModules.length === 0" class="state-msg">Tidak ada modul yang cocok dengan pencarian.</div>
@@ -901,6 +904,22 @@ async function submitEdit() {
   padding: 32px 0;
   text-align: center;
 }
+.loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .state-msg.error { color: #dc2626; }
 

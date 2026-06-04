@@ -244,7 +244,10 @@
         </button>
       </div>
 
-      <div v-if="loading" class="loading">Memuat data…</div>
+      <div v-if="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Memuat data…</span>
+      </div>
       <div v-else class="table-scroll">
         <table>
           <thead>
@@ -2153,10 +2156,24 @@ async function downloadMonthlyPDF() {
   -webkit-overflow-scrolling: touch;
 }
 .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 40px;
-  text-align: center;
   color: #94a3b8;
+  font-size: 14px;
 }
+.loading .spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .table-toolbar {
   display: flex;
   align-items: center;

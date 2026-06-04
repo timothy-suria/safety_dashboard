@@ -9,7 +9,10 @@
       </h4>
     </div>
 
-    <div v-if="loading" class="comment-loading">Memuat komentar…</div>
+    <div v-if="loading" class="comment-loading">
+      <div class="spinner"></div>
+      <span>Memuat komentar…</span>
+    </div>
 
     <div v-else-if="comments.length === 0" class="comment-empty">
       Belum ada komentar. Jadilah yang pertama berkomentar.
@@ -223,9 +226,19 @@ function isEdited(c) {
   width: 100%;
 }
 .comment-count { color: #94a3b8; font-weight: 600; }
-.comment-loading, .comment-empty {
+.comment-loading {
+  display: flex; align-items: center; gap: 8px;
   font-size: 13px; color: #94a3b8; padding: 8px 4px;
 }
+.comment-empty {
+  font-size: 13px; color: #94a3b8; padding: 8px 4px;
+}
+.comment-loading .spinner {
+  width: 16px; height: 16px;
+  border: 2px solid #e2e8f0; border-top-color: #3b82f6;
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .comment-item { display: flex; gap: 10px; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }

@@ -1,7 +1,11 @@
+import { makeCache } from '@/utils/apiCache.js';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 const GRAPHQL_URL = `${API_BASE}/graphql`;
 const UPLOAD_VIDEO_URL = `${API_BASE}/upload-video`;
 const UPLOAD_DOC_URL = `${API_BASE}/upload-document`;
+
+const _cache = makeCache();
 
 async function gql(query, variables = {}) {
   const token = localStorage.getItem("token");
@@ -83,6 +87,8 @@ export async function uploadFile(file) {
 
 export const safetyModulesService = {
   async list() {
+    const hit = _cache.get('list');
+    if (hit) return hit;
     const data = await gql(`
       query {
         safetyModules {
@@ -90,13 +96,12 @@ export const safetyModulesService = {
         }
       }
     `);
+    _cache.set('list', data.safetyModules);
     return data.safetyModules;
   },
 
   async create(title, files, description = null, peraturan = null) {
-    // files: [{url, mediaType, name}]
     const filesJson = JSON.stringify(files);
-    // use first file as legacy video_url/media_type for backwards compat
     const first = files[0] ?? {};
     const data = await gql(
       `mutation CreateSafetyModule($title: String!, $videoUrl: String, $mediaType: String, $files: String, $peraturan: String, $description: String) {
@@ -109,6 +114,7 @@ export const safetyModulesService = {
     );
     const result = data.createSafetyModule;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result.module;
   },
 
@@ -126,6 +132,7 @@ export const safetyModulesService = {
     );
     const result = data.updateSafetyModule;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result.module;
   },
 
@@ -140,6 +147,7 @@ export const safetyModulesService = {
     );
     const result = data.deleteSafetyModule;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 };

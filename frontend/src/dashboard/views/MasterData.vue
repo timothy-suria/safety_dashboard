@@ -88,7 +88,10 @@
             </thead>
             <tbody>
               <tr v-if="buLoading">
-                <td colspan="7" class="td-empty">Memuat data…</td>
+                <td colspan="7" class="td-empty td-loading">
+                  <div class="spinner"></div>
+                  <span>Memuat data…</span>
+                </td>
               </tr>
               <tr v-else-if="!filteredBu.length">
                 <td colspan="7" class="td-empty">
@@ -175,7 +178,10 @@
             </thead>
             <tbody>
               <tr v-if="plantLoading">
-                <td colspan="8" class="td-empty">Memuat data…</td>
+                <td colspan="8" class="td-empty td-loading">
+                  <div class="spinner"></div>
+                  <span>Memuat data…</span>
+                </td>
               </tr>
               <tr v-else-if="!filteredPlants.length">
                 <td colspan="8" class="td-empty">
@@ -349,7 +355,10 @@
             </thead>
             <tbody>
               <tr v-if="userLoading">
-                <td colspan="9" class="td-empty">Memuat data…</td>
+                <td colspan="9" class="td-empty td-loading">
+                  <div class="spinner"></div>
+                  <span>Memuat data…</span>
+                </td>
               </tr>
               <tr v-else-if="!filteredUsers.length">
                 <td colspan="9" class="td-empty">
@@ -431,7 +440,10 @@
             </thead>
             <tbody>
               <tr v-if="roleLoading">
-                <td :colspan="roleLevel <= 2 ? 5 : 4" class="td-empty">Memuat data…</td>
+                <td :colspan="roleLevel <= 2 ? 5 : 4" class="td-empty td-loading">
+                  <div class="spinner"></div>
+                  <span>Memuat data…</span>
+                </td>
               </tr>
               <tr v-else-if="!filteredRoles.length">
                 <td :colspan="roleLevel <= 2 ? 5 : 4" class="td-empty">
@@ -611,7 +623,10 @@
             </thead>
             <tbody>
               <tr v-if="deptLoading">
-                <td colspan="7" class="td-empty">Memuat data…</td>
+                <td colspan="7" class="td-empty td-loading">
+                  <div class="spinner"></div>
+                  <span>Memuat data…</span>
+                </td>
               </tr>
               <tr v-else-if="!filteredDepts.length">
                 <td colspan="7" class="td-empty">
@@ -1429,6 +1444,13 @@ function formatDate(val) {
 .td-date { color: #64748b; white-space: nowrap; }
 .td-email { color: #64748b; font-size: 12px; }
 .td-empty { text-align: center; color: #94a3b8; padding: 40px 0; font-size: 13px; }
+.td-loading { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.td-loading .spinner, .td-empty .spinner {
+  width: 18px; height: 18px;
+  border: 2px solid #e2e8f0; border-top-color: #3b82f6;
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .th-action { text-align: center; width: 90px; }
 .td-action { text-align: center; white-space: nowrap; }
 

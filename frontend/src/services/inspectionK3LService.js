@@ -1,6 +1,10 @@
+import { makeCache } from '@/utils/apiCache.js';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 const GRAPHQL_URL = `${API_BASE}/graphql`;
 const UPLOAD_URL = `${API_BASE}/upload`;
+
+const _cache = makeCache();
 
 async function gql(query, variables = {}) {
   const token = localStorage.getItem("token");
@@ -41,6 +45,8 @@ export async function uploadImage(file) {
 
 export const inspectionK3LService = {
   async listBusinessUnits() {
+    const hit = _cache.get('bu');
+    if (hit) return hit;
     const data = await gql(`
       query {
         businessUnits {
@@ -48,10 +54,13 @@ export const inspectionK3LService = {
         }
       }
     `);
+    _cache.set('bu', data.businessUnits);
     return data.businessUnits;
   },
 
   async listDepartments() {
+    const hit = _cache.get('dept');
+    if (hit) return hit;
     const data = await gql(`
       query {
         departments {
@@ -59,10 +68,14 @@ export const inspectionK3LService = {
         }
       }
     `);
+    _cache.set('dept', data.departments);
     return data.departments;
   },
 
   async listPlants(businessUnitId = null) {
+    const key = 'plants:' + businessUnitId;
+    const hit = _cache.get(key);
+    if (hit) return hit;
     const data = await gql(
       `query Plants($businessUnitId: Int) {
         plants(businessUnitId: $businessUnitId) {
@@ -71,10 +84,13 @@ export const inspectionK3LService = {
       }`,
       { businessUnitId },
     );
+    _cache.set(key, data.plants);
     return data.plants;
   },
 
   async list() {
+    const hit = _cache.get('list');
+    if (hit) return hit;
     const data = await gql(`
       query {
         inspectionK3lList {
@@ -87,6 +103,7 @@ export const inspectionK3LService = {
         }
       }
     `);
+    _cache.set('list', data.inspectionK3lList);
     return data.inspectionK3lList;
   },
 
@@ -150,6 +167,7 @@ export const inspectionK3LService = {
     );
     const result = data.createInspectionK3l;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 
@@ -198,6 +216,7 @@ export const inspectionK3LService = {
     );
     const result = data.updateInspectionK3l;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 
@@ -212,6 +231,7 @@ export const inspectionK3LService = {
     );
     const result = data.deleteInspectionK3l;
     if (!result.success) throw new Error(result.message);
+    _cache.del('list');
     return result;
   },
 };

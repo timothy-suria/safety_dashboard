@@ -28,6 +28,7 @@
           {{ successMessage }}
         </div>
         <button type="submit" class="btn-login" :disabled="loading">
+          <span v-if="loading" class="btn-spinner"></span>
           {{ loading ? "Masuk..." : "Login" }}
         </button>
       </form>
@@ -185,4 +186,16 @@ const handleLogin = async () => {
   opacity: 0.7;
   cursor: not-allowed;
 }
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

@@ -34,8 +34,11 @@
       </div>
 
       <div class="button-row">
-        <button @click="changePassword" class="btn-primary">Ubah Password</button>
-        <button @click="cancel" class="btn-secondary">Batal</button>
+        <button @click="changePassword" class="btn-primary" :disabled="saving">
+          <span v-if="saving" class="btn-spinner"></span>
+          {{ saving ? "Menyimpan…" : "Ubah Password" }}
+        </button>
+        <button @click="cancel" class="btn-secondary" :disabled="saving">Batal</button>
       </div>
     </div>
   </div>
@@ -49,6 +52,7 @@ const currentPassword = ref("");
 const newPassword = ref("");
 const wrongPwd = ref("");
 const success = ref("");
+const saving = ref(false);
 
 async function changePassword() {
   wrongPwd.value = "";
@@ -64,6 +68,7 @@ async function changePassword() {
     return;
   }
 
+  saving.value = true;
   try {
     await authService.changePassword(currentPassword.value, newPassword.value);
     success.value = "Password berhasil diubah!";
@@ -71,6 +76,8 @@ async function changePassword() {
     newPassword.value = "";
   } catch (error) {
     wrongPwd.value = error.message || "Gagal mengubah password.";
+  } finally {
+    saving.value = false;
   }
 }
 
@@ -219,4 +226,11 @@ function cancel() {
 }
 
 .btn-secondary:hover { background: #e2e8f0; }
+.btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-spinner {
+  width: 15px; height: 15px;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

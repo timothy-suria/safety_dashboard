@@ -1,5 +1,9 @@
+import { makeCache } from '@/utils/apiCache.js';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 const GRAPHQL_URL = `${API_BASE}/graphql`;
+
+const _cache = makeCache();
 
 async function gql(query, variables = {}) {
   const token = localStorage.getItem("token");
@@ -22,6 +26,8 @@ export const masterDataService = {
   // ── Business Unit ─────────────────────────────────────────────────────
 
   async listBusinessUnits() {
+    const hit = _cache.get('bu');
+    if (hit) return hit;
     const data = await gql(`
       query {
         businessUnits {
@@ -29,6 +35,7 @@ export const masterDataService = {
         }
       }
     `);
+    _cache.set('bu', data.businessUnits);
     return data.businessUnits;
   },
 
@@ -44,6 +51,7 @@ export const masterDataService = {
     );
     const r = data.createBusinessUnit;
     if (!r.success) throw new Error(r.message);
+    _cache.del('bu');
     return r;
   },
 
@@ -59,6 +67,7 @@ export const masterDataService = {
     );
     const r = data.updateBusinessUnit;
     if (!r.success) throw new Error(r.message);
+    _cache.del('bu');
     return r;
   },
 
@@ -71,12 +80,16 @@ export const masterDataService = {
     );
     const r = data.deleteBusinessUnit;
     if (!r.success) throw new Error(r.message);
+    _cache.del('bu');
     return r;
   },
 
   // ── Plant ─────────────────────────────────────────────────────────────
 
   async listPlants(businessUnitId = null) {
+    const key = 'plants:' + businessUnitId;
+    const hit = _cache.get(key);
+    if (hit) return hit;
     const data = await gql(
       `query Plants($businessUnitId: Int) {
         plants(businessUnitId: $businessUnitId) {
@@ -85,6 +98,7 @@ export const masterDataService = {
       }`,
       { businessUnitId },
     );
+    _cache.set(key, data.plants);
     return data.plants;
   },
 
@@ -100,6 +114,8 @@ export const masterDataService = {
     );
     const r = data.createPlant;
     if (!r.success) throw new Error(r.message);
+    _cache.del('plants:null');
+    _cache.del('plants:' + input.businessUnitId);
     return r;
   },
 
@@ -115,6 +131,8 @@ export const masterDataService = {
     );
     const r = data.updatePlant;
     if (!r.success) throw new Error(r.message);
+    _cache.del('plants:null');
+    if (input.businessUnitId) _cache.del('plants:' + input.businessUnitId);
     return r;
   },
 
@@ -127,17 +145,22 @@ export const masterDataService = {
     );
     const r = data.deletePlant;
     if (!r.success) throw new Error(r.message);
+    // clear all plant cache keys since we don't know which BU
+    _cache.del('plants:null');
     return r;
   },
 
   // ── Roles ─────────────────────────────────────────────────────────────
 
   async listRoles() {
+    const hit = _cache.get('roles');
+    if (hit) return hit;
     const data = await gql(`
       query {
         roles { id name level description }
       }
     `);
+    _cache.set('roles', data.roles);
     return data.roles;
   },
 
@@ -153,6 +176,7 @@ export const masterDataService = {
     );
     const r = data.createRole;
     if (!r.success) throw new Error(r.message);
+    _cache.del('roles');
     return r;
   },
 
@@ -168,6 +192,7 @@ export const masterDataService = {
     );
     const r = data.updateRole;
     if (!r.success) throw new Error(r.message);
+    _cache.del('roles');
     return r;
   },
 
@@ -180,17 +205,21 @@ export const masterDataService = {
     );
     const r = data.deleteRole;
     if (!r.success) throw new Error(r.message);
+    _cache.del('roles');
     return r;
   },
 
   // ── Users ─────────────────────────────────────────────────────────────
 
   async listUsers() {
+    const hit = _cache.get('users');
+    if (hit) return hit;
     const data = await gql(`
       query {
         users { id email username fullName roleId businessUnitId plantId isActive createdAt updatedAt }
       }
     `);
+    _cache.set('users', data.users);
     return data.users;
   },
 
@@ -210,6 +239,7 @@ export const masterDataService = {
     );
     const r = data.createUser;
     if (!r.success) throw new Error(r.message);
+    _cache.del('users');
     return r;
   },
 
@@ -229,6 +259,7 @@ export const masterDataService = {
     );
     const r = data.updateUser;
     if (!r.success) throw new Error(r.message);
+    _cache.del('users');
     return r;
   },
 
@@ -241,12 +272,15 @@ export const masterDataService = {
     );
     const r = data.deleteUser;
     if (!r.success) throw new Error(r.message);
+    _cache.del('users');
     return r;
   },
 
   // ── Department ────────────────────────────────────────────────────────
 
   async listDepartments() {
+    const hit = _cache.get('dept');
+    if (hit) return hit;
     const data = await gql(`
       query {
         departments {
@@ -254,6 +288,7 @@ export const masterDataService = {
         }
       }
     `);
+    _cache.set('dept', data.departments);
     return data.departments;
   },
 
@@ -269,6 +304,7 @@ export const masterDataService = {
     );
     const r = data.createDepartment;
     if (!r.success) throw new Error(r.message);
+    _cache.del('dept');
     return r;
   },
 
@@ -284,6 +320,7 @@ export const masterDataService = {
     );
     const r = data.updateDepartment;
     if (!r.success) throw new Error(r.message);
+    _cache.del('dept');
     return r;
   },
 
@@ -296,6 +333,7 @@ export const masterDataService = {
     );
     const r = data.deleteDepartment;
     if (!r.success) throw new Error(r.message);
+    _cache.del('dept');
     return r;
   },
 };

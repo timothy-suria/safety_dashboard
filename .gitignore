@@ -39,3 +39,6 @@ dist/
 
 #seed
 seeds.py
+
+#local sql
+local_data.sql

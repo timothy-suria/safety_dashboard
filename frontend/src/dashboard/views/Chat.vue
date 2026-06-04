@@ -16,7 +16,10 @@
       </div>
 
       <div class="chat-userlist">
-        <div v-if="loadingUsers" class="chat-loading">Memuat pengguna…</div>
+        <div v-if="loadingUsers" class="chat-loading">
+        <div class="spinner"></div>
+        <span>Memuat pengguna…</span>
+      </div>
         <div v-else-if="filteredGroups.length === 0" class="chat-empty">Tidak ada pengguna yang cocok.</div>
 
         <template v-for="grp in filteredGroups" :key="grp.name">
@@ -81,7 +84,10 @@
         </header>
 
         <div class="chat-thread" ref="threadEl">
-          <div v-if="loadingMsgs" class="chat-loading">Memuat pesan…</div>
+          <div v-if="loadingMsgs" class="chat-loading">
+            <div class="spinner"></div>
+            <span>Memuat pesan…</span>
+          </div>
           <div v-else-if="messages.length === 0" class="chat-empty">Belum ada pesan. Kirim sapaan pertama!</div>
 
           <template v-for="(m, idx) in messages" :key="m.id">
@@ -667,7 +673,9 @@ function isEdited(m) {
 .search-clear { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; }
 
 .chat-userlist { flex: 1; overflow-y: auto; padding-bottom: 12px; }
-.chat-loading, .chat-empty { padding: 16px; text-align: center; font-size: 13px; color: #94a3b8; }
+.chat-loading { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; font-size: 13px; color: #94a3b8; }
+.chat-empty { padding: 16px; text-align: center; font-size: 13px; color: #94a3b8; }
+.chat-loading .spinner { width: 16px; height: 16px; border: 2px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
 
 .chat-group-label {
   display: flex; justify-content: space-between; align-items: center;

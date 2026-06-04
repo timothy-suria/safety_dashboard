@@ -1255,7 +1255,11 @@
       </div>
 
       <div class="table-wrapper">
-        <table v-if="pagedRecords.length > 0">
+        <div v-if="loading" class="k3l-loading">
+          <div class="k3l-spinner"></div>
+          <span>Memuat data…</span>
+        </div>
+        <table v-else-if="pagedRecords.length > 0">
           <thead>
             <tr>
               <th style="text-align: center; width: 48px">No</th>
@@ -1438,7 +1442,7 @@
         </table>
       </div>
       <PaginationBar
-        v-if="pagedRecords.length > 0"
+        v-if="!loading && pagedRecords.length > 0"
         :current-page="k3lCurrentPage"
         :total-pages="k3lTotalPages"
         :total-items="k3lTotalItems"
@@ -1446,7 +1450,7 @@
         @page="k3lGoToPage"
         @per-page="k3lSetPerPage"
       />
-      <div v-else-if="hasActiveFilters" class="empty-state">
+      <div v-else-if="!loading && hasActiveFilters" class="empty-state">
         <p>
           Tidak ada data yang cocok dengan filter.
           <button class="btn-inline-link" @click="resetFilters">
@@ -1454,7 +1458,7 @@
           </button>
         </p>
       </div>
-      <div v-else class="empty-state">
+      <div v-else-if="!loading" class="empty-state">
         <p>Belum ada data temuan. Klik "Tambah Temuan" untuk menambahkan.</p>
       </div>
     </div>
@@ -1705,6 +1709,7 @@ import {
   reactive,
   computed,
   onMounted,
+  onActivated,
   onBeforeUnmount,
   nextTick,
   watch,
@@ -3054,6 +3059,16 @@ onMounted(async () => {
   } else {
     availablePlants.value = plants.value;
   }
+  if (route.query.view) {
+    const target = records.value.find(
+      (r) => String(r.id) === String(route.query.view),
+    );
+    if (target) viewRecord(target);
+  }
+});
+
+// keep-alive: handle deep-link when returning to cached component
+onActivated(() => {
   if (route.query.view) {
     const target = records.value.find(
       (r) => String(r.id) === String(route.query.view),
@@ -4685,4 +4700,14 @@ tbody tr.row-clickable {
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
+.k3l-loading {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; color: #94a3b8; font-size: 14px; padding: 60px 0;
+}
+.k3l-spinner {
+  width: 22px; height: 22px;
+  border: 2.5px solid #e2e8f0; border-top-color: #3b82f6;
+  border-radius: 50%; animation: k3l-spin 0.7s linear infinite; flex-shrink: 0;
+}
+@keyframes k3l-spin { to { transform: rotate(360deg); } }
 </style>
