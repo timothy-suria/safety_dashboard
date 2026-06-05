@@ -44,6 +44,20 @@ export async function uploadImage(file) {
 }
 
 export const inspectionK3LService = {
+  async listUsers() {
+    const hit = _cache.get('users');
+    if (hit) return hit;
+    const data = await gql(`
+      query {
+        users {
+          id username fullName departmentId
+        }
+      }
+    `);
+    _cache.set('users', data.users);
+    return data.users;
+  },
+
   async listBusinessUnits() {
     const hit = _cache.get('bu');
     if (hit) return hit;
@@ -101,7 +115,7 @@ export const inspectionK3LService = {
           businessUnitId plantId departmentId
           saranPerbaikan tindakanPerbaikan
           ditindaklanjutiOleh ditindaklanjutiDepartmentId tanggalTindaklanjuti
-          jenisInspeksi pelaporUsername pelaporDepartmentId tanggalPelaporan
+          jenisInspeksi pelaporUsername pelaporDepartmentId tanggalPelaporan petugasInspeksi
           divalidasiOleh divalidasiDepartmentId tanggalValidasi alasanValidasi statusValidasi
           tindakLanjutCount
           tindakLanjutList {
@@ -154,7 +168,8 @@ export const inspectionK3LService = {
         $businessUnitId: Int,
         $plantId: Int,
         $departmentId: Int,
-        $jenisInspeksi: String
+        $jenisInspeksi: String,
+        $petugasInspeksi: String
       ) {
         createInspectionK3l(
           tanggal: $tanggal,
@@ -170,7 +185,8 @@ export const inspectionK3LService = {
           businessUnitId: $businessUnitId,
           plantId: $plantId,
           departmentId: $departmentId,
-          jenisInspeksi: $jenisInspeksi
+          jenisInspeksi: $jenisInspeksi,
+          petugasInspeksi: $petugasInspeksi
         ) {
           success message
           inspection {
@@ -204,7 +220,8 @@ export const inspectionK3LService = {
         $businessUnitId: Int,
         $plantId: Int,
         $departmentId: Int,
-        $jenisInspeksi: String
+        $jenisInspeksi: String,
+        $petugasInspeksi: String
       ) {
         updateInspectionK3l(
           id: $id,
@@ -221,7 +238,8 @@ export const inspectionK3LService = {
           businessUnitId: $businessUnitId,
           plantId: $plantId,
           departmentId: $departmentId,
-          jenisInspeksi: $jenisInspeksi
+          jenisInspeksi: $jenisInspeksi,
+          petugasInspeksi: $petugasInspeksi
         ) {
           success message
           inspection {

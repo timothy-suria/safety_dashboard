@@ -98,10 +98,12 @@
                   <button type="button" class="jenis-pick-btn" @click="form.jenisInspeksi = 'Ronda Kepatuhan'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <span>Ronda Kepatuhan</span>
+                    <span class="jenis-pick-desc">Inspeksi terjadwal kepatuhan prosedur & peraturan K3L di area kerja</span>
                   </button>
                   <button type="button" class="jenis-pick-btn" @click="form.jenisInspeksi = 'Daily Inspection'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
                     <span>Daily Inspection</span>
+                    <span class="jenis-pick-desc">Inspeksi harian kondisi fisik & keselamatan area kerja setiap hari</span>
                   </button>
                 </div>
               </div>
@@ -150,6 +152,57 @@
                   </div>
                 </div>
 
+                <!-- Petugas Inspeksi -->
+                <div class="form-section">
+                  <h4 class="section-title">Petugas Inspeksi</h4>
+                  <div class="petugas-list">
+                    <div v-for="(petugas, idx) in petugasList" :key="idx" class="petugas-row">
+                      <div class="petugas-nama-wrap">
+                        <input
+                          type="text"
+                          v-model="petugas.nama"
+                          @input="onPetugasInput(idx, $event)"
+                          @keydown="onPetugasKeydown(idx, $event)"
+                          @blur="onPetugasBlur(idx)"
+                          placeholder="Nama petugas atau ketik @ untuk cari pengguna..."
+                          class="petugas-nama-input"
+                        />
+                        <div v-if="mentionActive === idx && mentionResults.length" class="mention-dropdown">
+                          <button
+                            v-for="(u, mi) in mentionResults"
+                            :key="u.id"
+                            type="button"
+                            :class="['mention-item', { 'mention-item-active': mentionHighlight === mi }]"
+                            @mousedown.prevent="selectMention(idx, u)"
+                          >
+                            <span class="mention-name">{{ u.fullName || u.username }}</span>
+                            <span v-if="u.departmentId" class="mention-dept">
+                              {{ departments.find(d => d.id === u.departmentId)?.name || '' }}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                      <select v-model.number="petugas.departmentId" class="petugas-dept-select">
+                        <option :value="null">Pilih Dept.</option>
+                        <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                          {{ dept.name }}
+                        </option>
+                      </select>
+                      <button
+                        type="button"
+                        class="petugas-remove"
+                        @click="removePetugas(idx)"
+                        v-if="petugasList.length > 1"
+                        title="Hapus petugas"
+                      >×</button>
+                    </div>
+                  </div>
+                  <button type="button" class="bullet-add" @click="addPetugas" style="margin-top:8px">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Tambah Petugas
+                  </button>
+                </div>
+
                 <!-- Waktu -->
                 <div class="form-section">
                   <h4 class="section-title">Waktu</h4>
@@ -196,9 +249,17 @@
                   <h4 class="section-title">Temuan</h4>
                   <div class="form-row">
                     <div class="form-group">
-                      <label
-                        >Kategori Temuan <span class="required">*</span></label
-                      >
+                      <label>Kategori Temuan <span class="required">*</span>
+                        <span class="info-tooltip">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          <span class="tooltip-box">
+                            <span class="tooltip-row"><b>Critical</b> — Bahaya langsung mengancam keselamatan jiwa atau aset</span>
+                            <span class="tooltip-row"><b>Major</b> — Potensi bahaya serius bila tidak segera ditangani</span>
+                            <span class="tooltip-row"><b>Minor</b> — Temuan kecil dengan risiko rendah</span>
+                            <span class="tooltip-row"><b>No Findings</b> — Tidak ditemukan temuan, kondisi aman</span>
+                          </span>
+                        </span>
+                      </label>
                       <select v-model="form.kategoriTemuan" required>
                         <option value="" disabled>Pilih Kategori</option>
                         <option value="Critical">Critical</option>
@@ -715,6 +776,19 @@
                   <div class="detail-row">
                     <span class="detail-label">Departemen</span>
                     <span class="detail-value">{{ departments.find(d => d.id === viewingRecord.pelaporDepartmentId)?.name || '-' }}</span>
+                  </div>
+                </div>
+
+                <div class="detail-section" v-if="parsePetugas(viewingRecord.petugasInspeksi).length">
+                  <h4 class="section-title">Petugas Inspeksi</h4>
+                  <div v-for="(p, i) in parsePetugas(viewingRecord.petugasInspeksi)" :key="i" class="detail-row">
+                    <span class="detail-label">Petugas {{ i + 1 }}</span>
+                    <span class="detail-value">
+                      {{ p.nama }}
+                      <span v-if="p.departmentId" class="petugas-dept-tag">
+                        {{ departments.find(d => d.id === p.departmentId)?.name || '' }}
+                      </span>
+                    </span>
                   </div>
                 </div>
 
@@ -2239,6 +2313,80 @@ const records = ref([]);
 const businessUnits = ref([]);
 const plants = ref([]);
 const departments = ref([]);
+const usersForMention = ref([]);
+const petugasList = ref([{ nama: '', departmentId: null }]);
+const mentionActive = ref(-1);
+const mentionQuery = ref('');
+const mentionHighlight = ref(-1);
+
+const mentionResults = computed(() => {
+  if (!mentionQuery.value) return [];
+  const q = mentionQuery.value.toLowerCase();
+  return usersForMention.value
+    .filter(u => (u.fullName || '').toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q))
+    .slice(0, 8);
+});
+
+function parsePetugas(json) {
+  if (!json) return [];
+  try { return JSON.parse(json); } catch { return []; }
+}
+
+function onPetugasInput(idx, e) {
+  const val = e.target.value;
+  const atPos = val.lastIndexOf('@');
+  if (atPos !== -1) {
+    mentionActive.value = idx;
+    mentionQuery.value = val.slice(atPos + 1);
+    mentionHighlight.value = 0;
+  } else {
+    if (mentionActive.value === idx) { mentionActive.value = -1; mentionQuery.value = ''; mentionHighlight.value = -1; }
+  }
+}
+
+function onPetugasKeydown(idx, e) {
+  if (mentionActive.value !== idx || !mentionResults.value.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    mentionHighlight.value = (mentionHighlight.value + 1) % mentionResults.value.length;
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    mentionHighlight.value = (mentionHighlight.value - 1 + mentionResults.value.length) % mentionResults.value.length;
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    const u = mentionResults.value[mentionHighlight.value];
+    if (u) selectMention(idx, u);
+  } else if (e.key === 'Escape') {
+    mentionActive.value = -1;
+    mentionQuery.value = '';
+    mentionHighlight.value = -1;
+  }
+}
+
+function selectMention(idx, user) {
+  petugasList.value[idx].nama = user.fullName || user.username || '';
+  petugasList.value[idx].departmentId = user.departmentId || null;
+  mentionActive.value = -1;
+  mentionQuery.value = '';
+  mentionHighlight.value = -1;
+}
+
+function addPetugas() {
+  petugasList.value.push({ nama: '', departmentId: null });
+}
+
+function removePetugas(idx) {
+  if (petugasList.value.length > 1) petugasList.value.splice(idx, 1);
+}
+
+function onPetugasBlur(idx) {
+  setTimeout(() => {
+    if (mentionActive.value === idx) {
+      mentionActive.value = -1;
+      mentionQuery.value = '';
+    }
+  }, 150);
+}
 
 const filteredPlants = computed(() => {
   if (!form.value.businessUnitId) return [];
@@ -2723,6 +2871,9 @@ function cancelForm() {
   form.value = defaultForm();
   originalForm.value = null;
   showDiscardConfirm.value = false;
+  petugasList.value = [{ nama: '', departmentId: null }];
+  mentionActive.value = -1;
+  mentionQuery.value = '';
   clearPhotos();
   clearPhotosAfter();
 }
@@ -2954,6 +3105,9 @@ async function submitForm() {
       businessUnitId: form.value.businessUnitId || null,
       plantId: form.value.plantId || null,
       departmentId: form.value.departmentId || null,
+      petugasInspeksi: JSON.stringify(
+        petugasList.value.filter(p => p.nama.trim()).map(p => ({ nama: p.nama.trim(), departmentId: p.departmentId }))
+      ) || null,
     };
 
     if (editingId.value) {
@@ -3016,6 +3170,9 @@ function editRecord(item) {
   };
   form.value = { ...formValues };
   originalForm.value = { ...formValues, _tanggalFull: item.tanggal ? item.tanggal.replace(' ', 'T') : '' };
+  petugasList.value = parsePetugas(item.petugasInspeksi).length
+    ? parsePetugas(item.petugasInspeksi)
+    : [{ nama: '', departmentId: null }];
   clearPhotos();
   clearPhotosAfter();
   if (item.fotoSebelum) {
@@ -3781,6 +3938,7 @@ onBeforeUnmount(() => {
 onMounted(async () => {
   await loadData(true);
   await loadLocationOptions();
+  inspectionK3LService.listUsers().then(u => { usersForMention.value = u || []; }).catch(() => {});
   if (roleLevel >= 3 && roleLevel < 5) {
     availablePlants.value = await inspectionK3LService.listPlants(
       currentUser?.businessUnitId,
@@ -4493,6 +4651,191 @@ onActivated(() => {
   background: #eff6ff;
   color: #2563eb;
   box-shadow: 0 4px 16px rgba(37,99,235,0.1);
+}
+.jenis-pick-desc {
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: -4px;
+}
+.jenis-pick-btn:hover .jenis-pick-desc {
+  color: #60a5fa;
+}
+
+/* ── Info tooltip ── */
+.info-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  vertical-align: middle;
+  color: #94a3b8;
+  cursor: default;
+}
+.info-tooltip svg {
+  display: block;
+}
+.tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 9999;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1e293b;
+}
+.info-tooltip:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+}
+.tooltip-row {
+  display: block;
+  line-height: 1.4;
+}
+.tooltip-row b {
+  color: #fff;
+}
+
+/* ── Petugas Inspeksi ── */
+.petugas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.petugas-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.petugas-nama-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.petugas-nama-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.petugas-nama-input:focus {
+  border-color: #3b82f6;
+}
+.petugas-dept-select {
+  width: 160px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+}
+.petugas-remove {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.petugas-remove:hover {
+  background: #fee2e2;
+}
+.mention-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 2000;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.mention-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+.mention-item:last-child {
+  border-bottom: none;
+}
+.mention-item:hover,
+.mention-item-active {
+  background: #eff6ff;
+}
+.mention-item-active .mention-name {
+  color: #2563eb;
+}
+.mention-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.mention-dept {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-left: auto;
+}
+.petugas-dept-tag {
+  display: inline-block;
+  font-size: 11px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
 }
 
 .bullet-editor {

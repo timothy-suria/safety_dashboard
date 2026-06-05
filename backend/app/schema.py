@@ -222,6 +222,7 @@ class InspectionK3LType:
     pelapor_department_id: Optional[int] = None
     jenis_inspeksi: Optional[str] = None
     tanggal_pelaporan: Optional[str] = None
+    petugas_inspeksi: Optional[str] = None
     divalidasi_oleh: Optional[str] = None
     divalidasi_department_id: Optional[int] = None
     tanggal_validasi: Optional[str] = None
@@ -465,6 +466,7 @@ def _model_to_type(record: models.InspectionK3L, db: Optional[Session] = None) -
             pelapor_department_id=record.pelapor_department_id,
             jenis_inspeksi=record.jenis_inspeksi,
             tanggal_pelaporan=str(record.tanggal_pelaporan) if record.tanggal_pelaporan else None,
+            petugas_inspeksi=record.petugas_inspeksi,
             divalidasi_oleh=record.divalidasi_oleh,
             divalidasi_department_id=record.divalidasi_department_id,
             tanggal_validasi=str(record.tanggal_validasi) if record.tanggal_validasi else None,
@@ -1233,6 +1235,7 @@ class Mutation:
         plant_id: Optional[int] = None,
         department_id: Optional[int] = None,
         jenis_inspeksi: Optional[str] = None,
+        petugas_inspeksi: Optional[str] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
@@ -1275,6 +1278,7 @@ class Mutation:
                 department_id=department_id,
                 jenis_inspeksi=jenis_inspeksi,
                 tanggal_pelaporan=wib_now,
+                petugas_inspeksi=petugas_inspeksi,
             )
             db.add(record)
             db.commit()
@@ -1316,6 +1320,7 @@ class Mutation:
         plant_id: Optional[int] = None,
         department_id: Optional[int] = None,
         jenis_inspeksi: Optional[str] = None,
+        petugas_inspeksi: Optional[str] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
@@ -1376,6 +1381,8 @@ class Mutation:
                 record.department_id = department_id
             if jenis_inspeksi is not None:
                 record.jenis_inspeksi = jenis_inspeksi
+            if petugas_inspeksi is not None:
+                record.petugas_inspeksi = petugas_inspeksi
 
             db.commit()
             db.refresh(record)

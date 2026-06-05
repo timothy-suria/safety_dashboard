@@ -116,6 +116,9 @@ class InspectionK3L(Base):
     # Tanggal Pelaporan (auto WIB on create)
     tanggal_pelaporan = Column(DateTime)
 
+    # Petugas Inspeksi (JSON: [{nama, departmentId}])
+    petugas_inspeksi = Column(Text)
+
     # Validasi Safety
     divalidasi_oleh = Column(String(100))
     divalidasi_department_id = Column(Integer, ForeignKey("departments.id"))
