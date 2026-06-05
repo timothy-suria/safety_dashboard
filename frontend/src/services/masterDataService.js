@@ -216,7 +216,7 @@ export const masterDataService = {
     if (hit) return hit;
     const data = await gql(`
       query {
-        users { id email username fullName roleId businessUnitId plantId isActive createdAt updatedAt }
+        users { id email username fullName roleId businessUnitId plantId departmentId isActive createdAt updatedAt }
       }
     `);
     _cache.set('users', data.users);
@@ -227,12 +227,12 @@ export const masterDataService = {
     const data = await gql(
       `mutation CreateUser(
         $email: String!, $password: String!, $username: String, $fullName: String,
-        $roleId: Int, $businessUnitId: Int, $plantId: Int, $isActive: Boolean
+        $roleId: Int, $businessUnitId: Int, $plantId: Int, $departmentId: Int, $isActive: Boolean
       ) {
         createUser(email: $email, password: $password, username: $username, fullName: $fullName,
-          roleId: $roleId, businessUnitId: $businessUnitId, plantId: $plantId, isActive: $isActive) {
+          roleId: $roleId, businessUnitId: $businessUnitId, plantId: $plantId, departmentId: $departmentId, isActive: $isActive) {
           success message
-          user { id email username fullName roleId businessUnitId plantId isActive createdAt }
+          user { id email username fullName roleId businessUnitId plantId departmentId isActive createdAt }
         }
       }`,
       input,
@@ -247,12 +247,12 @@ export const masterDataService = {
     const data = await gql(
       `mutation UpdateUser(
         $id: Int!, $email: String, $password: String, $username: String, $fullName: String,
-        $roleId: Int, $businessUnitId: Int, $plantId: Int, $isActive: Boolean
+        $roleId: Int, $businessUnitId: Int, $plantId: Int, $departmentId: Int, $isActive: Boolean
       ) {
         updateUser(id: $id, email: $email, password: $password, username: $username, fullName: $fullName,
-          roleId: $roleId, businessUnitId: $businessUnitId, plantId: $plantId, isActive: $isActive) {
+          roleId: $roleId, businessUnitId: $businessUnitId, plantId: $plantId, departmentId: $departmentId, isActive: $isActive) {
           success message
-          user { id email username fullName roleId businessUnitId plantId isActive createdAt }
+          user { id email username fullName roleId businessUnitId plantId departmentId isActive createdAt }
         }
       }`,
       { id, ...input },

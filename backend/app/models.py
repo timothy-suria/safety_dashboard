@@ -49,6 +49,7 @@ class User(Base):
     role_id = Column(Integer, ForeignKey("roles.id"))
     business_unit_id = Column(Integer, ForeignKey("business_units.id"))
     plant_id = Column(Integer, ForeignKey("plants.id"))
+    department_id = Column(Integer, ForeignKey("departments.id"))
     is_active = Column(Boolean, server_default="true")
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
     last_login = Column(DateTime)
@@ -78,14 +79,21 @@ class InspectionK3L(Base):
     deskripsi_temuan = Column(Text)
 
     # Foto (path/url)
-    foto_sebelum = Column(String(500))
-    foto_sesudah = Column(String(500))
+    foto_sebelum = Column(Text)
+    foto_sesudah = Column(Text)
 
     # Lokasi
     lokasi = Column(String(150))
 
-    # Tindakan
+    # Saran Perbaikan (dari form tambah/ubah temuan)
+    saran_perbaikan = Column(Text)
+
+    # Tindak Lanjut (dari form tindak lanjut)
     tindakan_perbaikan = Column(Text)
+    ditindaklanjuti_oleh = Column(String(100))
+    ditindaklanjuti_department_id = Column(Integer, ForeignKey("departments.id"))
+    tanggal_tindaklanjuti = Column(DateTime)
+
     target_selesai = Column(Date)
 
     # Status
@@ -98,13 +106,55 @@ class InspectionK3L(Base):
     plant_id = Column(Integer, ForeignKey("plants.id"))
     department_id = Column(Integer, ForeignKey("departments.id"))
 
+    # Pelapor
+    pelapor_username = Column(String(100))
+    pelapor_department_id = Column(Integer, ForeignKey("departments.id"))
+
+    # Jenis Inspeksi
+    jenis_inspeksi = Column(String(50))
+
+    # Validasi Safety
+    divalidasi_oleh = Column(String(100))
+    divalidasi_department_id = Column(Integer, ForeignKey("departments.id"))
+    tanggal_validasi = Column(DateTime)
+    alasan_validasi = Column(Text)
+    status_validasi = Column(String(20))
+
     # Audit trail
     created_at = Column(DateTime, server_default=func.current_timestamp())
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
     __table_args__ = (
-        CheckConstraint("status IN ('Open', 'In Progress', 'Closed')", name="reports_inspectionk3l_status_check"),
+        CheckConstraint("status IN ('Open', 'In Progress', 'Closed', 'Progress Validasi')", name="reports_inspectionk3l_status_check"),
     )
+
+
+class InspectionK3LTindakLanjutHistory(Base):
+    __tablename__ = "inspection_k3l_tindak_lanjut_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    inspection_id = Column(Integer, ForeignKey("reports_inspectionk3l.id", ondelete="CASCADE"), nullable=False, index=True)
+    round_number = Column(Integer, nullable=False)
+    tindakan_perbaikan = Column(Text)
+    foto_sesudah = Column(Text)
+    ditindaklanjuti_oleh = Column(String(100))
+    ditindaklanjuti_department_id = Column(Integer, ForeignKey("departments.id"))
+    tanggal_tindaklanjuti = Column(DateTime)
+    created_at = Column(DateTime, server_default=func.current_timestamp())
+
+
+class InspectionK3LValidasiHistory(Base):
+    __tablename__ = "inspection_k3l_validasi_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    inspection_id = Column(Integer, ForeignKey("reports_inspectionk3l.id", ondelete="CASCADE"), nullable=False, index=True)
+    round_number = Column(Integer, nullable=False)
+    divalidasi_oleh = Column(String(100))
+    divalidasi_department_id = Column(Integer, ForeignKey("departments.id"))
+    tanggal_validasi = Column(DateTime)
+    alasan_validasi = Column(Text)
+    status_validasi = Column(String(20))
+    created_at = Column(DateTime, server_default=func.current_timestamp())
 
 
 class HseDailyReport(Base):

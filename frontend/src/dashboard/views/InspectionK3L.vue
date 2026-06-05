@@ -63,24 +63,93 @@
           <div class="modal-container">
             <div class="modal-header">
               <h3 class="modal-title">
-                {{ editingId ? 'Ubah Temuan' : 'Input Temuan Baru' }}
+                {{ editingId ? 'Ubah Temuan' : (!form.jenisInspeksi ? 'Pilih Jenis Inspeksi' : 'Input Temuan Baru') }}
               </h3>
               <button class="modal-close" @click="tryCloseForm">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  width="20"
-                  height="20"
-                >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
+
+            <!-- Step progress bar (create mode only) -->
+            <div v-if="!editingId" class="form-stepper">
+              <button
+                type="button"
+                :class="['step-item', !form.jenisInspeksi ? 'step-active' : 'step-done']"
+                @click="form.jenisInspeksi = ''"
+              >
+                <span class="step-circle">1</span>
+                <span class="step-label">Jenis Inspeksi</span>
+              </button>
+              <div :class="['step-line', form.jenisInspeksi ? 'step-line-done' : '']"></div>
+              <div :class="['step-item', form.jenisInspeksi ? 'step-active' : 'step-pending']">
+                <span class="step-circle">2</span>
+                <span class="step-label">Detail Temuan</span>
+              </div>
+            </div>
+
             <div class="modal-body">
-              <form @submit.prevent="submitForm" class="form-grid">
+              <!-- Step 1: pick jenis inspeksi -->
+              <div v-if="!editingId && !form.jenisInspeksi" class="jenis-picker">
+                <p class="jenis-picker-hint">Pilih jenis inspeksi untuk melanjutkan input temuan</p>
+                <div class="jenis-picker-btns">
+                  <button type="button" class="jenis-pick-btn" @click="form.jenisInspeksi = 'Ronda Kepatuhan'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span>Ronda Kepatuhan</span>
+                  </button>
+                  <button type="button" class="jenis-pick-btn" @click="form.jenisInspeksi = 'Daily Inspection'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+                    <span>Daily Inspection</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2: full form after selection (or edit mode) -->
+              <form v-else @submit.prevent="submitForm" class="form-grid">
+                <!-- Jenis Inspeksi -->
+                <div class="form-section">
+                  <h4 class="section-title">Jenis Inspeksi</h4>
+                  <div v-if="editingId" class="form-row">
+                    <div class="form-group">
+                      <select v-model="form.jenisInspeksi">
+                        <option value="">-- Pilih Jenis --</option>
+                        <option value="Ronda Kepatuhan">Ronda Kepatuhan</option>
+                        <option value="Daily Inspection">Daily Inspection</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p v-else class="jenis-selected-text">{{ form.jenisInspeksi }}</p>
+                </div>
+
+                <!-- Dilaporkan Oleh -->
+                <div class="form-section">
+                  <h4 class="section-title">Dilaporkan Oleh</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Nama Lengkap</label>
+                      <input
+                        type="text"
+                        :value="editingId ? form.pelaporUsername : (currentUser?.fullName || currentUser?.username || currentUser?.email || '-')"
+                        disabled
+                        class="input-pelapor"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label>Departemen</label>
+                      <input
+                        type="text"
+                        :value="editingId
+                          ? (departments.find(d => d.id === form.pelaporDepartmentId)?.name || '-')
+                          : (currentUser?.department || '-')"
+                        disabled
+                        class="input-pelapor"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Waktu -->
                 <div class="form-section">
                   <h4 class="section-title">Waktu</h4>
@@ -89,7 +158,7 @@
                       <label>Tanggal <span class="required">*</span></label>
                       <div class="date-input-wrapper">
                         <input
-                          type="datetime-local"
+                          type="date"
                           v-model="form.tanggal"
                           required
                           ref="tanggalInput"
@@ -132,9 +201,9 @@
                       >
                       <select v-model="form.kategoriTemuan" required>
                         <option value="" disabled>Pilih Kategori</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Major">Major</option>
+                        <option value="Minor">Minor</option>
                       </select>
                     </div>
                     <div class="form-group full-width">
@@ -471,12 +540,28 @@
                   <h4 class="section-title">Tindakan</h4>
                   <div class="form-row">
                     <div class="form-group full-width">
-                      <label>Tindakan Perbaikan</label>
-                      <textarea
-                        v-model="form.tindakanPerbaikan"
-                        rows="3"
-                        placeholder="Jelaskan tindakan perbaikan yang dilakukan..."
-                      ></textarea>
+                      <label>Saran Perbaikan</label>
+                      <div class="bullet-editor">
+                        <div
+                          v-for="(bullet, i) in form.saranBullets"
+                          :key="i"
+                          class="bullet-row"
+                        >
+                          <span class="bullet-dot">•</span>
+                          <input
+                            class="bullet-input"
+                            v-model="form.saranBullets[i]"
+                            placeholder="Tambahkan saran..."
+                            @keydown.enter.prevent="addBullet(i)"
+                            @keydown.backspace="removeBulletOnEmpty(i, $event)"
+                          />
+                          <button type="button" class="bullet-remove" @click="removeBullet(i)" v-if="form.saranBullets.length > 1">×</button>
+                        </div>
+                        <button type="button" class="bullet-add" @click="addBullet()">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          Tambah Poin
+                        </button>
+                      </div>
                     </div>
                     <div class="form-group">
                       <label>Target Selesai</label>
@@ -485,11 +570,10 @@
                           type="date"
                           v-model="form.targetSelesai"
                           ref="targetSelesaiInput"
-                          @click="$refs.targetSelesaiInput.showPicker()"
+                          disabled
                         />
                         <svg
                           class="date-icon"
-                          @click="$refs.targetSelesaiInput.showPicker()"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -622,6 +706,18 @@
             <div class="modal-body">
               <div class="detail-grid">
                 <div class="detail-section">
+                  <h4 class="section-title">Dilaporkan Oleh</h4>
+                  <div class="detail-row">
+                    <span class="detail-label">Nama Lengkap</span>
+                    <span class="detail-value">{{ viewingRecord.pelaporUsername || '-' }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Departemen</span>
+                    <span class="detail-value">{{ departments.find(d => d.id === viewingRecord.pelaporDepartmentId)?.name || '-' }}</span>
+                  </div>
+                </div>
+
+                <div class="detail-section">
                   <h4 class="section-title">Waktu</h4>
                   <div class="detail-row">
                     <span class="detail-label">Tanggal</span>
@@ -633,6 +729,10 @@
 
                 <div class="detail-section">
                   <h4 class="section-title">Temuan</h4>
+                  <div class="detail-row">
+                    <span class="detail-label">Jenis Inspeksi</span>
+                    <span class="detail-value">{{ viewingRecord.jenisInspeksi || '-' }}</span>
+                  </div>
                   <div class="detail-row">
                     <span class="detail-label">Kategori</span>
                     <span class="detail-value">
@@ -683,7 +783,7 @@
                     </div>
                   </div>
                   <div
-                    v-if="parsePhotos(viewingRecord.fotoSesudah).length"
+                    v-if="parsePhotos(viewingRecord.fotoSesudah).length && !viewingRecord.tindakLanjutList?.length"
                     style="margin-top: 12px"
                   >
                     <p class="foto-sublabel">Sesudah</p>
@@ -738,10 +838,15 @@
                 <div class="detail-section">
                   <h4 class="section-title">Tindakan</h4>
                   <div class="detail-row">
-                    <span class="detail-label">Tindakan Perbaikan</span>
-                    <span class="detail-value detail-multiline">{{
-                      viewingRecord.tindakanPerbaikan || '-'
-                    }}</span>
+                    <span class="detail-label">Saran Perbaikan</span>
+                    <span class="detail-value">
+                      <template v-if="viewingRecord.saranPerbaikan">
+                        <ul class="saran-list">
+                          <li v-for="(b, i) in viewingRecord.saranPerbaikan.split('\n').filter(Boolean)" :key="i">{{ b }}</li>
+                        </ul>
+                      </template>
+                      <template v-else>-</template>
+                    </span>
                   </div>
                   <div class="detail-row">
                     <span class="detail-label">Target Selesai</span>
@@ -771,6 +876,91 @@
                     <span class="detail-value">{{
                       formatDate(viewingRecord.aktualClose)
                     }}</span>
+                  </div>
+                </div>
+
+                <div class="detail-section" v-if="viewingRecord.tindakLanjutList?.length">
+                  <h4 class="section-title">
+                    Tindak Lanjut
+                    <span class="tl-round-count">({{ viewingRecord.tindakLanjutList.length }}/4)</span>
+                  </h4>
+                  <div v-for="tl in viewingRecord.tindakLanjutList" :key="tl.id" class="tl-history-item">
+                    <div class="tl-history-header">
+                      <span class="tl-round-badge">Ke-{{ tl.roundNumber }}</span>
+                    </div>
+                    <div class="detail-row" v-if="tl.ditindaklanjutiOleh">
+                      <span class="detail-label">Ditindaklanjuti Oleh</span>
+                      <span class="detail-value">{{ tl.ditindaklanjutiOleh }}</span>
+                    </div>
+                    <div class="detail-row" v-if="tl.ditindaklanjutiDepartmentId">
+                      <span class="detail-label">Departemen</span>
+                      <span class="detail-value">{{ departments.find(d => d.id === tl.ditindaklanjutiDepartmentId)?.name || '-' }}</span>
+                    </div>
+                    <div class="detail-row" v-if="tl.tanggalTindaklanjuti">
+                      <span class="detail-label">Tanggal</span>
+                      <span class="detail-value">{{ formatDate(tl.tanggalTindaklanjuti) }}</span>
+                    </div>
+                    <div class="detail-row" v-if="tl.tindakanPerbaikan">
+                      <span class="detail-label">Tindakan Perbaikan</span>
+                      <span class="detail-value">
+                        <ul class="saran-list">
+                          <li v-for="(b, i) in tl.tindakanPerbaikan.split('\n').filter(Boolean)" :key="i">{{ b }}</li>
+                        </ul>
+                      </span>
+                    </div>
+                    <div v-if="parsePhotos(tl.fotoSesudah).length" style="margin-top: 8px">
+                      <span class="detail-label">Foto Sesudah</span>
+                      <div class="detail-photo-grid" style="margin-top:4px">
+                        <img
+                          v-for="(url, idx) in parsePhotos(tl.fotoSesudah)"
+                          :key="'tl-'+tl.id+'-'+idx"
+                          :src="url"
+                          alt="Foto sesudah"
+                          class="detail-photo-thumb"
+                          @click="openPhotoModalFromUrls(parsePhotos(tl.fotoSesudah), idx)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="detail-section" v-if="viewingRecord.validasiList?.length">
+                  <h4 class="section-title">
+                    Validasi Safety
+                    <span class="tl-round-count">({{ viewingRecord.validasiList.length }}/4)</span>
+                  </h4>
+                  <div v-for="val in viewingRecord.validasiList" :key="val.id" class="tl-history-item">
+                    <div class="tl-history-header">
+                      <span class="tl-round-badge val-round-badge">Ke-{{ val.roundNumber }}</span>
+                    </div>
+                    <div class="detail-row" v-if="val.divalidasiOleh">
+                      <span class="detail-label">Divalidasi Oleh</span>
+                      <span class="detail-value">{{ val.divalidasiOleh }}</span>
+                    </div>
+                    <div class="detail-row" v-if="val.divalidasiDepartmentId">
+                      <span class="detail-label">Departemen</span>
+                      <span class="detail-value">{{ departments.find(d => d.id === val.divalidasiDepartmentId)?.name || '-' }}</span>
+                    </div>
+                    <div class="detail-row" v-if="val.tanggalValidasi">
+                      <span class="detail-label">Tanggal Validasi</span>
+                      <span class="detail-value">{{ formatDate(val.tanggalValidasi) }}</span>
+                    </div>
+                    <div class="detail-row" v-if="val.alasanValidasi">
+                      <span class="detail-label">Alasan Validasi</span>
+                      <span class="detail-value">
+                        <ul class="saran-list">
+                          <li v-for="(b, i) in val.alasanValidasi.split('\n').filter(Boolean)" :key="i">{{ b }}</li>
+                        </ul>
+                      </span>
+                    </div>
+                    <div class="detail-row" v-if="val.statusValidasi">
+                      <span class="detail-label">Status Validasi</span>
+                      <span class="detail-value">
+                        <span :class="['status-badge', val.statusValidasi === 'Closed' ? 'status-closed' : 'status-open']">
+                          {{ val.statusValidasi }}
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -980,6 +1170,267 @@
                   Batal
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ── Tindak Lanjut Modal ── -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showTindakLanjutModal" class="modal-overlay" @click.self="closeTindakLanjut">
+          <div class="modal-container">
+            <div class="modal-header">
+              <h3 class="modal-title">Tindak Lanjut Temuan</h3>
+              <button class="modal-close" @click="closeTindakLanjut">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="submitTindakLanjut" class="form-grid">
+                <!-- Ditindaklanjuti Oleh -->
+                <div class="form-section">
+                  <h4 class="section-title">Ditindaklanjuti Oleh</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Nama Lengkap</label>
+                      <input type="text" :value="currentUser?.fullName || currentUser?.username || '-'" disabled />
+                    </div>
+                    <div class="form-group">
+                      <label>Departemen</label>
+                      <select disabled>
+                        <option>{{ currentUser?.department || '-' }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tanggal Tindaklanjuti -->
+                <div class="form-section">
+                  <h4 class="section-title">Tanggal Tindaklanjut</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Tanggal &amp; Waktu</label>
+                      <div class="date-input-wrapper">
+                        <input type="text" :value="tlTanggalDisplay" disabled />
+                        <svg class="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tindakan Perbaikan -->
+                <div class="form-section">
+                  <h4 class="section-title">Tindakan Perbaikan</h4>
+                  <div class="form-row">
+                    <div class="form-group full-width">
+                      <div class="bullet-editor">
+                        <div v-for="(bullet, i) in tlForm.tindakanBullets" :key="i" class="bullet-row">
+                          <span class="bullet-dot">•</span>
+                          <input class="bullet-input" v-model="tlForm.tindakanBullets[i]" placeholder="Tambahkan tindakan..."
+                            @keydown.enter.prevent="tlAddBullet(i)"
+                            @keydown.backspace="tlRemoveBulletOnEmpty(i, $event)" />
+                          <button type="button" class="bullet-remove" @click="tlRemoveBullet(i)" v-if="tlForm.tindakanBullets.length > 1">×</button>
+                        </div>
+                        <button type="button" class="bullet-add" @click="tlAddBullet()">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          Tambah Poin
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Foto Sesudah -->
+                <div class="form-section">
+                  <h4 class="section-title">Foto</h4>
+                  <div class="form-row">
+                    <div class="form-group full-width">
+                      <label>Foto Sesudah <span class="photo-count">({{ tlPhotos.length }}/10)</span></label>
+                      <div class="photo-upload">
+                        <div class="photo-grid" v-if="tlPhotos.length > 0">
+                          <div class="photo-preview" v-for="(photo, idx) in tlPhotos" :key="idx">
+                            <img :src="photo.preview" alt="Preview" />
+                            <button type="button" class="photo-remove" @click="tlPhotos.splice(idx, 1)">x</button>
+                          </div>
+                        </div>
+                        <div class="photo-clear" v-if="tlPhotos.length > 1">
+                          <button type="button" class="btn btn-clear" @click="tlPhotos.length = 0">Hapus Semua Foto</button>
+                        </div>
+                        <div class="photo-actions" v-if="tlPhotos.length < 10">
+                          <label class="photo-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                              <circle cx="8.5" cy="8.5" r="1.5"/>
+                              <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Galeri
+                            <input type="file" accept="image/*" multiple @change="tlHandlePhotos" style="display:none" />
+                          </label>
+                          <label class="photo-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                              <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            Kamera
+                            <input type="file" accept="image/*" capture="environment" @change="tlHandlePhotos" style="display:none" />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-section">
+                  <h4 class="section-title">Status</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Status</label>
+                      <select disabled>
+                        <option>Progress Validasi</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" :disabled="tlSubmitting">
+                    {{ tlSubmitting ? 'Menyimpan…' : 'Simpan Tindak Lanjut' }}
+                  </button>
+                  <button type="button" class="btn-secondary" @click="closeTindakLanjut">Batal</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ── Validasi Safety Modal ── -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showValidasiModal" class="modal-overlay" @click.self="closeValidasi">
+          <div class="modal-container">
+            <div class="modal-header">
+              <h3 class="modal-title">Validasi Safety</h3>
+              <button class="modal-close" @click="closeValidasi">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="submitValidasi" class="form-grid">
+                <!-- Divalidasi Oleh -->
+                <div class="form-section">
+                  <h4 class="section-title">Divalidasi Oleh</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Nama Lengkap</label>
+                      <input type="text" :value="currentUser?.fullName || currentUser?.username || '-'" disabled />
+                    </div>
+                    <div class="form-group">
+                      <label>Departemen</label>
+                      <select disabled>
+                        <option>{{ currentUser?.department || '-' }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tanggal Validasi -->
+                <div class="form-section">
+                  <h4 class="section-title">Tanggal Validasi</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Tanggal &amp; Waktu</label>
+                      <div class="date-input-wrapper">
+                        <input type="text" :value="validasiTanggalDisplay" disabled />
+                        <svg class="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hasil Validasi -->
+                <div class="form-section">
+                  <h4 class="section-title">Hasil Validasi</h4>
+                  <div class="form-row">
+                    <div class="form-group full-width">
+                      <label>Alasan Validasi</label>
+                      <div class="bullet-editor">
+                        <div v-for="(bullet, i) in validasiForm.alasanBullets" :key="i" class="bullet-row">
+                          <span class="bullet-dot">•</span>
+                          <input class="bullet-input" v-model="validasiForm.alasanBullets[i]" placeholder="Tambahkan alasan..."
+                            @keydown.enter.prevent="validasiAddBullet(i)"
+                            @keydown.backspace="validasiRemoveBulletOnEmpty(i, $event)" />
+                          <button type="button" class="bullet-remove" @click="validasiRemoveBullet(i)" v-if="validasiForm.alasanBullets.length > 1">×</button>
+                        </div>
+                        <button type="button" class="bullet-add" @click="validasiAddBullet()">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                          Tambah Poin
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Validasi + resulting Status -->
+                <div class="form-section">
+                  <h4 class="section-title">Status Validasi</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Status Validasi <span class="required">*</span></label>
+                      <select v-model="validasiForm.statusValidasi" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Open">Open</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Status</label>
+                      <select disabled>
+                        <option>{{ validasiForm.statusValidasi || validasiTargetRecord?.status || 'Progress Validasi' }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row" v-if="validasiForm.statusValidasi === 'Closed'" style="margin-top: 12px">
+                    <div class="form-group">
+                      <label>Aktual Close</label>
+                      <div class="date-input-wrapper">
+                        <input type="text" :value="validasiTanggalDisplay" disabled />
+                        <svg class="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" :disabled="validasiSubmitting">
+                    {{ validasiSubmitting ? 'Menyimpan…' : 'Simpan Validasi' }}
+                  </button>
+                  <button type="button" class="btn-secondary" @click="closeValidasi">Batal</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -1229,15 +1680,16 @@
 
         <select v-model="filterKategori" class="filter-select">
           <option value="">Semua Kategori</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
+          <option value="Critical">Critical</option>
+          <option value="Major">Major</option>
+          <option value="Minor">Minor</option>
         </select>
 
         <select v-model="filterStatus" class="filter-select">
           <option value="">Semua Status</option>
           <option value="Open">Open</option>
           <option value="In Progress">In Progress</option>
+          <option value="Progress Validasi">Progress Validasi</option>
           <option value="Closed">Closed</option>
         </select>
 
@@ -1263,6 +1715,7 @@
           <thead>
             <tr>
               <th style="text-align: center; width: 48px">No</th>
+              <th>Aksi</th>
               <th>Tanggal</th>
               <th>Kategori Temuan</th>
               <th>Deskripsi Temuan</th>
@@ -1272,12 +1725,11 @@
               <th>Department</th>
               <th>Business Unit</th>
               <th>Plant</th>
-              <th>Tindakan Perbaikan</th>
+              <th>Saran Perbaikan</th>
               <th>Target Selesai</th>
               <th>Aktual Close</th>
               <th>Status</th>
               <th style="text-align: center">Komentar</th>
-              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -1289,6 +1741,46 @@
             >
               <td style="text-align: center">
                 {{ (k3lCurrentPage - 1) * k3lPerPage + idx + 1 }}
+              </td>
+              <td class="td-actions" @click.stop>
+                <div class="actions-wrap">
+                <button
+                  v-if="item.status !== 'Closed' && item.status !== 'Progress Validasi' && (item.tindakLanjutCount ?? 0) < 4"
+                  class="btn-icon btn-warning tl-icon-wrap"
+                  title="Tindak Lanjut"
+                  @click="openTindakLanjut(item)"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span v-if="(item.tindakLanjutCount ?? 0) > 0" class="tl-badge">{{ item.tindakLanjutCount }}</span>
+                </button>
+                <button
+                  v-if="item.status === 'Progress Validasi' && (item.validasiCount ?? 0) < 4"
+                  class="btn-icon btn-validasi val-icon-wrap"
+                  title="Validasi Safety"
+                  @click="openValidasi(item)"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                  <span v-if="(item.validasiCount ?? 0) > 0" class="val-badge">{{ item.validasiCount }}</span>
+                </button>
+                <button class="btn-icon" title="Ubah" @click="editRecord(item)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="btn-icon btn-danger" title="Hapus" @click="deleteRecord(item)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+                </div>
               </td>
               <td class="td-nowrap">{{ formatDate(item.tanggal) }}</td>
               <td>
@@ -1330,12 +1822,10 @@
               </td>
               <td class="td-center" @click.stop>
                 <button
-                  v-if="parsePhotos(item.fotoSesudah).length"
+                  v-if="allFotoSesudah(item).length"
                   class="btn-icon btn-eye btn-eye-after"
                   title="Lihat Foto Sesudah"
-                  @click="
-                    openPhotoModalFromUrls(parsePhotos(item.fotoSesudah), 0)
-                  "
+                  @click="openPhotoModalFromUrls(allFotoSesudah(item), 0)"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1349,7 +1839,7 @@
                     <circle cx="12" cy="12" r="3" />
                   </svg>
                   <span class="photo-count-badge photo-count-badge-after">{{
-                    parsePhotos(item.fotoSesudah).length
+                    allFotoSesudah(item).length
                   }}</span>
                 </button>
                 <span v-else class="text-muted">-</span>
@@ -1362,7 +1852,7 @@
                 {{ getBusinessUnitName(item.businessUnitId) }}
               </td>
               <td class="td-nowrap">{{ getPlantName(item.plantId) }}</td>
-              <td class="td-truncate">{{ item.tindakanPerbaikan || '-' }}</td>
+              <td class="td-truncate">{{ item.saranPerbaikan || '-' }}</td>
               <td class="td-nowrap">
                 {{ formatDateOnly(item.targetSelesai) }}
               </td>
@@ -1396,46 +1886,6 @@
                   </svg>
                   {{ item.commentCount || 0 }}
                 </span>
-              </td>
-              <td class="td-actions" @click.stop>
-                <div class="actions-wrap">
-                <button class="btn-icon" title="Ubah" @click="editRecord(item)">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    width="16"
-                    height="16"
-                  >
-                    <path
-                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                    />
-                    <path
-                      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="btn-icon btn-danger"
-                  title="Hapus"
-                  @click="deleteRecord(item)"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    width="16"
-                    height="16"
-                  >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path
-                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                    />
-                  </svg>
-                </button>
-                </div>
               </td>
             </tr>
           </tbody>
@@ -1856,7 +2306,7 @@ const filteredRecords = computed(() => {
       (r) =>
         (r.deskripsiTemuan || '').toLowerCase().includes(q) ||
         (r.lokasi || '').toLowerCase().includes(q) ||
-        (r.tindakanPerbaikan || '').toLowerCase().includes(q) ||
+        (r.saranPerbaikan || '').toLowerCase().includes(q) ||
         (r.tanggal || '').includes(q) ||
         (r.kategoriTemuan || '').toLowerCase().includes(q) ||
         (r.status || '').toLowerCase().includes(q),
@@ -1949,6 +2399,13 @@ function onCommentCountChange(count) {
 const showPhotoModal = ref(false);
 const photoModalImages = ref([]);
 const photoModalIndex = ref(0);
+
+function allFotoSesudah(item) {
+  const fromHistory = (item.tindakLanjutList ?? []).flatMap(tl => parsePhotos(tl.fotoSesudah));
+  const fromMain = parsePhotos(item.fotoSesudah);
+  const seen = new Set(fromHistory);
+  return [...fromHistory, ...fromMain.filter(url => !seen.has(url))];
+}
 
 function parsePhotos(fotoSebelum) {
   if (!fotoSebelum) return [];
@@ -2091,11 +2548,14 @@ function clearPhotosAfter() {
 
 // ── Form ──
 const defaultForm = () => ({
+  jenisInspeksi: '',
+  pelaporUsername: '',
+  pelaporDepartmentId: null,
   tanggal: '',
   kategoriTemuan: '',
   deskripsiTemuan: '',
   lokasi: '',
-  tindakanPerbaikan: '',
+  saranBullets: [''],
   targetSelesai: '',
   status: 'Open',
   aktualClose: '',
@@ -2118,6 +2578,18 @@ watch(
   },
 );
 
+watch(
+  [() => form.value.kategoriTemuan, () => form.value.tanggal],
+  ([kategori, tanggal]) => {
+    if (!kategori || !tanggal) return;
+    const days = kategori === 'Critical' ? 1 : kategori === 'Major' ? 30 : kategori === 'Minor' ? 60 : null;
+    if (days === null) return;
+    const base = new Date(tanggal);
+    base.setDate(base.getDate() + days);
+    form.value.targetSelesai = base.toISOString().slice(0, 10);
+  },
+);
+
 function hasFormChanges() {
   if (!editingId.value) {
     const f = form.value;
@@ -2126,7 +2598,7 @@ function hasFormChanges() {
       f.kategoriTemuan ||
       f.deskripsiTemuan ||
       f.lokasi ||
-      f.tindakanPerbaikan ||
+      f.saranBullets.some(b => b.trim()) ||
       f.targetSelesai ||
       f.businessUnitId ||
       f.plantId ||
@@ -2138,11 +2610,12 @@ function hasFormChanges() {
     const f = form.value;
     const o = originalForm.value;
     return (
+      f.jenisInspeksi !== o.jenisInspeksi ||
       f.tanggal !== o.tanggal ||
       f.kategoriTemuan !== o.kategoriTemuan ||
       f.deskripsiTemuan !== o.deskripsiTemuan ||
       f.lokasi !== o.lokasi ||
-      f.tindakanPerbaikan !== o.tindakanPerbaikan ||
+      f.saranBullets.join('\n') !== (o.saranBullets || []).join('\n') ||
       f.targetSelesai !== o.targetSelesai ||
       f.status !== o.status ||
       f.businessUnitId !== o.businessUnitId ||
@@ -2217,15 +2690,186 @@ async function uploadPhotoList(photoList, isCreate = false) {
   return JSON.stringify(urls);
 }
 
+function addBullet(afterIndex) {
+  const idx = afterIndex !== undefined ? afterIndex + 1 : form.value.saranBullets.length;
+  form.value.saranBullets.splice(idx, 0, '');
+}
+
+function removeBullet(i) {
+  if (form.value.saranBullets.length > 1) {
+    form.value.saranBullets.splice(i, 1);
+  }
+}
+
+function removeBulletOnEmpty(i, e) {
+  if (form.value.saranBullets[i] === '' && form.value.saranBullets.length > 1) {
+    e.preventDefault();
+    removeBullet(i);
+  }
+}
+
+// ── Tindak Lanjut ──
+const showTindakLanjutModal = ref(false);
+const tlTargetRecord = ref(null);
+const tlSubmitting = ref(false);
+const tlPhotos = ref([]);
+const tlForm = ref({ tindakanBullets: [''] });
+
+const tlTanggalDisplay = computed(() => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${wib.getUTCFullYear()}-${pad(wib.getUTCMonth()+1)}-${pad(wib.getUTCDate())} ${pad(wib.getUTCHours())}:${pad(wib.getUTCMinutes())}`;
+});
+
+function openTindakLanjut(item) {
+  tlTargetRecord.value = item;
+  tlForm.value = { tindakanBullets: [''] };
+  tlPhotos.value = [];
+  showTindakLanjutModal.value = true;
+}
+
+function closeTindakLanjut() {
+  showTindakLanjutModal.value = false;
+  tlTargetRecord.value = null;
+}
+
+function tlAddBullet(afterIndex) {
+  const idx = afterIndex !== undefined ? afterIndex + 1 : tlForm.value.tindakanBullets.length;
+  tlForm.value.tindakanBullets.splice(idx, 0, '');
+}
+function tlRemoveBullet(i) {
+  if (tlForm.value.tindakanBullets.length > 1) tlForm.value.tindakanBullets.splice(i, 1);
+}
+function tlRemoveBulletOnEmpty(i, e) {
+  if (tlForm.value.tindakanBullets[i] === '' && tlForm.value.tindakanBullets.length > 1) {
+    e.preventDefault();
+    tlRemoveBullet(i);
+  }
+}
+
+function tlHandlePhotos(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  const remaining = 10 - tlPhotos.value.length;
+  if (files.length > remaining) {
+    e.target.value = '';
+    showToast(`Maksimal 10 foto. Anda hanya dapat menambahkan ${remaining} foto lagi.`, 'warning');
+    return;
+  }
+  for (const file of files) {
+    tlPhotos.value.push({ file, preview: URL.createObjectURL(file) });
+  }
+  e.target.value = '';
+}
+
+async function submitTindakLanjut() {
+  if (!tlTargetRecord.value) return;
+  tlSubmitting.value = true;
+  try {
+    const fotoSesudah = tlPhotos.value.length
+      ? await uploadPhotoList(tlPhotos.value, false)
+      : null;
+    const tindakanPerbaikan = tlForm.value.tindakanBullets.filter(b => b.trim()).join('\n') || null;
+    await inspectionK3LService.tindakLanjut(tlTargetRecord.value.id, {
+      tindakanPerbaikan,
+      fotoSesudah,
+      ditindaklanjutiDepartmentId: currentUser?.departmentId ?? null,
+    });
+    showMessage('Tindak lanjut berhasil disimpan');
+    closeTindakLanjut();
+    await loadData();
+  } catch (e) {
+    console.error('[TindakLanjut]', e);
+    showMessage(e.message, true);
+  } finally {
+    tlSubmitting.value = false;
+  }
+}
+
+// ── Validasi Safety ─────────────────────────────────────────────────────
+const showValidasiModal = ref(false);
+const validasiTargetRecord = ref(null);
+const validasiSubmitting = ref(false);
+const validasiForm = ref({ alasanBullets: [''], statusValidasi: '' });
+
+const validasiTanggalDisplay = computed(() => {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${wib.getUTCFullYear()}-${pad(wib.getUTCMonth()+1)}-${pad(wib.getUTCDate())} ${pad(wib.getUTCHours())}:${pad(wib.getUTCMinutes())}`;
+});
+
+function openValidasi(item) {
+  validasiTargetRecord.value = item;
+  validasiForm.value = { alasanBullets: [''], statusValidasi: '', aktualClose: '' };
+  showValidasiModal.value = true;
+}
+
+function closeValidasi() {
+  showValidasiModal.value = false;
+  validasiTargetRecord.value = null;
+}
+
+function validasiAddBullet(afterIndex) {
+  const idx = afterIndex !== undefined ? afterIndex + 1 : validasiForm.value.alasanBullets.length;
+  validasiForm.value.alasanBullets.splice(idx, 0, '');
+}
+function validasiRemoveBullet(i) {
+  if (validasiForm.value.alasanBullets.length > 1) validasiForm.value.alasanBullets.splice(i, 1);
+}
+function validasiRemoveBulletOnEmpty(i, e) {
+  if (validasiForm.value.alasanBullets[i] === '' && validasiForm.value.alasanBullets.length > 1) {
+    e.preventDefault();
+    validasiRemoveBullet(i);
+  }
+}
+
+async function submitValidasi() {
+  if (!validasiTargetRecord.value) return;
+  if (!validasiForm.value.statusValidasi) {
+    showToast('Pilih status validasi terlebih dahulu', 'warning');
+    return;
+  }
+  validasiSubmitting.value = true;
+  try {
+    const alasanValidasi = validasiForm.value.alasanBullets.filter(b => b.trim()).join('\n') || null;
+    await inspectionK3LService.validasi(validasiTargetRecord.value.id, {
+      alasanValidasi,
+      statusValidasi: validasiForm.value.statusValidasi,
+      divalidasiDepartmentId: currentUser?.departmentId ?? null,
+    });
+    showMessage('Validasi berhasil disimpan');
+    closeValidasi();
+    await loadData();
+  } catch (e) {
+    console.error('[Validasi]', e);
+    showMessage(e.message, true);
+  } finally {
+    validasiSubmitting.value = false;
+  }
+}
+
+function buildWIBDatetime(dateStr) {
+  const now = new Date();
+  const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  const hh = String(wib.getUTCHours()).padStart(2, '0');
+  const mm = String(wib.getUTCMinutes()).padStart(2, '0');
+  return `${dateStr}T${hh}:${mm}:00`;
+}
+
 async function submitForm() {
   submitting.value = true;
   try {
     const base = {
-      tanggal: form.value.tanggal,
+      jenisInspeksi: form.value.jenisInspeksi || null,
+      tanggal: (editingId.value && originalForm.value && form.value.tanggal === originalForm.value.tanggal)
+        ? originalForm.value._tanggalFull
+        : buildWIBDatetime(form.value.tanggal),
       kategoriTemuan: form.value.kategoriTemuan,
       deskripsiTemuan: form.value.deskripsiTemuan || null,
       lokasi: form.value.lokasi || null,
-      tindakanPerbaikan: form.value.tindakanPerbaikan || null,
+      saranPerbaikan: form.value.saranBullets.filter(b => b.trim()).join('\n') || null,
       targetSelesai: form.value.targetSelesai || null,
       status: form.value.status || 'Open',
       aktualClose:
@@ -2264,11 +2908,16 @@ async function submitForm() {
 function editRecord(item) {
   editingId.value = item.id;
   const formValues = {
-    tanggal: item.tanggal ? item.tanggal.replace(' ', 'T').slice(0, 16) : '',
+    jenisInspeksi: item.jenisInspeksi || '',
+    pelaporUsername: item.pelaporUsername || '',
+    pelaporDepartmentId: item.pelaporDepartmentId || null,
+    tanggal: item.tanggal ? item.tanggal.replace(' ', 'T').slice(0, 10) : '',
     kategoriTemuan: item.kategoriTemuan,
     deskripsiTemuan: item.deskripsiTemuan || '',
     lokasi: item.lokasi || '',
-    tindakanPerbaikan: item.tindakanPerbaikan || '',
+    saranBullets: item.saranPerbaikan
+      ? item.saranPerbaikan.split('\n').filter(Boolean)
+      : [''],
     targetSelesai: item.targetSelesai || '',
     status: item.status,
     aktualClose: item.aktualClose
@@ -2286,7 +2935,7 @@ function editRecord(item) {
     departmentId: item.departmentId || null,
   };
   form.value = { ...formValues };
-  originalForm.value = { ...formValues };
+  originalForm.value = { ...formValues, _tanggalFull: item.tanggal ? item.tanggal.replace(' ', 'T') : '' };
   clearPhotos();
   clearPhotosAfter();
   if (item.fotoSebelum) {
@@ -2361,7 +3010,7 @@ function buildK3LExport(source) {
     ...afterCols,
     { label: 'Lokasi', key: 'lokasi' },
     { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
-    { label: 'Tindakan Perbaikan', key: 'tindakanPerbaikan' },
+    { label: 'Saran Perbaikan', key: 'saranPerbaikan' },
     { label: 'Target Selesai', key: 'targetSelesai' },
     { label: 'Status', key: 'status' },
     { label: 'Aktual Close', key: 'aktualClose' },
@@ -2385,7 +3034,7 @@ function buildK3LExport(source) {
       ...saFields,
       lokasi: row.lokasi || '',
       deskripsiTemuan: row.deskripsiTemuan || '',
-      tindakanPerbaikan: row.tindakanPerbaikan || '',
+      saranPerbaikan: row.saranPerbaikan || '',
       targetSelesai: row.targetSelesai || '',
       status: row.status || '',
       aktualClose: row.aktualClose || '',
@@ -2965,7 +3614,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
             'Kategori',
             'Deskripsi Temuan',
             'Lokasi',
-            'Tindakan Perbaikan',
+            'Saran Perbaikan',
             'Target',
             'Status',
             'Aktual Close',
@@ -2982,7 +3631,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
             r.kategoriTemuan || '-',
             r.deskripsiTemuan || '-',
             r.lokasi || '-',
-            r.tindakanPerbaikan || '-',
+            r.saranPerbaikan || '-',
             fmtDate(r.targetSelesai),
             r.status || '-',
             fmtDate(r.aktualClose),
@@ -3640,6 +4289,317 @@ onActivated(() => {
   gap: 20px;
 }
 
+.form-stepper {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 0;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: default;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+.step-item.step-done {
+  cursor: pointer;
+  color: #2563eb;
+}
+.step-item.step-active {
+  color: #1e293b;
+  font-weight: 600;
+}
+.step-item.step-pending {
+  color: #cbd5e1;
+}
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.step-active .step-circle {
+  background: #2563eb;
+  color: #fff;
+}
+.step-done .step-circle {
+  background: #dbeafe;
+  color: #2563eb;
+}
+.step-pending .step-circle {
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 10px;
+}
+.step-line-done {
+  background: #2563eb;
+}
+
+.jenis-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px 40px;
+  gap: 24px;
+}
+.jenis-picker-hint {
+  font-size: 14px;
+  color: #64748b;
+  text-align: center;
+  margin: 0;
+}
+.jenis-picker-btns {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+.jenis-pick-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.jenis-pick-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.1);
+}
+
+.bullet-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bullet-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bullet-dot {
+  color: #2563eb;
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.bullet-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+.bullet-input:focus {
+  border-color: #2563eb;
+}
+.bullet-remove {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.bullet-remove:hover { color: #ef4444; }
+.bullet-add {
+  align-self: flex-start;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 12px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.bullet-add:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.saran-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.btn-warning {
+  color: #d97706;
+}
+.btn-warning:hover {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.btn-validasi {
+  color: #0284c7;
+}
+.btn-validasi:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.val-icon-wrap {
+  position: relative;
+}
+.val-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+}
+.val-round-badge {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.tl-icon-wrap {
+  position: relative;
+}
+.tl-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #d97706;
+  color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tl-round-count {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+.tl-history-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: #fafafa;
+}
+.tl-history-header {
+  margin-bottom: 8px;
+}
+.tl-round-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.input-pelapor {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  box-sizing: border-box;
+}
+
+.jenis-selected-text {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.jenis-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.jenis-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.jenis-btn:hover {
+  border-color: #2563eb;
+}
+.jenis-btn.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
 .form-section {
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 16px;
@@ -3706,10 +4666,12 @@ onActivated(() => {
 .form-group select {
   cursor: pointer;
 }
-.form-group select:disabled {
+.form-group select:disabled,
+.form-group input:disabled {
   cursor: not-allowed;
   background: #f1f5f9;
   color: #94a3b8;
+  opacity: 1;
 }
 .form-group input:focus,
 .form-group select:focus,
@@ -4307,6 +5269,10 @@ tbody tr.row-clickable {
   background: #dcfce7;
   color: #166534;
 }
+.status-progress-validasi {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
 
 .kategori-badge {
   display: inline-block;
@@ -4316,20 +5282,20 @@ tbody tr.row-clickable {
   font-weight: 600;
   white-space: nowrap;
 }
-.kategori-low {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
+.kategori-critical {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
 }
-.kategori-medium {
+.kategori-major {
   background: #fffbeb;
   color: #b45309;
   border: 1px solid #fde68a;
 }
-.kategori-high {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+.kategori-minor {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
 }
 
 .comment-badge {

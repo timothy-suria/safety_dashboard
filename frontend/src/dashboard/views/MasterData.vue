@@ -349,19 +349,20 @@
                 <th>Peran</th>
                 <th>Business Unit</th>
                 <th>Plant</th>
+                <th>Departemen</th>
                 <th>Status</th>
                 <th class="th-action">Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="userLoading">
-                <td colspan="9" class="td-empty td-loading">
+                <td colspan="10" class="td-empty td-loading">
                   <div class="spinner"></div>
                   <span>Memuat data…</span>
                 </td>
               </tr>
               <tr v-else-if="!filteredUsers.length">
-                <td colspan="9" class="td-empty">
+                <td colspan="10" class="td-empty">
                   {{ userSearch ? 'Tidak ada hasil untuk "' + userSearch + '"' : 'Belum ada data Pengguna' }}
                 </td>
               </tr>
@@ -373,6 +374,7 @@
                 <td>{{ roleNameMap[item.roleId] || '-' }}</td>
                 <td>{{ buNameMap[item.businessUnitId] || '-' }}</td>
                 <td>{{ plantNameMap[item.plantId] || '-' }}</td>
+                <td>{{ deptNameMap[item.departmentId] || '-' }}</td>
                 <td>
                   <span :class="['status-pill', item.isActive ? 'pill-active' : 'pill-inactive']">
                     {{ item.isActive ? 'Aktif' : 'Nonaktif' }}
@@ -563,6 +565,13 @@
             <select v-model="userForm.plantId" class="form-input">
               <option :value="null">Tidak ada</option>
               <option v-for="p in plantsForUserForm" :key="p.id" :value="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Departemen</label>
+            <select v-model="userForm.departmentId" class="form-input">
+              <option :value="null">Tidak ada</option>
+              <option v-for="d in deptList" :key="d.id" :value="d.id">{{ d.name }}</option>
             </select>
           </div>
           <div class="form-group">
@@ -825,6 +834,12 @@ const plantNameMap = computed(() => {
   return map;
 });
 
+const deptNameMap = computed(() => {
+  const map = {};
+  deptList.value.forEach((d) => (map[d.id] = d.name));
+  return map;
+});
+
 const filteredDepts = computed(() => {
   const q = deptSearch.value.trim().toLowerCase();
   if (!q) return deptList.value;
@@ -1060,7 +1075,7 @@ async function saveRole() {
 const userModal = reactive({ show: false, editId: null, saving: false });
 const userForm = reactive({
   email: "", password: "", username: "", fullName: "",
-  roleId: null, businessUnitId: null, plantId: null, isActive: true,
+  roleId: null, businessUnitId: null, plantId: null, departmentId: null, isActive: true,
 });
 
 const plantsForUserForm = computed(() =>
@@ -1078,6 +1093,7 @@ function openUserForm(item = null) {
   userForm.roleId = item?.roleId ?? null;
   userForm.businessUnitId = item?.businessUnitId ?? null;
   userForm.plantId = item?.plantId ?? null;
+  userForm.departmentId = item?.departmentId ?? null;
   userForm.isActive = item?.isActive ?? true;
   userModal.show = true;
 }
@@ -1099,6 +1115,7 @@ async function saveUser() {
       roleId: userForm.roleId,
       businessUnitId: userForm.businessUnitId,
       plantId: userForm.plantId,
+      departmentId: userForm.departmentId,
       isActive: userForm.isActive,
     };
     if (userModal.editId) {

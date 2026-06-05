@@ -64,6 +64,8 @@ class UserType:
     role_level: Optional[int] = None
     business_unit_id: Optional[int] = None
     plant_id: Optional[int] = None
+    department_id: Optional[int] = None
+    department: Optional[str] = None
 
 
 @strawberry.type
@@ -90,6 +92,7 @@ class FullUserType:
     role_id: Optional[int] = None
     business_unit_id: Optional[int] = None
     plant_id: Optional[int] = None
+    department_id: Optional[int] = None
     is_active: bool = True
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
@@ -169,6 +172,32 @@ class DepartmentPayload:
 
 
 @strawberry.type
+class InspectionK3LTindakLanjutHistoryType:
+    id: int
+    inspection_id: int
+    round_number: int
+    tindakan_perbaikan: Optional[str] = None
+    foto_sesudah: Optional[str] = None
+    ditindaklanjuti_oleh: Optional[str] = None
+    ditindaklanjuti_department_id: Optional[int] = None
+    tanggal_tindaklanjuti: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+@strawberry.type
+class InspectionK3LValidasiHistoryType:
+    id: int
+    inspection_id: int
+    round_number: int
+    divalidasi_oleh: Optional[str] = None
+    divalidasi_department_id: Optional[int] = None
+    tanggal_validasi: Optional[str] = None
+    alasan_validasi: Optional[str] = None
+    status_validasi: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+@strawberry.type
 class InspectionK3LType:
     id: int
     tanggal: str
@@ -177,7 +206,11 @@ class InspectionK3LType:
     foto_sebelum: Optional[str] = None
     foto_sesudah: Optional[str] = None
     lokasi: Optional[str] = None
+    saran_perbaikan: Optional[str] = None
     tindakan_perbaikan: Optional[str] = None
+    ditindaklanjuti_oleh: Optional[str] = None
+    ditindaklanjuti_department_id: Optional[int] = None
+    tanggal_tindaklanjuti: Optional[str] = None
     target_selesai: Optional[str] = None
     status: str
     aktual_close: Optional[str] = None
@@ -185,6 +218,18 @@ class InspectionK3LType:
     business_unit_id: Optional[int] = None
     plant_id: Optional[int] = None
     department_id: Optional[int] = None
+    pelapor_username: Optional[str] = None
+    pelapor_department_id: Optional[int] = None
+    jenis_inspeksi: Optional[str] = None
+    divalidasi_oleh: Optional[str] = None
+    divalidasi_department_id: Optional[int] = None
+    tanggal_validasi: Optional[str] = None
+    alasan_validasi: Optional[str] = None
+    status_validasi: Optional[str] = None
+    tindak_lanjut_count: int = 0
+    tindak_lanjut_list: Optional[List[InspectionK3LTindakLanjutHistoryType]] = None
+    validasi_count: int = 0
+    validasi_list: Optional[List[InspectionK3LValidasiHistoryType]] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     comment_count: int = 0
@@ -312,6 +357,7 @@ def _user_to_full_type(u: models.User) -> FullUserType:
         role_id=u.role_id,
         business_unit_id=u.business_unit_id,
         plant_id=u.plant_id,
+        department_id=u.department_id,
         is_active=u.is_active if u.is_active is not None else True,
         created_at=str(u.created_at) if u.created_at else None,
         updated_at=str(u.updated_at) if u.updated_at else None,
@@ -324,6 +370,68 @@ def _comment_count(db: Session, report_type: str, report_id: int) -> int:
         .filter(models.Comment.report_type == report_type, models.Comment.report_id == report_id)
         .count()
     )
+
+
+def _tl_count(db: Session, inspection_id: int) -> int:
+    return (
+        db.query(models.InspectionK3LTindakLanjutHistory)
+        .filter(models.InspectionK3LTindakLanjutHistory.inspection_id == inspection_id)
+        .count()
+    )
+
+
+def _tl_list(db: Session, inspection_id: int) -> List[InspectionK3LTindakLanjutHistoryType]:
+    rows = (
+        db.query(models.InspectionK3LTindakLanjutHistory)
+        .filter(models.InspectionK3LTindakLanjutHistory.inspection_id == inspection_id)
+        .order_by(models.InspectionK3LTindakLanjutHistory.round_number.asc())
+        .all()
+    )
+    return [
+        InspectionK3LTindakLanjutHistoryType(
+            id=r.id,
+            inspection_id=r.inspection_id,
+            round_number=r.round_number,
+            tindakan_perbaikan=r.tindakan_perbaikan,
+            foto_sesudah=r.foto_sesudah,
+            ditindaklanjuti_oleh=r.ditindaklanjuti_oleh,
+            ditindaklanjuti_department_id=r.ditindaklanjuti_department_id,
+            tanggal_tindaklanjuti=str(r.tanggal_tindaklanjuti) if r.tanggal_tindaklanjuti else None,
+            created_at=str(r.created_at) if r.created_at else None,
+        )
+        for r in rows
+    ]
+
+
+def _val_count(db: Session, inspection_id: int) -> int:
+    return (
+        db.query(models.InspectionK3LValidasiHistory)
+        .filter(models.InspectionK3LValidasiHistory.inspection_id == inspection_id)
+        .count()
+    )
+
+
+def _val_list(db: Session, inspection_id: int) -> List[InspectionK3LValidasiHistoryType]:
+    rows = (
+        db.query(models.InspectionK3LValidasiHistory)
+        .filter(models.InspectionK3LValidasiHistory.inspection_id == inspection_id)
+        .order_by(models.InspectionK3LValidasiHistory.round_number.asc())
+        .all()
+    )
+    return [
+        InspectionK3LValidasiHistoryType(
+            id=r.id,
+            inspection_id=r.inspection_id,
+            round_number=r.round_number,
+            divalidasi_oleh=r.divalidasi_oleh,
+            divalidasi_department_id=r.divalidasi_department_id,
+            tanggal_validasi=str(r.tanggal_validasi) if r.tanggal_validasi else None,
+            alasan_validasi=r.alasan_validasi,
+            status_validasi=r.status_validasi,
+            created_at=str(r.created_at) if r.created_at else None,
+        )
+        for r in rows
+    ]
 
 
 def _model_to_type(record: models.InspectionK3L, db: Optional[Session] = None) -> InspectionK3LType:
@@ -340,7 +448,11 @@ def _model_to_type(record: models.InspectionK3L, db: Optional[Session] = None) -
             foto_sebelum=record.foto_sebelum,
             foto_sesudah=record.foto_sesudah,
             lokasi=record.lokasi,
+            saran_perbaikan=record.saran_perbaikan,
             tindakan_perbaikan=record.tindakan_perbaikan,
+            ditindaklanjuti_oleh=record.ditindaklanjuti_oleh,
+            ditindaklanjuti_department_id=record.ditindaklanjuti_department_id,
+            tanggal_tindaklanjuti=str(record.tanggal_tindaklanjuti) if record.tanggal_tindaklanjuti else None,
             target_selesai=str(record.target_selesai) if record.target_selesai else None,
             status=record.status or "Open",
             aktual_close=str(record.aktual_close) if record.aktual_close else None,
@@ -348,6 +460,18 @@ def _model_to_type(record: models.InspectionK3L, db: Optional[Session] = None) -
             business_unit_id=record.business_unit_id,
             plant_id=record.plant_id,
             department_id=record.department_id,
+            pelapor_username=record.pelapor_username,
+            pelapor_department_id=record.pelapor_department_id,
+            jenis_inspeksi=record.jenis_inspeksi,
+            divalidasi_oleh=record.divalidasi_oleh,
+            divalidasi_department_id=record.divalidasi_department_id,
+            tanggal_validasi=str(record.tanggal_validasi) if record.tanggal_validasi else None,
+            alasan_validasi=record.alasan_validasi,
+            status_validasi=record.status_validasi,
+            tindak_lanjut_count=_tl_count(db, record.id),
+            tindak_lanjut_list=_tl_list(db, record.id),
+            validasi_count=_val_count(db, record.id),
+            validasi_list=_val_list(db, record.id),
             created_at=str(record.created_at) if record.created_at else None,
             updated_at=str(record.updated_at) if record.updated_at else None,
             comment_count=_comment_count(db, "inspection_k3l", record.id),
@@ -996,6 +1120,7 @@ class Mutation:
             role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
             bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
             plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()
+            dept_rec = db.query(models.Department).filter(models.Department.id == user.department_id).first()
             return AuthPayload(
                 success=True,
                 message="Registration successful",
@@ -1011,6 +1136,8 @@ class Mutation:
                     role_level=role_name.level if role_name else None,
                     business_unit_id=user.business_unit_id,
                     plant_id=user.plant_id,
+                    department_id=user.department_id,
+                    department=dept_rec.name if dept_rec else None,
                 ),
             )
         except Exception as e:
@@ -1036,6 +1163,7 @@ class Mutation:
             role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
             bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
             plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()
+            dept_rec = db.query(models.Department).filter(models.Department.id == user.department_id).first()
             return AuthPayload(
                 success=True,
                 message="Login successful",
@@ -1051,6 +1179,8 @@ class Mutation:
                     role_level=role_name.level if role_name else None,
                     business_unit_id=user.business_unit_id,
                     plant_id=user.plant_id,
+                    department_id=user.department_id,
+                    department=dept_rec.name if dept_rec else None,
                 ),
             )
         finally:
@@ -1100,13 +1230,14 @@ class Mutation:
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
         department_id: Optional[int] = None,
+        jenis_inspeksi: Optional[str] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
             return InspectionK3LPayload(success=False, message="Authentication required")
 
-        if status and status not in ("Open", "In Progress", "Closed"):
-            return InspectionK3LPayload(success=False, message="Status must be Open, In Progress, or Closed")
+        if status and status not in ("Open", "In Progress", "Closed", "Progress Validasi"):
+            return InspectionK3LPayload(success=False, message="Status tidak valid")
 
         db = _get_db()
         try:
@@ -1128,14 +1259,17 @@ class Mutation:
                 foto_sebelum=foto_sebelum,
                 foto_sesudah=foto_sesudah,
                 lokasi=lokasi,
-                tindakan_perbaikan=tindakan_perbaikan,
+                saran_perbaikan=tindakan_perbaikan,
                 target_selesai=date.fromisoformat(target_selesai) if target_selesai else None,
                 status=status or "Open",
                 aktual_close=datetime.fromisoformat(aktual_close) if aktual_close else None,
                 created_by=user.id,
+                pelapor_username=user.full_name or user.username or user.email,
+                pelapor_department_id=user.department_id,
                 business_unit_id=business_unit_id,
                 plant_id=plant_id,
                 department_id=department_id,
+                jenis_inspeksi=jenis_inspeksi,
             )
             db.add(record)
             db.commit()
@@ -1176,6 +1310,7 @@ class Mutation:
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
         department_id: Optional[int] = None,
+        jenis_inspeksi: Optional[str] = None,
     ) -> InspectionK3LPayload:
         user = _get_current_user(info)
         if not user:
@@ -1219,11 +1354,11 @@ class Mutation:
             if lokasi is not None:
                 record.lokasi = lokasi
             if tindakan_perbaikan is not None:
-                record.tindakan_perbaikan = tindakan_perbaikan
+                record.saran_perbaikan = tindakan_perbaikan
             if target_selesai is not None:
                 record.target_selesai = date.fromisoformat(target_selesai)
             if status is not None:
-                if status not in ("Open", "In Progress", "Closed"):
+                if status not in ("Open", "In Progress", "Closed", "Progress Validasi"):
                     return InspectionK3LPayload(success=False, message="Status must be Open, In Progress, or Closed")
                 record.status = status
             if aktual_close is not None:
@@ -1234,6 +1369,8 @@ class Mutation:
                 record.plant_id = plant_id
             if department_id is not None:
                 record.department_id = department_id
+            if jenis_inspeksi is not None:
+                record.jenis_inspeksi = jenis_inspeksi
 
             db.commit()
             db.refresh(record)
@@ -1252,6 +1389,124 @@ class Mutation:
         except Exception as e:
             db.rollback()
             return InspectionK3LPayload(success=False, message=f"Failed to update: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def tindak_lanjut_inspection_k3l(
+        self,
+        info: strawberry.types.Info,
+        id: int,
+        tindakan_perbaikan: Optional[str] = None,
+        foto_sesudah: Optional[str] = None,
+        ditindaklanjuti_department_id: Optional[int] = None,
+    ) -> InspectionK3LPayload:
+        user = _get_current_user(info)
+        if not user:
+            return InspectionK3LPayload(success=False, message="Authentication required")
+        db = _get_db()
+        try:
+            record = db.query(models.InspectionK3L).filter(models.InspectionK3L.id == id).first()
+            if not record:
+                return InspectionK3LPayload(success=False, message="Record not found")
+            existing_count = _tl_count(db, id)
+            if existing_count >= 4:
+                return InspectionK3LPayload(success=False, message="Maksimal 4 kali tindak lanjut")
+            from datetime import timezone, timedelta
+            wib = datetime.now(timezone(timedelta(hours=7))).replace(tzinfo=None)
+            actor = user.full_name or user.username or user.email
+            dept_id = ditindaklanjuti_department_id or user.department_id
+            history = models.InspectionK3LTindakLanjutHistory(
+                inspection_id=id,
+                round_number=existing_count + 1,
+                tindakan_perbaikan=tindakan_perbaikan,
+                foto_sesudah=foto_sesudah,
+                ditindaklanjuti_oleh=actor,
+                ditindaklanjuti_department_id=dept_id,
+                tanggal_tindaklanjuti=wib,
+            )
+            db.add(history)
+            # mirror onto main record; accumulate all foto_sesudah across rounds
+            record.tindakan_perbaikan = tindakan_perbaikan
+            if foto_sesudah is not None:
+                try:
+                    existing = json.loads(record.foto_sesudah or '[]')
+                    if not isinstance(existing, list):
+                        existing = [record.foto_sesudah] if record.foto_sesudah else []
+                except Exception:
+                    existing = [record.foto_sesudah] if record.foto_sesudah else []
+                try:
+                    new_photos = json.loads(foto_sesudah)
+                    if not isinstance(new_photos, list):
+                        new_photos = [foto_sesudah]
+                except Exception:
+                    new_photos = [foto_sesudah]
+                seen = set(existing)
+                combined = existing + [u for u in new_photos if u not in seen]
+                record.foto_sesudah = json.dumps(combined)
+            record.ditindaklanjuti_oleh = actor
+            record.ditindaklanjuti_department_id = dept_id
+            record.tanggal_tindaklanjuti = wib
+            record.status = "Progress Validasi"
+            db.commit()
+            db.refresh(record)
+            return InspectionK3LPayload(success=True, message="Tindak lanjut berhasil disimpan", inspection=_model_to_type(record, db))
+        except Exception as e:
+            db.rollback()
+            return InspectionK3LPayload(success=False, message=f"Failed: {str(e)}")
+        finally:
+            db.close()
+
+    @strawberry.mutation
+    def validasi_inspection_k3l(
+        self,
+        info: strawberry.types.Info,
+        id: int,
+        alasan_validasi: Optional[str] = None,
+        status_validasi: Optional[str] = None,
+        divalidasi_department_id: Optional[int] = None,
+        aktual_close: Optional[str] = None,
+    ) -> InspectionK3LPayload:
+        user = _get_current_user(info)
+        if not user:
+            return InspectionK3LPayload(success=False, message="Authentication required")
+        if status_validasi not in ("Closed", "Open"):
+            return InspectionK3LPayload(success=False, message="Status validasi harus Closed atau Open")
+        db = _get_db()
+        try:
+            record = db.query(models.InspectionK3L).filter(models.InspectionK3L.id == id).first()
+            if not record:
+                return InspectionK3LPayload(success=False, message="Record not found")
+            existing_count = _val_count(db, id)
+            if existing_count >= 4:
+                return InspectionK3LPayload(success=False, message="Maksimal 4 ronde validasi")
+            if alasan_validasi is not None:
+                record.alasan_validasi = alasan_validasi
+            record.status_validasi = status_validasi
+            record.divalidasi_oleh = user.full_name or user.username or user.email
+            record.divalidasi_department_id = divalidasi_department_id or user.department_id
+            from datetime import timezone, timedelta
+            wib = datetime.now(timezone(timedelta(hours=7))).replace(tzinfo=None)
+            record.tanggal_validasi = wib
+            record.status = "Closed" if status_validasi == "Closed" else "Open"
+            if status_validasi == "Closed":
+                record.aktual_close = datetime.fromisoformat(aktual_close) if aktual_close else wib
+            history = models.InspectionK3LValidasiHistory(
+                inspection_id=id,
+                round_number=existing_count + 1,
+                divalidasi_oleh=record.divalidasi_oleh,
+                divalidasi_department_id=record.divalidasi_department_id,
+                tanggal_validasi=wib,
+                alasan_validasi=record.alasan_validasi,
+                status_validasi=status_validasi,
+            )
+            db.add(history)
+            db.commit()
+            db.refresh(record)
+            return InspectionK3LPayload(success=True, message="Validasi berhasil disimpan", inspection=_model_to_type(record))
+        except Exception as e:
+            db.rollback()
+            return InspectionK3LPayload(success=False, message=f"Failed: {str(e)}")
         finally:
             db.close()
 
@@ -1727,6 +1982,7 @@ class Mutation:
         role_id: Optional[int] = None,
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
+        department_id: Optional[int] = None,
         is_active: Optional[bool] = True,
     ) -> UserPayload:
         current_user = _get_current_user(info)
@@ -1750,6 +2006,7 @@ class Mutation:
                 role_id=role_id,
                 business_unit_id=business_unit_id,
                 plant_id=plant_id,
+                department_id=department_id,
                 is_active=is_active if is_active is not None else True,
             )
             db.add(record)
@@ -1774,6 +2031,7 @@ class Mutation:
         role_id: Optional[int] = None,
         business_unit_id: Optional[int] = None,
         plant_id: Optional[int] = None,
+        department_id: Optional[int] = None,
         is_active: Optional[bool] = None,
     ) -> UserPayload:
         current_user = _get_current_user(info)
@@ -1808,6 +2066,8 @@ class Mutation:
                 record.business_unit_id = business_unit_id
             if plant_id is not None:
                 record.plant_id = plant_id
+            if department_id is not None:
+                record.department_id = department_id
             if is_active is not None:
                 record.is_active = is_active
             db.commit()

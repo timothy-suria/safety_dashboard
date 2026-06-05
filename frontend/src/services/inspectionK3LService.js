@@ -99,6 +99,20 @@ export const inspectionK3LService = {
           tindakanPerbaikan targetSelesai
           status aktualClose
           businessUnitId plantId departmentId
+          saranPerbaikan tindakanPerbaikan
+          ditindaklanjutiOleh ditindaklanjutiDepartmentId tanggalTindaklanjuti
+          jenisInspeksi pelaporUsername pelaporDepartmentId
+          divalidasiOleh divalidasiDepartmentId tanggalValidasi alasanValidasi statusValidasi
+          tindakLanjutCount
+          tindakLanjutList {
+            id roundNumber tindakanPerbaikan fotoSesudah
+            ditindaklanjutiOleh ditindaklanjutiDepartmentId tanggalTindaklanjuti
+          }
+          validasiCount
+          validasiList {
+            id roundNumber divalidasiOleh divalidasiDepartmentId
+            tanggalValidasi alasanValidasi statusValidasi
+          }
           createdAt updatedAt commentCount
         }
       }
@@ -116,7 +130,7 @@ export const inspectionK3LService = {
           tindakanPerbaikan targetSelesai
           status aktualClose
           businessUnitId plantId departmentId
-          createdAt updatedAt commentCount
+          jenisInspeksi createdAt updatedAt commentCount
         }
       }`,
       { id },
@@ -139,7 +153,8 @@ export const inspectionK3LService = {
         $aktualClose: String,
         $businessUnitId: Int,
         $plantId: Int,
-        $departmentId: Int
+        $departmentId: Int,
+        $jenisInspeksi: String
       ) {
         createInspectionK3l(
           tanggal: $tanggal,
@@ -154,7 +169,8 @@ export const inspectionK3LService = {
           aktualClose: $aktualClose,
           businessUnitId: $businessUnitId,
           plantId: $plantId,
-          departmentId: $departmentId
+          departmentId: $departmentId,
+          jenisInspeksi: $jenisInspeksi
         ) {
           success message
           inspection {
@@ -187,7 +203,8 @@ export const inspectionK3LService = {
         $aktualClose: String,
         $businessUnitId: Int,
         $plantId: Int,
-        $departmentId: Int
+        $departmentId: Int,
+        $jenisInspeksi: String
       ) {
         updateInspectionK3l(
           id: $id,
@@ -203,7 +220,8 @@ export const inspectionK3LService = {
           aktualClose: $aktualClose,
           businessUnitId: $businessUnitId,
           plantId: $plantId,
-          departmentId: $departmentId
+          departmentId: $departmentId,
+          jenisInspeksi: $jenisInspeksi
         ) {
           success message
           inspection {
@@ -215,6 +233,48 @@ export const inspectionK3LService = {
       { id, ...input },
     );
     const result = data.updateInspectionK3l;
+    if (!result.success) throw new Error(result.message);
+    _cache.del('list');
+    return result;
+  },
+
+  async tindakLanjut(id, input) {
+    const data = await gql(
+      `mutation TindakLanjut(
+        $id: Int!, $tindakanPerbaikan: String, $fotoSesudah: String, $ditindaklanjutiDepartmentId: Int
+      ) {
+        tindakLanjutInspectionK3l(
+          id: $id, tindakanPerbaikan: $tindakanPerbaikan,
+          fotoSesudah: $fotoSesudah, ditindaklanjutiDepartmentId: $ditindaklanjutiDepartmentId
+        ) {
+          success message
+          inspection { id status tindakanPerbaikan ditindaklanjutiOleh tanggalTindaklanjuti }
+        }
+      }`,
+      { id, ...input },
+    );
+    const result = data.tindakLanjutInspectionK3l;
+    if (!result.success) throw new Error(result.message);
+    _cache.del('list');
+    return result;
+  },
+
+  async validasi(id, input) {
+    const data = await gql(
+      `mutation Validasi(
+        $id: Int!, $alasanValidasi: String, $statusValidasi: String, $divalidasiDepartmentId: Int, $aktualClose: String
+      ) {
+        validasiInspectionK3l(
+          id: $id, alasanValidasi: $alasanValidasi,
+          statusValidasi: $statusValidasi, divalidasiDepartmentId: $divalidasiDepartmentId, aktualClose: $aktualClose
+        ) {
+          success message
+          inspection { id status statusValidasi divalidasiOleh tanggalValidasi aktualClose }
+        }
+      }`,
+      { id, ...input },
+    );
+    const result = data.validasiInspectionK3l;
     if (!result.success) throw new Error(result.message);
     _cache.del('list');
     return result;
