@@ -15,7 +15,8 @@ app = FastAPI(title="Safety Dashboard API")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
-_origins = list({FRONTEND_URL, "http://localhost:5173", "http://localhost:5174"})
+_origins = list({FRONTEND_URL, "http://localhost:5173", "http://localhost:5174",
+                 "http://10.13.5.163:5173", "http://10.13.5.163:5174"})
 
 app.add_middleware(
     CORSMiddleware,

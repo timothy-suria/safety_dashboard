@@ -1009,6 +1009,13 @@
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+          <button class="lightbox-download" @click="downloadCurrentPhoto" title="Download foto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
           <button
             class="lightbox-nav lightbox-prev"
             v-if="photoModalImages.length > 1"
@@ -2422,6 +2429,24 @@ function openPhotoModalFromUrls(urls, idx) {
   photoModalIndex.value = idx;
   showPhotoModal.value = true;
   nextTick(() => document.querySelector('.lightbox-overlay')?.focus());
+}
+
+async function downloadCurrentPhoto() {
+  const url = photoModalImages.value[photoModalIndex.value];
+  if (!url) return;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const ext = url.split('.').pop()?.split('?')[0] || 'jpg';
+    const filename = `foto_${Date.now()}.${ext}`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch {
+    window.open(url, '_blank');
+  }
 }
 
 // ── Lookup helpers ──
@@ -4244,6 +4269,25 @@ onActivated(() => {
   transition: background 0.15s;
 }
 .lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.lightbox-download {
+  position: absolute;
+  top: 20px;
+  right: 68px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.lightbox-download:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
