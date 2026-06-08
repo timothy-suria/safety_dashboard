@@ -282,6 +282,8 @@ class CaseIncident(Base):
 
     # Relasi
     created_by = Column(Integer, ForeignKey("users.id"))
+    business_unit_id = Column(Integer, ForeignKey("business_units.id"))
+    plant_id = Column(Integer, ForeignKey("plants.id"))
 
     created_at = Column(DateTime, server_default=func.current_timestamp())
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())

@@ -57,6 +57,8 @@
             <th>Aksi</th>
             <th>Tanggal Kejadian</th>
             <th>Tanggal Pelaporan</th>
+            <th>Business Unit</th>
+            <th>Plant</th>
             <th>Nama Pelapor</th>
             <th>Nama Korban</th>
             <th>Status Karyawan</th>
@@ -87,6 +89,8 @@
             </td>
             <td class="td-nowrap">{{ formatDate(item.tanggalKejadian) }}</td>
             <td class="td-nowrap">{{ item.tanggalPelaporan ? formatDate(item.tanggalPelaporan) : '-' }}</td>
+            <td class="td-nowrap">{{ item.businessUnitName || getBusinessUnitName(item.businessUnitId) }}</td>
+            <td class="td-nowrap">{{ item.plantName || getPlantName(item.plantId) }}</td>
             <td class="td-nowrap">{{ item.namaPelapor || '-' }}</td>
             <td class="td-nowrap">{{ item.namaKorban || '-' }}</td>
             <td class="td-nowrap">{{ item.statusKaryawan || '-' }}</td>
@@ -164,6 +168,23 @@
                     <div class="form-group">
                       <label>Dept. Pelapor</label>
                       <input type="text" :value="currentUser?.department || '-'" disabled class="input-pelapor" />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Business Unit</label>
+                      <select v-model.number="form.businessUnitId" disabled>
+                        <option :value="null">-- Pilih Business Unit --</option>
+                        <option v-for="bu in businessUnits" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Plant</label>
+                      <select v-model.number="form.plantId" disabled>
+                        <option :value="null">-- Pilih Plant --</option>
+                        <option v-for="p in plants" :key="p.id" :value="p.id">{{ p.name }}</option>
+                      </select>
                     </div>
                   </div>
 
@@ -298,16 +319,6 @@
                     </div>
                   </div>
 
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Status</label>
-                      <select v-model="form.status" disabled>
-                        <option value="Open">Open</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                    </div>
-                  </div>
                 </div>
 
                 <!-- ── Foto Kejadian ── -->
@@ -382,6 +393,14 @@
                         </svg>
                       </div>
                     </div>
+                    <div class="form-group">
+                      <label>Status</label>
+                      <select v-model="form.status" disabled>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Closed">Closed</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -418,6 +437,14 @@
                 <!-- Data Kecelakaan -->
                 <div class="detail-section">
                   <h4 class="section-title">Data Kecelakaan</h4>
+                  <div class="detail-row">
+                    <span class="detail-label">Business Unit</span>
+                    <span class="detail-value">{{ viewingRecord.businessUnitName || getBusinessUnitName(viewingRecord.businessUnitId) }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Plant</span>
+                    <span class="detail-value">{{ viewingRecord.plantName || getPlantName(viewingRecord.plantId) }}</span>
+                  </div>
                   <div class="detail-row">
                     <span class="detail-label">Nama Pelapor</span>
                     <span class="detail-value">{{ viewingRecord.namaPelapor || '-' }}</span>
@@ -566,11 +593,76 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- ── Delete Confirm Modal ── -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+          <div class="modal-container modal-sm">
+            <div class="modal-header modal-header-danger">
+              <div class="modal-title-group">
+                <div class="modal-danger-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </div>
+                <h3 class="modal-title">Hapus Laporan</h3>
+              </div>
+              <button class="modal-close" @click="showDeleteModal = false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div class="modal-body delete-modal-body">
+              <p class="delete-msg">
+                Apakah Anda yakin ingin menghapus laporan insiden ini? Tindakan ini tidak dapat dibatalkan.
+              </p>
+              <div v-if="deletingRecord" class="delete-preview">
+                <div class="delete-preview-row">
+                  <span class="delete-preview-label">Nama Korban</span>
+                  <span>{{ deletingRecord.namaKorban || '-' }}</span>
+                </div>
+                <div class="delete-preview-row">
+                  <span class="delete-preview-label">Jenis</span>
+                  <span :class="['jenis-badge', jenisClass(deletingRecord.jenisKecelakaan)]">{{ deletingRecord.jenisKecelakaan || '-' }}</span>
+                </div>
+                <div class="delete-preview-row" v-if="deletingRecord.lokasiKecelakaan">
+                  <span class="delete-preview-label">Lokasi</span>
+                  <span class="delete-preview-desc">{{ deletingRecord.lokasiKecelakaan }}</span>
+                </div>
+              </div>
+              <div class="delete-actions">
+                <button class="btn btn-delete-confirm" :disabled="deleting" @click="confirmDelete">
+                  <svg v-if="!deleting" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  {{ deleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                </button>
+                <button class="btn-secondary" @click="showDeleteModal = false" :disabled="deleting">Batal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ── Toast notification ── -->
+    <Teleport to="body">
+      <Transition name="toast">
+        <div v-if="toast.show" :class="['toast', `toast-${toast.type}`]">
+          <span class="toast-text">{{ toast.message }}</span>
+          <button class="toast-close" @click="toast.show = false">x</button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
 import { authService } from '@/services/authService.js';
 import { inspectionK3LService } from '@/services/inspectionK3LService.js';
 import { uploadImage } from '@/services/inspectionK3LService.js';
@@ -579,6 +671,20 @@ import { usePagination } from '@/composables/usePagination.js';
 import PaginationBar from '@/components/PaginationBar.vue';
 
 const currentUser = authService.getCurrentUser();
+
+// ── Toast ──
+const toast = reactive({ show: false, message: '', type: 'success' });
+let toastTimer = null;
+
+function showToast(msg, type = 'success') {
+  if (toastTimer) clearTimeout(toastTimer);
+  toast.show = true;
+  toast.message = msg;
+  toast.type = type;
+  toastTimer = setTimeout(() => {
+    toast.show = false;
+  }, 4000);
+}
 
 // ── Table state ──
 const records = ref([]);
@@ -672,6 +778,18 @@ const editingId = ref(null);
 const submitting = ref(false);
 const departments = ref([]);
 const usersForMention = ref([]);
+const businessUnits = ref([]);
+const plants = ref([]);
+
+function getBusinessUnitName(id) {
+  if (!id) return '-';
+  return businessUnits.value.find((u) => u.id === id)?.name ?? '-';
+}
+
+function getPlantName(id) {
+  if (!id) return '-';
+  return plants.value.find((p) => p.id === id)?.name ?? '-';
+}
 
 // ── Saksi mention ──
 const saksiList = ref([{ nama: '', departmentId: null }]);
@@ -779,7 +897,7 @@ function onPhotoSelect(event) {
   const remaining = 10 - photos.value.length;
   if (files.length > remaining) {
     event.target.value = '';
-    alert(`Maksimal 10 foto. Hanya dapat menambahkan ${remaining} foto lagi.`);
+    showToast(`Maksimal 10 foto. Anda hanya dapat menambahkan ${remaining} foto lagi.`, 'warning');
     return;
   }
   for (const file of files) {
@@ -811,6 +929,8 @@ async function uploadPhotoList(photoList) {
 
 // ── Form ──
 const emptyForm = () => ({
+  businessUnitId: currentUser?.businessUnitId ?? null,
+  plantId: currentUser?.plantId ?? null,
   tanggalKejadianDate: '',
   namaKorban: '',
   korbanDeptId: null,
@@ -861,6 +981,8 @@ function editRecord(item) {
     photos.value = [];
   }
   form.value = {
+    businessUnitId: currentUser?.businessUnitId ?? null,
+    plantId: currentUser?.plantId ?? null,
     tanggalKejadianDate: item.tanggalKejadian ? item.tanggalKejadian.slice(0, 10) : '',
     namaKorban: item.namaKorban || '',
     korbanDeptId: item.korbanDeptId || null,
@@ -876,13 +998,29 @@ function editRecord(item) {
   showForm.value = true;
 }
 
-async function deleteRecord(item) {
-  if (!confirm(`Hapus laporan insiden korban "${item.namaKorban}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+// ── Delete confirm ──
+const showDeleteModal = ref(false);
+const deletingRecord = ref(null);
+const deleting = ref(false);
+
+function deleteRecord(item) {
+  deletingRecord.value = item;
+  showDeleteModal.value = true;
+}
+
+async function confirmDelete() {
+  if (!deletingRecord.value) return;
+  deleting.value = true;
   try {
-    await caseIncidentService.delete(item.id);
+    await caseIncidentService.delete(deletingRecord.value.id);
+    showToast('Laporan berhasil dihapus');
+    showDeleteModal.value = false;
+    deletingRecord.value = null;
     await loadRecords();
   } catch (e) {
-    alert(e.message);
+    showToast(e.message, 'error');
+  } finally {
+    deleting.value = false;
   }
 }
 
@@ -925,17 +1063,21 @@ async function submitForm() {
       fotoKejadian: fotoKejadianJson,
       targetPenyelesaian: form.value.targetPenyelesaian || null,
       status: form.value.status,
+      businessUnitId: form.value.businessUnitId,
+      plantId: form.value.plantId,
     };
 
     if (editingId.value) {
       await caseIncidentService.update(editingId.value, payload);
+      showToast('Laporan berhasil diperbarui');
     } else {
       await caseIncidentService.create(payload);
+      showToast('Laporan berhasil disimpan');
     }
     tryClose();
     await loadRecords();
   } catch (e) {
-    alert(e.message);
+    showToast(e.message, 'error');
   } finally {
     submitting.value = false;
   }
@@ -996,12 +1138,16 @@ async function downloadCurrentPhoto() {
 }
 
 onMounted(async () => {
-  const [depts, users] = await Promise.all([
+  const [depts, users, units, plantOptions] = await Promise.all([
     inspectionK3LService.listDepartments().catch(() => []),
     inspectionK3LService.listUsers().catch(() => []),
+    inspectionK3LService.listBusinessUnits().catch(() => []),
+    inspectionK3LService.listPlants().catch(() => []),
   ]);
   departments.value = depts;
   usersForMention.value = users;
+  businessUnits.value = units;
+  plants.value = plantOptions;
   await loadRecords();
 });
 </script>
@@ -1139,6 +1285,51 @@ tbody td { padding: 10px 14px; font-size: 13px; color: #1e293b; }
   border: none; cursor: pointer; transition: background 0.15s;
 }
 .photo-count-btn:hover { background: #dbeafe; }
+
+/* ── Delete confirm modal ── */
+.modal-sm { max-width: 460px; }
+.modal-header-danger { background: #fff5f5; border-bottom-color: #fecaca; }
+.modal-title-group { display: flex; align-items: center; gap: 10px; }
+.modal-danger-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #fef2f2; border: 1px solid #fecaca; color: #ef4444;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.delete-modal-body { display: flex; flex-direction: column; gap: 16px; }
+.delete-msg { font-size: 14px; color: #475569; margin: 0; line-height: 1.6; }
+.delete-preview {
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.delete-preview-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #334155; }
+.delete-preview-label { font-weight: 600; color: #94a3b8; min-width: 80px; flex-shrink: 0; }
+.delete-preview-desc {
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+}
+.delete-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-delete-confirm { background: #ef4444; color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+.btn-delete-confirm:hover:not(:disabled) { background: #dc2626; }
+.btn-delete-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; top: 24px; right: 24px; z-index: 9999;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); max-width: 400px;
+}
+.toast-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.toast-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.toast-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.toast-text { flex: 1; }
+.toast-close {
+  background: none; border: none; font-size: 16px; font-weight: 700;
+  cursor: pointer; color: inherit; opacity: 0.6; padding: 0 4px;
+}
+.toast-close:hover { opacity: 1; }
+.toast-enter-active { transition: all 0.3s ease; }
+.toast-leave-active { transition: all 0.25s ease; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateX(40px); }
 
 /* ── Loading ── */
 .ci-loading {

@@ -34,6 +34,7 @@ export const caseIncidentService = {
           jenisKecelakaan lokasiKecelakaan
           deskripsiKecelakaan penyebabKecelakaan perbaikanDilakukan
           saksiList fotoKejadian targetPenyelesaian status
+          businessUnitId businessUnitName plantId plantName
           createdBy createdAt updatedAt
         }
       }
@@ -62,7 +63,9 @@ export const caseIncidentService = {
         $saksiList: String,
         $fotoKejadian: String,
         $targetPenyelesaian: String,
-        $status: String
+        $status: String,
+        $businessUnitId: Int,
+        $plantId: Int
       ) {
         createCaseIncident(
           namaPelapor: $namaPelapor,
@@ -82,7 +85,9 @@ export const caseIncidentService = {
           saksiList: $saksiList,
           fotoKejadian: $fotoKejadian,
           targetPenyelesaian: $targetPenyelesaian,
-          status: $status
+          status: $status,
+          businessUnitId: $businessUnitId,
+          plantId: $plantId
         ) {
           success message
           incident { id namaKorban status createdAt }
@@ -117,7 +122,9 @@ export const caseIncidentService = {
         $saksiList: String,
         $fotoKejadian: String,
         $targetPenyelesaian: String,
-        $status: String
+        $status: String,
+        $businessUnitId: Int,
+        $plantId: Int
       ) {
         updateCaseIncident(
           id: $id,
@@ -138,7 +145,9 @@ export const caseIncidentService = {
           saksiList: $saksiList,
           fotoKejadian: $fotoKejadian,
           targetPenyelesaian: $targetPenyelesaian,
-          status: $status
+          status: $status,
+          businessUnitId: $businessUnitId,
+          plantId: $plantId
         ) {
           success message
           incident { id namaKorban status updatedAt }

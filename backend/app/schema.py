@@ -266,6 +266,10 @@ class CaseIncidentType:
     target_penyelesaian: Optional[str] = None
     status: str
     created_by: Optional[int] = None
+    business_unit_id: Optional[int] = None
+    business_unit_name: Optional[str] = None
+    plant_id: Optional[int] = None
+    plant_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -277,31 +281,45 @@ class CaseIncidentPayload:
     incident: Optional[CaseIncidentType] = None
 
 
-def _ci_to_type(r: models.CaseIncident) -> CaseIncidentType:
-    return CaseIncidentType(
-        id=r.id,
-        nama_pelapor=r.nama_pelapor,
-        pelapor_dept_id=r.pelapor_dept_id,
-        nama_saksi=r.nama_saksi,
-        saksi_dept_id=r.saksi_dept_id,
-        saksi_list=r.saksi_list,
-        foto_kejadian=r.foto_kejadian,
-        tanggal_kejadian=str(r.tanggal_kejadian) if r.tanggal_kejadian else "",
-        tanggal_pelaporan=str(r.tanggal_pelaporan) if r.tanggal_pelaporan else "",
-        nama_korban=r.nama_korban,
-        korban_dept_id=r.korban_dept_id,
-        status_karyawan=r.status_karyawan,
-        jenis_kecelakaan=r.jenis_kecelakaan,
-        lokasi_kecelakaan=r.lokasi_kecelakaan,
-        deskripsi_kecelakaan=r.deskripsi_kecelakaan,
-        penyebab_kecelakaan=r.penyebab_kecelakaan,
-        perbaikan_dilakukan=r.perbaikan_dilakukan,
-        target_penyelesaian=str(r.target_penyelesaian) if r.target_penyelesaian else None,
-        status=r.status or "Open",
-        created_by=r.created_by,
-        created_at=str(r.created_at) if r.created_at else None,
-        updated_at=str(r.updated_at) if r.updated_at else None,
-    )
+def _ci_to_type(r: models.CaseIncident, db=None) -> CaseIncidentType:
+    close_db = False
+    if db is None:
+        db = _get_db()
+        close_db = True
+    try:
+        bu = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == r.business_unit_id).first() if r.business_unit_id else None
+        plant = db.query(models.Plant).filter(models.Plant.id == r.plant_id).first() if r.plant_id else None
+        return CaseIncidentType(
+            id=r.id,
+            nama_pelapor=r.nama_pelapor,
+            pelapor_dept_id=r.pelapor_dept_id,
+            nama_saksi=r.nama_saksi,
+            saksi_dept_id=r.saksi_dept_id,
+            saksi_list=r.saksi_list,
+            foto_kejadian=r.foto_kejadian,
+            tanggal_kejadian=str(r.tanggal_kejadian) if r.tanggal_kejadian else "",
+            tanggal_pelaporan=str(r.tanggal_pelaporan) if r.tanggal_pelaporan else "",
+            nama_korban=r.nama_korban,
+            korban_dept_id=r.korban_dept_id,
+            status_karyawan=r.status_karyawan,
+            jenis_kecelakaan=r.jenis_kecelakaan,
+            lokasi_kecelakaan=r.lokasi_kecelakaan,
+            deskripsi_kecelakaan=r.deskripsi_kecelakaan,
+            penyebab_kecelakaan=r.penyebab_kecelakaan,
+            perbaikan_dilakukan=r.perbaikan_dilakukan,
+            target_penyelesaian=str(r.target_penyelesaian) if r.target_penyelesaian else None,
+            status=r.status or "Open",
+            created_by=r.created_by,
+            business_unit_id=r.business_unit_id,
+            business_unit_name=bu.name if bu else None,
+            plant_id=r.plant_id,
+            plant_name=plant.name if plant else None,
+            created_at=str(r.created_at) if r.created_at else None,
+            updated_at=str(r.updated_at) if r.updated_at else None,
+        )
+    finally:
+        if close_db:
+            db.close()
 
 
 @strawberry.type
@@ -2961,6 +2979,8 @@ class Mutation:
         foto_kejadian: Optional[str] = None,
         target_penyelesaian: Optional[str] = None,
         status: Optional[str] = None,
+        business_unit_id: Optional[int] = None,
+        plant_id: Optional[int] = None,
     ) -> CaseIncidentPayload:
         user = _get_current_user(info)
         if not user:
@@ -2987,6 +3007,8 @@ class Mutation:
                 target_penyelesaian=date.fromisoformat(target_penyelesaian) if target_penyelesaian else None,
                 status=status or "Open",
                 created_by=user.id,
+                business_unit_id=business_unit_id if business_unit_id is not None else user.business_unit_id,
+                plant_id=plant_id if plant_id is not None else user.plant_id,
             )
             db.add(record)
             db.commit()
@@ -3021,6 +3043,8 @@ class Mutation:
         foto_kejadian: Optional[str] = None,
         target_penyelesaian: Optional[str] = None,
         status: Optional[str] = None,
+        business_unit_id: Optional[int] = None,
+        plant_id: Optional[int] = None,
     ) -> CaseIncidentPayload:
         user = _get_current_user(info)
         if not user:
@@ -3048,6 +3072,8 @@ class Mutation:
             if foto_kejadian is not None: record.foto_kejadian = foto_kejadian
             if target_penyelesaian is not None: record.target_penyelesaian = date.fromisoformat(target_penyelesaian) if target_penyelesaian else None
             if status is not None: record.status = status
+            if business_unit_id is not None: record.business_unit_id = business_unit_id
+            if plant_id is not None: record.plant_id = plant_id
             db.commit()
             db.refresh(record)
             return CaseIncidentPayload(success=True, message="Laporan berhasil diperbarui", incident=_ci_to_type(record))
