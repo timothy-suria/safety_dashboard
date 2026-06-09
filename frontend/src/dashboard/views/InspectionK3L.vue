@@ -7,7 +7,7 @@
           Laporan inspeksi Keselamatan, Kesehatan Kerja & Lingkungan
         </p>
       </div>
-      <button v-if="currentUser?.department === 'Safety'" class="btn-primary" @click="showForm = true">
+      <button v-if="isPrivileged || currentUser?.department === 'Safety'" class="btn-primary" @click="showForm = true">
         + Tambah Temuan
       </button>
     </div>
@@ -1872,7 +1872,7 @@
               <td class="td-actions" @click.stop>
                 <div class="actions-wrap">
                 <button
-                  v-if="item.status !== 'Closed' && item.status !== 'Progress Validasi' && (item.tindakLanjutCount ?? 0) < 4 && currentUser?.departmentId === item.departmentId"
+                  v-if="item.status !== 'Closed' && item.status !== 'Progress Validasi' && (item.tindakLanjutCount ?? 0) < 4 && (isPrivileged || currentUser?.departmentId === item.departmentId)"
                   class="btn-icon btn-warning tl-icon-wrap"
                   title="Tindak Lanjut"
                   @click="openTindakLanjut(item)"
@@ -1884,7 +1884,7 @@
                   <span v-if="(item.tindakLanjutCount ?? 0) > 0" class="tl-badge">{{ item.tindakLanjutCount }}</span>
                 </button>
                 <button
-                  v-if="item.status === 'Progress Validasi' && (item.validasiCount ?? 0) < 4 && currentUser?.department === 'Safety'"
+                  v-if="item.status === 'Progress Validasi' && (item.validasiCount ?? 0) < 4 && (isPrivileged || currentUser?.department === 'Safety')"
                   class="btn-icon btn-validasi val-icon-wrap"
                   title="Validasi Safety"
                   @click="openValidasi(item)"
@@ -1895,13 +1895,13 @@
                   </svg>
                   <span v-if="(item.validasiCount ?? 0) > 0" class="val-badge">{{ item.validasiCount }}</span>
                 </button>
-                <button v-if="currentUser?.department === 'Safety'" class="btn-icon" title="Ubah" @click="editRecord(item)">
+                <button v-if="isPrivileged || currentUser?.department === 'Safety'" class="btn-icon" title="Ubah" @click="editRecord(item)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                   </svg>
                 </button>
-                <button v-if="currentUser?.department === 'Safety'" class="btn-icon btn-danger" title="Hapus" @click="deleteRecord(item)">
+                <button v-if="isPrivileged || currentUser?.department === 'Safety'" class="btn-icon btn-danger" title="Hapus" @click="deleteRecord(item)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -2321,6 +2321,7 @@ const vClickOutside = {
 
 const currentUser = authService.getCurrentUser();
 const roleLevel = authService.getRoleLevel();
+const isPrivileged = roleLevel <= 3;
 
 const route = useRoute();
 const router = useRouter();
@@ -3410,7 +3411,7 @@ const summaryData = computed(() => {
       r.targetSelesai &&
       new Date(r.targetSelesai) < today,
   ).length;
-  const byKategori = { Low: 0, Medium: 0, High: 0 };
+  const byKategori = { Minor: 0, Major: 0, Critical: 0 };
   const byStatus = { Open: 0, 'In Progress': 0, Closed: 0 };
   rows.forEach((r) => {
     if (r.kategoriTemuan in byKategori) byKategori[r.kategoriTemuan]++;
@@ -3650,7 +3651,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     doc.setFont('helvetica', 'bold');
     doc.text('BREAKDOWN PER KATEGORI', 14, breakdownY);
 
-    const breakdownRows = ['Low', 'Medium', 'High'].map((k) => {
+    const breakdownRows = ['Minor', 'Major', 'Critical'].map((k) => {
       const rows = monthRows.filter((r) => r.kategoriTemuan === k);
       const closed = rows.filter((r) => r.status === 'Closed').length;
       const pct =
@@ -3711,34 +3712,34 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
 
     const deptBodyRows = allDepts.map((dept, idx) => {
       const rows = monthRows.filter((r) => r.departmentId === dept.id);
-      const low = catStats(rows, 'Low');
-      const med = catStats(rows, 'Medium');
-      const high = catStats(rows, 'High');
+      const minor = catStats(rows, 'Minor');
+      const major = catStats(rows, 'Major');
+      const critical = catStats(rows, 'Critical');
       const dTotal = rows.length;
-      const dClosed = low.C + med.C + high.C;
+      const dClosed = minor.C + major.C + critical.C;
       const pct = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : '-';
       return [
         idx + 1,
         dept.name.toUpperCase(),
-        low.O,
-        low.I,
-        low.C,
-        med.O,
-        med.I,
-        med.C,
-        high.O,
-        high.I,
-        high.C,
+        minor.O,
+        minor.I,
+        minor.C,
+        major.O,
+        major.I,
+        major.C,
+        critical.O,
+        critical.I,
+        critical.C,
         pct,
       ];
     });
 
     // Totals row
-    const tLow = catStats(monthRows, 'Low');
-    const tMed = catStats(monthRows, 'Medium');
-    const tHigh = catStats(monthRows, 'High');
+    const tMinor = catStats(monthRows, 'Minor');
+    const tMajor = catStats(monthRows, 'Major');
+    const tCritical = catStats(monthRows, 'Critical');
     const tAll = monthRows.length;
-    const tClosed = tLow.C + tMed.C + tHigh.C;
+    const tClosed = tMinor.C + tMajor.C + tCritical.C;
     const tPct = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : '-';
     const totalCellStyle = (color) => ({
       styles: { fontStyle: 'bold', textColor: color },
@@ -3754,15 +3755,15 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
           textColor: dark,
         },
       },
-      { content: tLow.O, ...totalCellStyle(redBg) },
-      { content: tLow.I, ...totalCellStyle(amberBg) },
-      { content: tLow.C, ...totalCellStyle(greenBg) },
-      { content: tMed.O, ...totalCellStyle(redBg) },
-      { content: tMed.I, ...totalCellStyle(amberBg) },
-      { content: tMed.C, ...totalCellStyle(greenBg) },
-      { content: tHigh.O, ...totalCellStyle(redBg) },
-      { content: tHigh.I, ...totalCellStyle(amberBg) },
-      { content: tHigh.C, ...totalCellStyle(greenBg) },
+      { content: tMinor.O, ...totalCellStyle(redBg) },
+      { content: tMinor.I, ...totalCellStyle(amberBg) },
+      { content: tMinor.C, ...totalCellStyle(greenBg) },
+      { content: tMajor.O, ...totalCellStyle(redBg) },
+      { content: tMajor.I, ...totalCellStyle(amberBg) },
+      { content: tMajor.C, ...totalCellStyle(greenBg) },
+      { content: tCritical.O, ...totalCellStyle(redBg) },
+      { content: tCritical.I, ...totalCellStyle(amberBg) },
+      { content: tCritical.C, ...totalCellStyle(greenBg) },
       { content: tPct, styles: { fontStyle: 'bold', textColor: dark } },
     ]);
 
@@ -3813,9 +3814,9 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     );
     hdrY += hRowH;
 
-    // Header row 2: LOW | MEDIUM | HIGH
+    // Header row 2: MINOR | MAJOR | CRITICAL
     fillText(
-      'LOW',
+      'MINOR',
       colX[2],
       hdrY,
       colW.slice(2, 5).reduce((a, b) => a + b, 0),
@@ -3824,7 +3825,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       dark,
     );
     fillText(
-      'MEDIUM',
+      'MAJOR',
       colX[5],
       hdrY,
       colW.slice(5, 8).reduce((a, b) => a + b, 0),
@@ -3833,7 +3834,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       dark,
     );
     fillText(
-      'HIGH',
+      'CRITICAL',
       colX[8],
       hdrY,
       colW.slice(8, 11).reduce((a, b) => a + b, 0),

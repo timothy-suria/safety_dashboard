@@ -162,7 +162,11 @@
 
       <!-- KPI Cards -->
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div
+          class="kpi-card kpi-clickable"
+          :class="{ 'kpi-selected': selectedKpi === 'total' }"
+          @click="toggleKpi('total')"
+        >
           <div class="kpi-icon-wrap" style="background: #eff6ff">
             <svg
               viewBox="0 0 24 24"
@@ -188,7 +192,11 @@
           <div class="kpi-bar" style="background: #3b82f6"></div>
         </div>
 
-        <div class="kpi-card">
+        <div
+          class="kpi-card kpi-clickable"
+          :class="{ 'kpi-selected': selectedKpi === 'open' }"
+          @click="toggleKpi('open')"
+        >
           <div class="kpi-icon-wrap" style="background: #fffbeb">
             <svg
               viewBox="0 0 24 24"
@@ -211,7 +219,11 @@
           <div class="kpi-bar" style="background: #f59e0b"></div>
         </div>
 
-        <div class="kpi-card">
+        <div
+          class="kpi-card kpi-clickable"
+          :class="{ 'kpi-selected': selectedKpi === 'inProgress' }"
+          @click="toggleKpi('inProgress')"
+        >
           <div class="kpi-icon-wrap" style="background: #eef2ff">
             <svg
               viewBox="0 0 24 24"
@@ -232,7 +244,11 @@
           <div class="kpi-bar" style="background: #6366f1"></div>
         </div>
 
-        <div class="kpi-card">
+        <div
+          class="kpi-card kpi-clickable"
+          :class="{ 'kpi-selected': selectedKpi === 'closed' }"
+          @click="toggleKpi('closed')"
+        >
           <div class="kpi-icon-wrap" style="background: #f0fdf4">
             <svg
               viewBox="0 0 24 24"
@@ -252,6 +268,65 @@
             <div class="kpi-meta">Laporan selesai</div>
           </div>
           <div class="kpi-bar" style="background: #10b981"></div>
+        </div>
+      </div>
+
+      <!-- KPI Breakdown by kategori (toggled by clicking a KPI card) -->
+      <div v-if="selectedKpi" class="kpi-breakdown-wrap">
+        <div class="kpi-arrow" :style="{ left: kpiArrowOffset }"></div>
+        <div class="kpi-breakdown-row">
+          <div
+            class="kpi-mini kpi-mini-minor kpi-mini-clickable"
+            :class="{ 'kpi-mini-selected': selectedCategory === 'Minor' }"
+            @click="toggleCategory('Minor')"
+          >
+            <span class="kpi-mini-value">{{ kpiBreakdown.Minor }}</span>
+            <span class="kpi-mini-label">Minor</span>
+          </div>
+          <div
+            class="kpi-mini kpi-mini-major kpi-mini-clickable"
+            :class="{ 'kpi-mini-selected': selectedCategory === 'Major' }"
+            @click="toggleCategory('Major')"
+          >
+            <span class="kpi-mini-value">{{ kpiBreakdown.Major }}</span>
+            <span class="kpi-mini-label">Major</span>
+          </div>
+          <div
+            class="kpi-mini kpi-mini-critical kpi-mini-clickable"
+            :class="{ 'kpi-mini-selected': selectedCategory === 'Critical' }"
+            @click="toggleCategory('Critical')"
+          >
+            <span class="kpi-mini-value">{{ kpiBreakdown.Critical }}</span>
+            <span class="kpi-mini-label">Critical</span>
+          </div>
+          <div
+            class="kpi-mini kpi-mini-nofindings kpi-mini-clickable"
+            :class="{ 'kpi-mini-selected': selectedCategory === 'No Findings' }"
+            @click="toggleCategory('No Findings')"
+          >
+            <span class="kpi-mini-value">{{ kpiBreakdown['No Findings'] }}</span>
+            <span class="kpi-mini-label">No Findings</span>
+          </div>
+        </div>
+
+        <!-- Department breakdown for the selected category -->
+        <div v-if="selectedCategory" class="dept-breakdown-row">
+          <div v-if="categoryDeptBreakdown.length === 0" class="dept-breakdown-empty">
+            Tidak ada laporan {{ selectedCategory }} pada cakupan ini.
+          </div>
+          <div
+            v-for="d in categoryDeptBreakdown"
+            :key="d.id"
+            class="dept-mini"
+            :style="{ position: 'relative' }"
+          >
+            <div
+              class="dept-mini-bar"
+              :style="{ width: (d.count / categoryDeptBreakdown[0].count) * 100 + '%' }"
+            ></div>
+            <span class="dept-mini-label" :title="d.name">{{ d.name }}</span>
+            <span class="dept-mini-value">{{ d.count }}</span>
+          </div>
         </div>
       </div>
 
@@ -1495,11 +1570,63 @@ const resolutionRate = computed(() => {
   return Math.round((stats.value.closed / stats.value.total) * 100);
 });
 
+const KPI_KEYS = ['total', 'open', 'inProgress', 'closed'];
+const selectedKpi = ref(null);
+
+function toggleKpi(key) {
+  selectedKpi.value = selectedKpi.value === key ? null : key;
+  selectedCategory.value = null;
+}
+
+const kpiBreakdown = computed(() => {
+  const counts = { Minor: 0, Major: 0, Critical: 0, 'No Findings': 0 };
+  if (!selectedKpi.value) return counts;
+  let rows = filteredByDate.value;
+  if (selectedKpi.value === 'open') rows = rows.filter((r) => r.status === 'Open');
+  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'In Progress');
+  else if (selectedKpi.value === 'closed') rows = rows.filter((r) => r.status === 'Closed');
+  rows.forEach((r) => {
+    if (r.kategoriTemuan in counts) counts[r.kategoriTemuan]++;
+  });
+  return counts;
+});
+
+const kpiArrowOffset = computed(() => {
+  const idx = KPI_KEYS.indexOf(selectedKpi.value);
+  if (idx === -1) return '12.5%';
+  return `${(idx + 0.5) * 25}%`;
+});
+
+const selectedCategory = ref(null);
+
+function toggleCategory(cat) {
+  selectedCategory.value = selectedCategory.value === cat ? null : cat;
+}
+
+const categoryDeptBreakdown = computed(() => {
+  if (!selectedKpi.value || !selectedCategory.value) return [];
+  let rows = filteredByDate.value;
+  if (selectedKpi.value === 'open') rows = rows.filter((r) => r.status === 'Open');
+  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'In Progress');
+  else if (selectedKpi.value === 'closed') rows = rows.filter((r) => r.status === 'Closed');
+  rows = rows.filter((r) => r.kategoriTemuan === selectedCategory.value);
+
+  const counts = new Map();
+  rows.forEach((r) => {
+    const id = r.departmentId ?? null;
+    const name = departments.value.find((d) => d.id === id)?.name || 'Lainnya';
+    const entry = counts.get(id) || { id, name, count: 0 };
+    entry.count++;
+    counts.set(id, entry);
+  });
+  return Array.from(counts.values()).sort((a, b) => b.count - a.count);
+});
+
 // ── Grouped bar chart (by category) ───────────────────────────────
 const CAT_COLORS = {
-  Low: '#4ade80',
-  Medium: '#fbbf24',
-  High: '#f87171',
+  Minor: '#4ade80',
+  Major: '#fbbf24',
+  Critical: '#f87171',
 };
 
 const activeCategories = computed(() => {
@@ -2185,6 +2312,145 @@ onMounted(async () => {
   border-radius: 0 0 14px 14px;
 }
 
+.kpi-clickable {
+  cursor: pointer;
+}
+.kpi-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.kpi-breakdown-wrap {
+  position: relative;
+  margin: -4px 0 16px;
+}
+.kpi-arrow {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 9px solid #e2e8f0;
+  transition: left 0.15s ease;
+}
+.kpi-breakdown-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.kpi-mini {
+  flex: 1;
+  min-width: 100px;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid transparent;
+}
+.kpi-mini-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+.kpi-mini-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.kpi-mini-minor {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+.kpi-mini-major {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+.kpi-mini-critical {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+.kpi-mini-nofindings {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+.kpi-mini-clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.kpi-mini-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.kpi-mini-selected {
+  border-color: currentColor;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.06);
+}
+
+.dept-breakdown-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.dept-breakdown-empty {
+  font-size: 13px;
+  color: #64748b;
+  padding: 8px 4px;
+}
+.dept-mini {
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+.dept-mini-bar {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.04);
+  z-index: 0;
+}
+.dept-mini-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dept-mini-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Resolution rate ────────────────────────────────────────────── */
 .rate-card {
   background: #fff;
@@ -2782,6 +3048,12 @@ onMounted(async () => {
 @media (max-width: 1100px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .kpi-arrow {
+    display: none;
+  }
+  .kpi-breakdown-wrap {
+    margin-top: 0;
   }
   .charts-row {
     grid-template-columns: 1fr;

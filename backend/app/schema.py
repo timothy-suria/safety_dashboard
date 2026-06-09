@@ -51,6 +51,11 @@ def _is_staff(user: models.User) -> bool:
     return _get_role_level(user) >= 6
 
 
+def _is_privileged(user: models.User) -> bool:
+    """Level 0-3 bypasses department restrictions."""
+    return _get_role_level(user) <= 3
+
+
 def _is_safety_department(db, user: models.User) -> bool:
     """True if user belongs to the 'Safety' department."""
     if not user.department_id:
@@ -1358,7 +1363,7 @@ class Mutation:
 
         db = _get_db()
         try:
-            if not _is_safety_department(db, user):
+            if not _is_privileged(user) and not _is_safety_department(db, user):
                 return InspectionK3LPayload(success=False, message="Hanya departemen Safety yang dapat menambahkan temuan")
             if business_unit_id is not None:
                 business_unit = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == business_unit_id).first()
@@ -1446,7 +1451,7 @@ class Mutation:
             if not record:
                 return InspectionK3LPayload(success=False, message="Record not found")
 
-            if not _is_safety_department(db, user):
+            if not _is_privileged(user) and not _is_safety_department(db, user):
                 return InspectionK3LPayload(success=False, message="Hanya departemen Safety yang dapat mengubah temuan")
 
             if _is_staff(user) and (
@@ -1608,7 +1613,7 @@ class Mutation:
             record = db.query(models.InspectionK3L).filter(models.InspectionK3L.id == id).first()
             if not record:
                 return InspectionK3LPayload(success=False, message="Record not found")
-            if not _is_safety_department(db, user):
+            if not _is_privileged(user) and not _is_safety_department(db, user):
                 return InspectionK3LPayload(success=False, message="Hanya departemen Safety yang dapat melakukan validasi")
             existing_count = _val_count(db, id)
             if existing_count >= 4:
@@ -1655,7 +1660,7 @@ class Mutation:
             if not record:
                 return InspectionK3LPayload(success=False, message="Record not found")
 
-            if not _is_safety_department(db, user):
+            if not _is_privileged(user) and not _is_safety_department(db, user):
                 return InspectionK3LPayload(success=False, message="Hanya departemen Safety yang dapat menghapus temuan")
 
             if _is_staff(user) and (
