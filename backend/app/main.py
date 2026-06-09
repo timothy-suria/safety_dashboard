@@ -1,9 +1,12 @@
+from contextlib import asynccontextmanager
+import asyncio
+from datetime import datetime, date, timedelta, timezone
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
 
-from app.schema import graphql_router
+from app.schema import graphql_router, _notify_users
 from app.cloudinary_utils import upload_image, upload_video, upload_document
 from app.database import get_db
 from app import models as _models
@@ -11,7 +14,116 @@ from app import auth as _auth
 
 load_dotenv()
 
-app = FastAPI(title="Safety Dashboard API")
+_WIB = timezone(timedelta(hours=7))
+
+
+def _run_overdue_notifications() -> None:
+    db = next(get_db())
+    try:
+        today = datetime.now(_WIB).date()
+        records = (
+            db.query(_models.InspectionK3L)
+            .filter(
+                _models.InspectionK3L.status != "Closed",
+                _models.InspectionK3L.target_selesai.isnot(None),
+            )
+            .all()
+        )
+        for record in records:
+            days_left = (record.target_selesai - today).days
+            if days_left == 3:
+                notif_type = "overdue_warning_3d"
+                title = "Temuan Mendekati Batas Waktu"
+                message = (
+                    f'Temuan "{record.deskripsi_temuan or record.kategori_temuan}" '
+                    f"akan overdue dalam 3 hari (target: {record.target_selesai})"
+                )
+            elif days_left == 1:
+                notif_type = "overdue_warning_1d"
+                title = "Temuan Hampir Overdue"
+                message = (
+                    f'Temuan "{record.deskripsi_temuan or record.kategori_temuan}" '
+                    f"akan overdue besok (target: {record.target_selesai})"
+                )
+            elif days_left < 0:
+                notif_type = "overdue_daily"
+                title = "Temuan Overdue"
+                message = (
+                    f'Temuan "{record.deskripsi_temuan or record.kategori_temuan}" '
+                    f"telah melewati target selesai ({record.target_selesai})"
+                )
+            else:
+                continue
+
+            link = f"/dashboard/reports/inspection-k3l?view={record.id}"
+            today_start = datetime.combine(today, datetime.min.time())
+            already = (
+                db.query(_models.Notification)
+                .filter(
+                    _models.Notification.type == notif_type,
+                    _models.Notification.link == link,
+                    _models.Notification.created_at >= today_start,
+                )
+                .first()
+            )
+            if already:
+                continue
+
+            user_ids: set[int] = set()
+            if record.department_id:
+                for u in (
+                    db.query(_models.User)
+                    .filter(
+                        _models.User.department_id == record.department_id,
+                        _models.User.is_active == True,
+                    )
+                    .all()
+                ):
+                    user_ids.add(u.id)
+            for u in (
+                db.query(_models.User)
+                .join(_models.Role)
+                .filter(_models.Role.level <= 3, _models.User.is_active == True)
+                .all()
+            ):
+                user_ids.add(u.id)
+
+            if user_ids:
+                _notify_users(db, list(user_ids), notif_type, title, message, link)
+
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        print(f"[overdue-notif] error: {exc}")
+    finally:
+        db.close()
+
+
+async def _overdue_scheduler() -> None:
+    while True:
+        now = datetime.now(_WIB)
+        target = now.replace(hour=7, minute=0, second=0, microsecond=0)
+        if now >= target:
+            target += timedelta(days=1)
+        await asyncio.sleep((target - now).total_seconds())
+        try:
+            _run_overdue_notifications()
+        except Exception as exc:
+            print(f"[overdue-notif] scheduler error: {exc}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(_overdue_scheduler())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
+
+app = FastAPI(title="Safety Dashboard API", lifespan=lifespan)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
