@@ -3680,13 +3680,15 @@ onMounted(async () => {
   width: 100%; border-collapse: collapse; font-size: 13px;
 }
 .hse-recent-table th {
-  text-align: left; padding: 10px 8px 8px; font-size: 10.5px; font-weight: 600;
+  text-align: center; padding: 10px 8px 8px; font-size: 10.5px; font-weight: 600;
   color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;
   border-bottom: 1px solid #f1f5f9;
 }
 .hse-recent-table td {
-  padding: 11px 8px; color: #374151; border-bottom: 1px solid #f8fafc;
+  padding: 11px 8px; text-align: left; color: #374151; border-bottom: 1px solid #f8fafc;
 }
+.hse-recent-table th:not(:first-child),
+.hse-recent-table td:not(:first-child) { border-left: 1px solid #e2e8f0; }
 .hse-recent-table tr:last-child td { border-bottom: none; }
 .hse-recent-table tr:hover td { background: #f8fafc; }
 .td-date { white-space: nowrap; color: #64748b; font-size: 12px; }

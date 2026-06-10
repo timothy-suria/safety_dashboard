@@ -8,8 +8,51 @@
       <button class="btn-primary" @click="openForm">+ Tambah Laporan</button>
     </div>
 
-    <!-- Filter bar -->
-    <div class="filter-bar">
+    <div class="table-card">
+      <!-- Data header with export -->
+      <div class="table-header">
+        <h3>Data Laporan</h3>
+        <div class="table-header-actions">
+          <button
+            class="btn btn-sm btn-export"
+            @click="exportExcel"
+            :disabled="filteredRecords.length === 0"
+            title="Ekspor data ke Excel"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Ekspor
+          </button>
+        </div>
+      </div>
+
+      <!-- Date filter row -->
+      <div class="date-filter-row">
+        <button
+          v-for="opt in DATE_PRESETS"
+          :key="opt.value"
+          class="date-chip"
+          :class="{ active: filterDate === opt.value }"
+          @click="setDatePreset(opt.value)"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+      <div v-if="filterDate === 'custom'" class="custom-date-row">
+        <label class="toolbar-date-wrap">
+          <input type="date" v-model="customDateFrom" class="toolbar-date" @click="$event.target.showPicker?.()" />
+        </label>
+        <span class="date-sep">–</span>
+        <label class="toolbar-date-wrap">
+          <input type="date" v-model="customDateTo" class="toolbar-date" @click="$event.target.showPicker?.()" />
+        </label>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
       <div class="search-wrapper">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -101,7 +144,7 @@
               </button>
               <span v-else class="text-muted">-</span>
             </td>
-            <td>
+            <td style="text-align:center">
               <span :class="['status-badge', `status-${(item.status || 'open').toLowerCase().replace(' ', '-')}`]">
                 {{ item.status || 'Open' }}
               </span>
@@ -109,6 +152,53 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile card list -->
+      <div class="card-list" v-if="!loading && pagedRecords.length > 0">
+        <div
+          v-for="(item, idx) in pagedRecords"
+          :key="item.id"
+          class="row-card"
+          @click="viewRecord(item)"
+        >
+          <div class="rc-head">
+            <div>
+              <div class="rc-title">{{ item.namaKorban || 'Tanpa nama korban' }}</div>
+              <div class="rc-sub">{{ formatDate(item.tanggalKejadian) }}</div>
+            </div>
+            <span :class="['jenis-badge', jenisClass(item.jenisKecelakaan)]">{{ item.jenisKecelakaan || '-' }}</span>
+          </div>
+          <div class="rc-body">
+            <div class="rc-row"><span class="rc-label">Pelapor</span><span class="rc-value">{{ item.namaPelapor || '-' }}</span></div>
+            <div class="rc-row"><span class="rc-label">Lokasi</span><span class="rc-value">{{ item.lokasiKecelakaan || '-' }}</span></div>
+            <div class="rc-row"><span class="rc-label">Plant</span><span class="rc-value">{{ item.plantName || getPlantName(item.plantId) }}</span></div>
+            <div class="rc-row"><span class="rc-label">Status Karyawan</span><span class="rc-value">{{ item.statusKaryawan || '-' }}</span></div>
+            <div class="rc-row" v-if="parsePhotos(item.fotoKejadian).length">
+              <span class="rc-label">Foto</span>
+              <span class="rc-value">
+                <button class="photo-count-badge photo-count-btn" @click.stop="openPhotoModalFromUrls(parsePhotos(item.fotoKejadian), 0)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                  {{ parsePhotos(item.fotoKejadian).length }}
+                </button>
+              </span>
+            </div>
+          </div>
+          <div class="rc-footer">
+            <span :class="['status-badge', `status-${(item.status || 'open').toLowerCase().replace(' ', '-')}`]">{{ item.status || 'Open' }}</span>
+            <div class="rc-actions" @click.stop>
+              <button class="btn-icon btn-danger" title="Hapus" @click="deleteRecord(item)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <PaginationBar
         v-if="!loading && pagedRecords.length > 0"
@@ -129,6 +219,7 @@
           <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
         </svg>
         <p>Belum ada laporan insiden. Klik "+ Tambah Laporan" untuk menambahkan.</p>
+      </div>
       </div>
     </div>
 
@@ -709,6 +800,7 @@ import { inspectionK3LService } from '@/services/inspectionK3LService.js';
 import { uploadImage } from '@/services/inspectionK3LService.js';
 import { caseIncidentService } from '@/services/caseIncidentService.js';
 import { usePagination } from '@/composables/usePagination.js';
+import { exportToCsv } from '@/services/exportCsvService.js';
 import PaginationBar from '@/components/PaginationBar.vue';
 
 const currentUser = authService.getCurrentUser();
@@ -746,15 +838,73 @@ async function loadRecords() {
 const searchQuery = ref('');
 const filterJenis = ref('');
 const filterStatus = ref('');
+const filterDate = ref('all');
+const customDateFrom = ref('');
+const customDateTo = ref('');
+
+const DATE_PRESETS = [
+  { label: 'Semua', value: 'all' },
+  { label: 'Hari ini', value: 'today' },
+  { label: 'Minggu ini', value: 'week' },
+  { label: 'Bulan ini', value: 'month' },
+  { label: 'Kustom', value: 'custom' },
+];
+
+function setDatePreset(val) {
+  filterDate.value = val;
+  if (val !== 'custom') {
+    customDateFrom.value = '';
+    customDateTo.value = '';
+  }
+}
+
+function matchesDateFilter(item) {
+  if (filterDate.value === 'all') return true;
+  if (!item.tanggalKejadian) return false;
+  const d = new Date(String(item.tanggalKejadian).replace(' ', 'T'));
+  if (isNaN(d)) return false;
+  d.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (filterDate.value === 'today') return d.getTime() === today.getTime();
+  if (filterDate.value === 'week') {
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return d >= start && d <= end;
+  }
+  if (filterDate.value === 'month') {
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  }
+  if (filterDate.value === 'custom') {
+    if (customDateFrom.value) {
+      const from = new Date(customDateFrom.value);
+      from.setHours(0, 0, 0, 0);
+      if (d < from) return false;
+    }
+    if (customDateTo.value) {
+      const to = new Date(customDateTo.value);
+      to.setHours(0, 0, 0, 0);
+      if (d > to) return false;
+    }
+  }
+  return true;
+}
 
 const hasActiveFilters = computed(
-  () => searchQuery.value.trim() !== '' || filterJenis.value !== '' || filterStatus.value !== '',
+  () =>
+    searchQuery.value.trim() !== '' ||
+    filterJenis.value !== '' ||
+    filterStatus.value !== '' ||
+    filterDate.value !== 'all',
 );
 
 const filteredRecords = computed(() => {
   let result = records.value;
   if (filterJenis.value) result = result.filter(r => r.jenisKecelakaan === filterJenis.value);
   if (filterStatus.value) result = result.filter(r => r.status === filterStatus.value);
+  if (filterDate.value !== 'all') result = result.filter(matchesDateFilter);
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
     result = result.filter(r =>
@@ -773,6 +923,75 @@ function resetFilters() {
   searchQuery.value = '';
   filterJenis.value = '';
   filterStatus.value = '';
+  filterDate.value = 'all';
+  customDateFrom.value = '';
+  customDateTo.value = '';
+}
+
+// ── Excel export ──
+function buildCiExport(source) {
+  const parsedFotos = source.map(r => parsePhotos(r.fotoKejadian));
+  const maxFotos = Math.max(parsedFotos.reduce((m, p) => Math.max(m, p.length), 0), 1);
+  const fotoCols = Array.from({ length: maxFotos }, (_, i) => ({
+    label: maxFotos === 1 ? 'Foto Kejadian' : `Foto Kejadian ${i + 1}`,
+    key: `foto_${i}`,
+    image: true,
+  }));
+  const deptName = (id) => departments.value.find(d => d.id === id)?.name || '';
+
+  const columns = [
+    { label: 'No', key: 'no' },
+    { label: 'Tanggal Kejadian', key: 'tanggalKejadian' },
+    { label: 'Tanggal Pelaporan', key: 'tanggalPelaporan' },
+    { label: 'Business Unit', key: 'businessUnit' },
+    { label: 'Plant', key: 'plant' },
+    { label: 'Nama Pelapor', key: 'namaPelapor' },
+    { label: 'Nama Korban', key: 'namaKorban' },
+    { label: 'Dept. Korban', key: 'deptKorban' },
+    { label: 'Status Karyawan', key: 'statusKaryawan' },
+    { label: 'Jenis Kecelakaan', key: 'jenisKecelakaan' },
+    { label: 'Lokasi', key: 'lokasi' },
+    { label: 'Deskripsi Kecelakaan', key: 'deskripsi' },
+    { label: 'Penyebab Kecelakaan', key: 'penyebab' },
+    { label: 'Perbaikan Dilakukan', key: 'perbaikan' },
+    { label: 'Target Penyelesaian', key: 'target' },
+    { label: 'Status', key: 'status' },
+    ...fotoCols,
+  ];
+
+  const rows = source.map((r, idx) => {
+    const fotos = parsedFotos[idx];
+    const fotoFields = {};
+    for (let i = 0; i < maxFotos; i++) fotoFields[`foto_${i}`] = fotos[i] || '';
+    return {
+      no: idx + 1,
+      tanggalKejadian: r.tanggalKejadian ? formatDate(r.tanggalKejadian) : '',
+      tanggalPelaporan: r.tanggalPelaporan ? formatDate(r.tanggalPelaporan) : '',
+      businessUnit: r.businessUnitName || getBusinessUnitName(r.businessUnitId),
+      plant: r.plantName || getPlantName(r.plantId),
+      namaPelapor: r.namaPelapor || '',
+      namaKorban: r.namaKorban || '',
+      deptKorban: deptName(r.korbanDeptId),
+      statusKaryawan: r.statusKaryawan || '',
+      jenisKecelakaan: r.jenisKecelakaan || '',
+      lokasi: r.lokasiKecelakaan || '',
+      deskripsi: r.deskripsiKecelakaan || '',
+      penyebab: r.penyebabKecelakaan || '',
+      perbaikan: r.perbaikanDilakukan || '',
+      target: r.targetPenyelesaian || '',
+      status: r.status || 'Open',
+      ...fotoFields,
+    };
+  });
+
+  return { columns, rows };
+}
+
+async function exportExcel() {
+  if (!filteredRecords.value.length) return;
+  const { columns, rows } = buildCiExport(filteredRecords.value);
+  const today = new Date().toISOString().slice(0, 10);
+  await exportToCsv(`case-incident-${today}.xlsx`, columns, rows);
 }
 
 // ── Pagination ──
@@ -1291,8 +1510,40 @@ onMounted(async () => {
 
 /* ── Filter bar ── */
 .filter-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 20px; border-bottom: 1px solid #f1f5f9;
 }
+/* Data header export button */
+.btn-export {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
+  border-radius: 6px; padding: 7px 12px; font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s;
+}
+.btn-export:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
+.btn-export:disabled { opacity: 0.5; cursor: not-allowed; }
+/* Date filter chips */
+.date-chip {
+  background: #f1f5f9; border: 1px solid transparent; border-radius: 20px;
+  padding: 5px 14px; font-size: 13px; color: #64748b; cursor: pointer;
+  transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+}
+.date-chip:hover { background: #e2e8f0; color: #1e293b; }
+.date-chip.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+.custom-date-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 20px 10px; flex-wrap: wrap; border-bottom: 1px solid #f1f5f9;
+}
+.toolbar-date-wrap {
+  display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px;
+  background: #fff; overflow: hidden; cursor: pointer; transition: border-color 0.15s;
+}
+.toolbar-date-wrap:focus-within { border-color: #3b82f6; }
+.toolbar-date {
+  border: none; background: transparent; color: #1e293b; font-size: 13px;
+  padding: 6px 10px; outline: none; cursor: pointer; color-scheme: light; width: 140px;
+}
+.date-sep { color: #94a3b8; font-size: 13px; }
 .search-wrapper {
   position: relative; display: flex; align-items: center; flex: 1; min-width: 200px;
 }
@@ -1322,25 +1573,53 @@ onMounted(async () => {
 .filter-count { font-size: 13px; color: #64748b; white-space: nowrap; }
 
 /* ── Table ── */
-.table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; }
+.table-wrapper { overflow-x: auto; }
+
+/* ── Mobile card list ── */
+.card-list { display: none; }
+.row-card {
+  border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+.row-card:active { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.rc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.rc-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.rc-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+.rc-body { display: flex; flex-direction: column; gap: 6px; }
+.rc-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.rc-label { color: #64748b; flex-shrink: 0; }
+.rc-value { color: #1e293b; text-align: right; word-break: break-word; }
+.rc-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-top: 10px; border-top: 1px solid #f1f5f9;
+}
+.rc-actions { display: flex; gap: 6px; }
+@media (max-width: 768px) {
+  .table-wrapper table { display: none; }
+  .card-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+}
 
 table { width: 100%; border-collapse: collapse; min-width: 900px; }
 thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
 thead th {
   padding: 11px 14px; font-size: 12px; font-weight: 700; color: #64748b;
   text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
-  text-align: left;
+  text-align: center;
 }
 tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: #f8fafc; }
-tbody td { padding: 10px 14px; font-size: 13px; color: #1e293b; }
+tbody td { padding: 10px 14px; font-size: 13px; color: #1e293b; text-align: left; }
+/* Vertical dividers between columns */
+thead th:not(:first-child),
+tbody td:not(:first-child) { border-left: 1px solid #e2e8f0; }
 
 .row-clickable { cursor: pointer; }
 .td-nowrap { white-space: nowrap; }
 .td-truncate { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .td-actions { white-space: nowrap; }
-.actions-wrap { display: flex; gap: 6px; align-items: center; }
+.actions-wrap { display: flex; gap: 6px; align-items: center; justify-content: center; }
 .text-muted { color: #94a3b8; }
 
 /* ── Action buttons ── */

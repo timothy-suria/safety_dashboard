@@ -1437,7 +1437,7 @@ function formatDate(val) {
 .data-table th {
   background: #f8fafc;
   padding: 11px 14px;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   color: #475569;
   font-size: 12px;
@@ -1448,14 +1448,24 @@ function formatDate(val) {
 }
 .data-table td {
   padding: 12px 14px;
+  text-align: left;
   border-bottom: 1px solid #f1f5f9;
   color: #374151;
   vertical-align: middle;
 }
+/* Status column centered (matches action column) */
+.data-table td:has(.status-pill) {
+  text-align: center;
+}
+/* Vertical dividers between columns */
+.data-table th:not(:first-child),
+.data-table td:not(:first-child) {
+  border-left: 1px solid #e2e8f0;
+}
 .data-table tbody tr:last-child td { border-bottom: none; }
 .data-table tbody tr:hover td { background: #f8fafc; }
 
-.td-num { color: #94a3b8; font-size: 12px; width: 40px; }
+.data-table td.td-num { color: #94a3b8; font-size: 12px; width: 40px; text-align: center; }
 .td-name { font-weight: 600; color: #1e293b; }
 .td-desc { color: #64748b; max-width: 220px; }
 .td-date { color: #64748b; white-space: nowrap; }

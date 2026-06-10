@@ -42,7 +42,7 @@
       <div v-else-if="roleLevel <= 4" class="scope-filter-inline">
         <span class="scope-bu-label">{{
           businessUnits.find((b) => b.id === currentUser.businessUnitId)
-            ?.name || 'Business Unit'
+            ?.name || "Business Unit"
         }}</span>
         <select v-model="filterPlant" class="scope-select">
           <option :value="null">Semua Plant</option>
@@ -69,10 +69,10 @@
               <h3 class="modal-title">
                 {{
                   editingId
-                    ? 'Ubah Temuan'
+                    ? "Ubah Temuan"
                     : !form.jenisInspeksi
-                      ? 'Pilih Jenis Inspeksi'
-                      : 'Input Temuan Baru'
+                      ? "Pilih Jenis Inspeksi"
+                      : "Input Temuan Baru"
                 }}
               </h3>
               <button class="modal-close" @click="tryCloseForm">
@@ -180,7 +180,12 @@
               </div>
 
               <!-- Step 2: full form after selection (or edit mode) -->
-              <form v-else @submit.prevent="submitForm" class="form-grid" id="k3l-form">
+              <form
+                v-else
+                @submit.prevent="submitForm"
+                class="form-grid"
+                id="k3l-form"
+              >
                 <!-- Jenis Inspeksi -->
                 <div class="form-section">
                   <h4 class="section-title">Jenis Inspeksi</h4>
@@ -279,7 +284,7 @@
                             <span v-if="u.departmentId" class="mention-dept">
                               {{
                                 departments.find((d) => d.id === u.departmentId)
-                                  ?.name || ''
+                                  ?.name || ""
                               }}
                             </span>
                           </button>
@@ -842,7 +847,9 @@
                       <label>Status</label>
                       <select v-model="form.status" :disabled="!editingId">
                         <option value="Open">Open</option>
-                        <option value="Progress Validasi">Progress Validasi</option>
+                        <option value="Progress Validasi">
+                          Progress Validasi
+                        </option>
                         <option value="Closed">Closed</option>
                       </select>
                     </div>
@@ -883,15 +890,10 @@
                     </div>
                   </div>
                 </div>
-
               </form>
             </div>
             <div class="modal-footer-bar">
-              <button
-                type="button"
-                class="btn-secondary"
-                @click="tryCloseForm"
-              >
+              <button type="button" class="btn-secondary" @click="tryCloseForm">
                 Batal
               </button>
               <button
@@ -902,10 +904,10 @@
               >
                 {{
                   submitting
-                    ? 'Menyimpan...'
+                    ? "Menyimpan..."
                     : editingId
-                      ? 'Simpan Perubahan'
-                      : 'Simpan'
+                      ? "Simpan Perubahan"
+                      : "Simpan"
                 }}
               </button>
             </div>
@@ -946,7 +948,7 @@
                   <div class="detail-row">
                     <span class="detail-label">Nama Lengkap</span>
                     <span class="detail-value">{{
-                      viewingRecord.pelaporUsername || '-'
+                      viewingRecord.pelaporUsername || "-"
                     }}</span>
                   </div>
                   <div class="detail-row">
@@ -954,7 +956,7 @@
                     <span class="detail-value">{{
                       departments.find(
                         (d) => d.id === viewingRecord.pelaporDepartmentId,
-                      )?.name || '-'
+                      )?.name || "-"
                     }}</span>
                   </div>
                 </div>
@@ -977,7 +979,7 @@
                       <span v-if="p.departmentId" class="petugas-dept-tag">
                         {{
                           departments.find((d) => d.id === p.departmentId)
-                            ?.name || ''
+                            ?.name || ""
                         }}
                       </span>
                     </span>
@@ -1005,7 +1007,7 @@
                   <div class="detail-row">
                     <span class="detail-label">Jenis Inspeksi</span>
                     <span class="detail-value">{{
-                      viewingRecord.jenisInspeksi || '-'
+                      viewingRecord.jenisInspeksi || "-"
                     }}</span>
                   </div>
                   <div class="detail-row">
@@ -1024,7 +1026,7 @@
                   <div class="detail-row">
                     <span class="detail-label">Deskripsi</span>
                     <span class="detail-value detail-multiline">{{
-                      viewingRecord.deskripsiTemuan || '-'
+                      viewingRecord.deskripsiTemuan || "-"
                     }}</span>
                   </div>
                 </div>
@@ -1090,7 +1092,7 @@
                   <div class="detail-row">
                     <span class="detail-label">Lokasi</span>
                     <span class="detail-value">{{
-                      viewingRecord.lokasi || '-'
+                      viewingRecord.lokasi || "-"
                     }}</span>
                   </div>
                   <div class="detail-row">
@@ -1198,7 +1200,7 @@
                       <span class="detail-value">{{
                         departments.find(
                           (d) => d.id === tl.ditindaklanjutiDepartmentId,
-                        )?.name || '-'
+                        )?.name || "-"
                       }}</span>
                     </div>
                     <div class="detail-row" v-if="tl.tanggalTindaklanjuti">
@@ -1275,7 +1277,7 @@
                       <span class="detail-value">{{
                         departments.find(
                           (d) => d.id === val.divalidasiDepartmentId,
-                        )?.name || '-'
+                        )?.name || "-"
                       }}</span>
                     </div>
                     <div class="detail-row" v-if="val.tanggalValidasi">
@@ -1327,11 +1329,16 @@
               </div>
             </div>
             <div class="modal-footer-bar">
-              <button class="btn-secondary" @click="closeViewModal()">Tutup</button>
+              <button class="btn-secondary" @click="closeViewModal()">
+                Tutup
+              </button>
               <button
                 v-if="isPrivileged || currentUser?.department === 'Safety'"
                 class="btn-primary"
-                @click="editRecord(viewingRecord); closeViewModal()"
+                @click="
+                  editRecord(viewingRecord);
+                  closeViewModal();
+                "
               >
                 Ubah
               </button>
@@ -1541,7 +1548,7 @@
                       d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
                     />
                   </svg>
-                  {{ deleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                  {{ deleting ? "Menghapus..." : "Ya, Hapus" }}
                 </button>
                 <button
                   class="btn-secondary"
@@ -1583,7 +1590,11 @@
               </button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="submitTindakLanjut" class="form-grid" id="tl-form">
+              <form
+                @submit.prevent="submitTindakLanjut"
+                class="form-grid"
+                id="tl-form"
+              >
                 <!-- Ditindaklanjuti Oleh -->
                 <div class="form-section">
                   <h4 class="section-title">Ditindaklanjuti Oleh</h4>
@@ -1601,7 +1612,7 @@
                     <div class="form-group">
                       <label>Departemen</label>
                       <select disabled>
-                        <option>{{ currentUser?.department || '-' }}</option>
+                        <option>{{ currentUser?.department || "-" }}</option>
                       </select>
                     </div>
                   </div>
@@ -1802,13 +1813,23 @@
                     </div>
                   </div>
                 </div>
-
               </form>
             </div>
             <div class="modal-footer-bar">
-              <button type="button" class="btn-secondary" @click="tryCloseTindakLanjut">Batal</button>
-              <button type="submit" form="tl-form" class="btn-primary" :disabled="tlSubmitting">
-                {{ tlSubmitting ? 'Menyimpan…' : 'Simpan Tindak Lanjut' }}
+              <button
+                type="button"
+                class="btn-secondary"
+                @click="tryCloseTindakLanjut"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="tl-form"
+                class="btn-primary"
+                :disabled="tlSubmitting"
+              >
+                {{ tlSubmitting ? "Menyimpan…" : "Simpan Tindak Lanjut" }}
               </button>
             </div>
           </div>
@@ -1842,7 +1863,11 @@
               </button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="submitValidasi" class="form-grid" id="validasi-form">
+              <form
+                @submit.prevent="submitValidasi"
+                class="form-grid"
+                id="validasi-form"
+              >
                 <!-- Divalidasi Oleh -->
                 <div class="form-section">
                   <h4 class="section-title">Divalidasi Oleh</h4>
@@ -1860,7 +1885,7 @@
                     <div class="form-group">
                       <label>Departemen</label>
                       <select disabled>
-                        <option>{{ currentUser?.department || '-' }}</option>
+                        <option>{{ currentUser?.department || "-" }}</option>
                       </select>
                     </div>
                   </div>
@@ -1979,7 +2004,7 @@
                           {{
                             validasiForm.statusValidasi ||
                             validasiTargetRecord?.status ||
-                            'Progress Validasi'
+                            "Progress Validasi"
                           }}
                         </option>
                       </select>
@@ -2023,13 +2048,23 @@
                     </div>
                   </div>
                 </div>
-
               </form>
             </div>
             <div class="modal-footer-bar">
-              <button type="button" class="btn-secondary" @click="tryCloseValidasi">Batal</button>
-              <button type="submit" form="validasi-form" class="btn-primary" :disabled="validasiSubmitting">
-                {{ validasiSubmitting ? 'Menyimpan…' : 'Simpan Validasi' }}
+              <button
+                type="button"
+                class="btn-secondary"
+                @click="tryCloseValidasi"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="validasi-form"
+                class="btn-primary"
+                :disabled="validasiSubmitting"
+              >
+                {{ validasiSubmitting ? "Menyimpan…" : "Simpan Validasi" }}
               </button>
             </div>
           </div>
@@ -2085,21 +2120,49 @@
     <!-- TL Discard Confirm -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showTLDiscardConfirm" class="modal-overlay" style="z-index:1200" @mousedown.self="showTLDiscardConfirm = false">
+        <div
+          v-if="showTLDiscardConfirm"
+          class="modal-overlay"
+          style="z-index: 1200"
+          @mousedown.self="showTLDiscardConfirm = false"
+        >
           <div class="modal-container modal-sm">
-            <div class="modal-body" style="padding:28px 24px 20px">
+            <div class="modal-body" style="padding: 28px 24px 20px">
               <div class="discard-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="36"
+                  height="36"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
               </div>
               <h4 class="discard-title">Batalkan perubahan?</h4>
-              <p class="discard-desc">Anda memiliki data yang belum disimpan. Apakah yakin ingin menutup form ini?</p>
+              <p class="discard-desc">
+                Anda memiliki data yang belum disimpan. Apakah yakin ingin
+                menutup form ini?
+              </p>
             </div>
             <div class="discard-footer">
-              <button class="btn-secondary" @click="showTLDiscardConfirm = false">Kembali</button>
-              <button class="btn btn-discard-confirm" @click="closeTindakLanjut">Ya, Batalkan</button>
+              <button
+                class="btn-secondary"
+                @click="showTLDiscardConfirm = false"
+              >
+                Kembali
+              </button>
+              <button
+                class="btn btn-discard-confirm"
+                @click="closeTindakLanjut"
+              >
+                Ya, Batalkan
+              </button>
             </div>
           </div>
         </div>
@@ -2109,21 +2172,46 @@
     <!-- Validasi Discard Confirm -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showValidasiDiscardConfirm" class="modal-overlay" style="z-index:1200" @mousedown.self="showValidasiDiscardConfirm = false">
+        <div
+          v-if="showValidasiDiscardConfirm"
+          class="modal-overlay"
+          style="z-index: 1200"
+          @mousedown.self="showValidasiDiscardConfirm = false"
+        >
           <div class="modal-container modal-sm">
-            <div class="modal-body" style="padding:28px 24px 20px">
+            <div class="modal-body" style="padding: 28px 24px 20px">
               <div class="discard-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="36"
+                  height="36"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
               </div>
               <h4 class="discard-title">Batalkan perubahan?</h4>
-              <p class="discard-desc">Anda memiliki data yang belum disimpan. Apakah yakin ingin menutup form ini?</p>
+              <p class="discard-desc">
+                Anda memiliki data yang belum disimpan. Apakah yakin ingin
+                menutup form ini?
+              </p>
             </div>
             <div class="discard-footer">
-              <button class="btn-secondary" @click="showValidasiDiscardConfirm = false">Kembali</button>
-              <button class="btn btn-discard-confirm" @click="closeValidasi">Ya, Batalkan</button>
+              <button
+                class="btn-secondary"
+                @click="showValidasiDiscardConfirm = false"
+              >
+                Kembali
+              </button>
+              <button class="btn btn-discard-confirm" @click="closeValidasi">
+                Ya, Batalkan
+              </button>
             </div>
           </div>
         </div>
@@ -2133,21 +2221,44 @@
     <!-- TL Save Confirm -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showTLSaveConfirm" class="modal-overlay" style="z-index:1200" @mousedown.self="showTLSaveConfirm = false">
+        <div
+          v-if="showTLSaveConfirm"
+          class="modal-overlay"
+          style="z-index: 1200"
+          @mousedown.self="showTLSaveConfirm = false"
+        >
           <div class="modal-container modal-sm">
             <div class="modal-header">
               <h3 class="modal-title">Simpan Tindak Lanjut?</h3>
               <button class="modal-close" @click="showTLSaveConfirm = false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="16"
+                  height="16"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
-            <div class="modal-body" style="padding:16px 24px 20px">
-              <p style="font-size:14px;color:#475569;margin:0">Tindak lanjut akan disimpan. Lanjutkan?</p>
+            <div class="modal-body" style="padding: 16px 24px 20px">
+              <p style="font-size: 14px; color: #475569; margin: 0">
+                Tindak lanjut akan disimpan. Lanjutkan?
+              </p>
             </div>
             <div class="modal-footer-bar">
-              <button class="btn-secondary" @click="showTLSaveConfirm = false">Batal</button>
-              <button class="btn btn-primary" @click="doSubmitTindakLanjut" :disabled="tlSubmitting">
-                {{ tlSubmitting ? 'Menyimpan…' : 'Ya, Simpan' }}
+              <button class="btn-secondary" @click="showTLSaveConfirm = false">
+                Batal
+              </button>
+              <button
+                class="btn btn-primary"
+                @click="doSubmitTindakLanjut"
+                :disabled="tlSubmitting"
+              >
+                {{ tlSubmitting ? "Menyimpan…" : "Ya, Simpan" }}
               </button>
             </div>
           </div>
@@ -2158,21 +2269,50 @@
     <!-- Validasi Save Confirm -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showValidasiSaveConfirm" class="modal-overlay" style="z-index:1200" @mousedown.self="showValidasiSaveConfirm = false">
+        <div
+          v-if="showValidasiSaveConfirm"
+          class="modal-overlay"
+          style="z-index: 1200"
+          @mousedown.self="showValidasiSaveConfirm = false"
+        >
           <div class="modal-container modal-sm">
             <div class="modal-header">
               <h3 class="modal-title">Simpan Validasi?</h3>
-              <button class="modal-close" @click="showValidasiSaveConfirm = false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <button
+                class="modal-close"
+                @click="showValidasiSaveConfirm = false"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="16"
+                  height="16"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
-            <div class="modal-body" style="padding:16px 24px 20px">
-              <p style="font-size:14px;color:#475569;margin:0">Validasi akan disimpan. Lanjutkan?</p>
+            <div class="modal-body" style="padding: 16px 24px 20px">
+              <p style="font-size: 14px; color: #475569; margin: 0">
+                Validasi akan disimpan. Lanjutkan?
+              </p>
             </div>
             <div class="modal-footer-bar">
-              <button class="btn-secondary" @click="showValidasiSaveConfirm = false">Batal</button>
-              <button class="btn btn-primary" @click="doSubmitValidasi" :disabled="validasiSubmitting">
-                {{ validasiSubmitting ? 'Menyimpan…' : 'Ya, Simpan' }}
+              <button
+                class="btn-secondary"
+                @click="showValidasiSaveConfirm = false"
+              >
+                Batal
+              </button>
+              <button
+                class="btn btn-primary"
+                @click="doSubmitValidasi"
+                :disabled="validasiSubmitting"
+              >
+                {{ validasiSubmitting ? "Menyimpan…" : "Ya, Simpan" }}
               </button>
             </div>
           </div>
@@ -2193,20 +2333,34 @@
             <div class="modal-header">
               <h3 class="modal-title">Simpan Perubahan?</h3>
               <button class="modal-close" @click="showUpdateConfirm = false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  width="16"
+                  height="16"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
             <div class="modal-body" style="padding: 16px 24px 20px">
-              <p style="font-size:14px;color:#475569;margin:0">
+              <p style="font-size: 14px; color: #475569; margin: 0">
                 Perubahan pada laporan ini akan disimpan. Lanjutkan?
               </p>
             </div>
             <div class="modal-footer-bar">
-              <button class="btn-secondary" @click="showUpdateConfirm = false">Batal</button>
-              <button class="btn btn-primary" @click="doSave" :disabled="submitting">
-                {{ submitting ? 'Menyimpan...' : 'Ya, Simpan' }}
+              <button class="btn-secondary" @click="showUpdateConfirm = false">
+                Batal
+              </button>
+              <button
+                class="btn btn-primary"
+                @click="doSave"
+                :disabled="submitting"
+              >
+                {{ submitting ? "Menyimpan..." : "Ya, Simpan" }}
               </button>
             </div>
           </div>
@@ -2323,28 +2477,6 @@
               </button>
             </div>
           </div>
-          <button
-            class="btn btn-sm btn-summary"
-            @click="openSummaryModal"
-            title="Lihat ringkasan statistik bulanan"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              width="14"
-              height="14"
-            >
-              <line x1="18" y1="20" x2="18" y2="10" />
-              <line x1="12" y1="20" x2="12" y2="4" />
-              <line x1="6" y1="20" x2="6" y2="14" />
-            </svg>
-            Ringkasan
-          </button>
-          <!-- <button class="btn btn-sm" @click="loadData" :disabled="loading">
-            {{ loading ? 'Memuat...' : 'Segarkan' }}
-          </button> -->
         </div>
       </div>
 
@@ -2609,11 +2741,11 @@
                 {{
                   item.tanggalPelaporan
                     ? formatDate(item.tanggalPelaporan)
-                    : '-'
+                    : "-"
                 }}
               </td>
-              <td class="td-nowrap">{{ item.jenisInspeksi || '-' }}</td>
-              <td>
+              <td class="td-nowrap">{{ item.jenisInspeksi || "-" }}</td>
+              <td class="td-center">
                 <span
                   :class="[
                     'kategori-badge',
@@ -2623,7 +2755,7 @@
                   {{ item.kategoriTemuan }}
                 </span>
               </td>
-              <td class="td-truncate">{{ item.deskripsiTemuan || '-' }}</td>
+              <td class="td-truncate">{{ item.deskripsiTemuan || "-" }}</td>
               <td class="td-center" @click.stop>
                 <button
                   v-if="parsePhotos(item.fotoSebelum).length"
@@ -2674,7 +2806,7 @@
                 </button>
                 <span v-else class="text-muted">-</span>
               </td>
-              <td class="td-nowrap">{{ item.lokasi || '-' }}</td>
+              <td class="td-nowrap">{{ item.lokasi || "-" }}</td>
               <td class="td-nowrap">
                 {{ getDepartmentName(item.departmentId) }}
               </td>
@@ -2682,12 +2814,12 @@
                 {{ getBusinessUnitName(item.businessUnitId) }}
               </td>
               <td class="td-nowrap">{{ getPlantName(item.plantId) }}</td>
-              <td class="td-truncate">{{ item.saranPerbaikan || '-' }}</td>
+              <td class="td-truncate">{{ item.saranPerbaikan || "-" }}</td>
               <td class="td-nowrap">
                 {{ formatDateOnly(item.targetSelesai) }}
               </td>
               <td class="td-nowrap">{{ formatDate(item.aktualClose) }}</td>
-              <td>
+              <td class="td-center">
                 <span
                   :class="[
                     'status-badge',
@@ -2720,6 +2852,211 @@
             </tr>
           </tbody>
         </table>
+        <!-- Mobile card list -->
+        <div class="card-list" v-if="!loading && pagedRecords.length > 0">
+          <div
+            v-for="(item, idx) in pagedRecords"
+            :key="item.id"
+            :class="['row-card', { 'row-overdue': isOverdueRow(item) }]"
+            @click="viewRecord(item)"
+          >
+            <div class="rc-head">
+              <div>
+                <div class="rc-title">
+                  {{ item.deskripsiTemuan || "Tanpa deskripsi" }}
+                </div>
+                <div class="rc-sub">
+                  {{ formatDate(item.tanggal) }} ·
+                  {{ item.jenisInspeksi || "-" }}
+                </div>
+              </div>
+              <span
+                :class="[
+                  'kategori-badge',
+                  `kategori-${item.kategoriTemuan?.toLowerCase()}`,
+                ]"
+                >{{ item.kategoriTemuan }}</span
+              >
+            </div>
+            <div class="rc-body">
+              <div class="rc-row">
+                <span class="rc-label">Lokasi</span
+                ><span class="rc-value">{{ item.lokasi || "-" }}</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-label">Department</span
+                ><span class="rc-value">{{
+                  getDepartmentName(item.departmentId)
+                }}</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-label">Target Selesai</span
+                ><span class="rc-value">{{
+                  formatDateOnly(item.targetSelesai)
+                }}</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-label">Foto</span>
+                <span class="rc-value rc-foto">
+                  <button
+                    v-if="parsePhotos(item.fotoSebelum).length"
+                    class="btn-icon btn-eye"
+                    title="Foto Sebelum"
+                    @click.stop="
+                      openPhotoModalFromUrls(parsePhotos(item.fotoSebelum), 0)
+                    "
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      width="16"
+                      height="16"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span class="photo-count-badge">{{
+                      parsePhotos(item.fotoSebelum).length
+                    }}</span>
+                  </button>
+                  <button
+                    v-if="allFotoSesudah(item).length"
+                    class="btn-icon btn-eye btn-eye-after"
+                    title="Foto Sesudah"
+                    @click.stop="
+                      openPhotoModalFromUrls(allFotoSesudah(item), 0)
+                    "
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      width="16"
+                      height="16"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span class="photo-count-badge photo-count-badge-after">{{
+                      allFotoSesudah(item).length
+                    }}</span>
+                  </button>
+                  <span
+                    v-if="
+                      !parsePhotos(item.fotoSebelum).length &&
+                      !allFotoSesudah(item).length
+                    "
+                    class="text-muted"
+                    >-</span
+                  >
+                </span>
+              </div>
+            </div>
+            <div class="rc-footer">
+              <div class="rc-foot-badges">
+                <span
+                  :class="[
+                    'status-badge',
+                    `status-${item.status.toLowerCase().replace(' ', '-')}`,
+                  ]"
+                  >{{ item.status }}</span
+                >
+                <span
+                  class="comment-badge"
+                  :class="{ 'has-comments': (item.commentCount || 0) > 0 }"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="13"
+                    height="13"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                  {{ item.commentCount || 0 }}
+                </span>
+              </div>
+              <div class="rc-actions" @click.stop>
+                <button
+                  v-if="
+                    item.status !== 'Closed' &&
+                    item.status !== 'Progress Validasi' &&
+                    (item.tindakLanjutCount ?? 0) < 4 &&
+                    (isPrivileged ||
+                      currentUser?.departmentId === item.departmentId)
+                  "
+                  class="btn-icon btn-warning tl-icon-wrap"
+                  title="Tindak Lanjut"
+                  @click="openTindakLanjut(item)"
+                >
+                  <span
+                    style="font-weight: 900; font-size: 16px; line-height: 1"
+                    >!</span
+                  >
+                  <span
+                    v-if="(item.tindakLanjutCount ?? 0) > 0"
+                    class="tl-badge"
+                    >{{ item.tindakLanjutCount }}</span
+                  >
+                </button>
+                <button
+                  v-if="
+                    item.status === 'Progress Validasi' &&
+                    (item.validasiCount ?? 0) < 4 &&
+                    (isPrivileged || currentUser?.department === 'Safety')
+                  "
+                  class="btn-icon btn-validasi val-icon-wrap"
+                  title="Validasi Safety"
+                  @click="openValidasi(item)"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="16"
+                    height="16"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <polyline points="9 12 11 14 15 10" />
+                  </svg>
+                  <span
+                    v-if="(item.validasiCount ?? 0) > 0"
+                    class="val-badge"
+                    >{{ item.validasiCount }}</span
+                  >
+                </button>
+                <button
+                  v-if="isPrivileged || currentUser?.department === 'Safety'"
+                  class="btn-icon btn-danger"
+                  title="Hapus"
+                  @click="deleteRecord(item)"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    width="16"
+                    height="16"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <PaginationBar
         v-if="!loading && pagedRecords.length > 0"
@@ -2847,7 +3184,7 @@
                 />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
-              {{ pdfGenerating ? 'Membuat...' : 'PDF' }}
+              {{ pdfGenerating ? "Membuat..." : "PDF" }}
             </button>
           </div>
         </div>
@@ -2975,7 +3312,7 @@
               />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-            {{ pdfGenerating ? 'Membuat...' : 'Unduh PDF' }}
+            {{ pdfGenerating ? "Membuat..." : "Unduh PDF" }}
           </button>
         </div>
       </div>
@@ -2993,30 +3330,30 @@ import {
   onBeforeUnmount,
   nextTick,
   watch,
-} from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+} from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
   inspectionK3LService,
   uploadImage,
-} from '@/services/inspectionK3LService.js';
-import { exportToCsv } from '@/services/exportCsvService.js';
-import { authService } from '@/services/authService.js';
-import { usePagination } from '@/composables/usePagination.js';
-import PaginationBar from '@/components/PaginationBar.vue';
-import CommentSection from '@/components/CommentSection.vue';
-import Chart from 'chart.js/auto';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+} from "@/services/inspectionK3LService.js";
+import { exportToCsv } from "@/services/exportCsvService.js";
+import { authService } from "@/services/authService.js";
+import { usePagination } from "@/composables/usePagination.js";
+import PaginationBar from "@/components/PaginationBar.vue";
+import CommentSection from "@/components/CommentSection.vue";
+import Chart from "chart.js/auto";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const vClickOutside = {
   mounted(el, binding) {
     el._clickOutsideHandler = (e) => {
       if (!el.contains(e.target)) binding.value(e);
     };
-    document.addEventListener('mousedown', el._clickOutsideHandler);
+    document.addEventListener("mousedown", el._clickOutsideHandler);
   },
   unmounted(el) {
-    document.removeEventListener('mousedown', el._clickOutsideHandler);
+    document.removeEventListener("mousedown", el._clickOutsideHandler);
   },
 };
 
@@ -3039,9 +3376,9 @@ const businessUnits = ref([]);
 const plants = ref([]);
 const departments = ref([]);
 const usersForMention = ref([]);
-const petugasList = ref([{ nama: '', departmentId: null }]);
+const petugasList = ref([{ nama: "", departmentId: null }]);
 const mentionActive = ref(-1);
-const mentionQuery = ref('');
+const mentionQuery = ref("");
 const mentionHighlight = ref(-1);
 
 const mentionResults = computed(() => {
@@ -3050,8 +3387,8 @@ const mentionResults = computed(() => {
   return usersForMention.value
     .filter(
       (u) =>
-        (u.fullName || '').toLowerCase().includes(q) ||
-        (u.username || '').toLowerCase().includes(q),
+        (u.fullName || "").toLowerCase().includes(q) ||
+        (u.username || "").toLowerCase().includes(q),
     )
     .slice(0, 8);
 });
@@ -3067,7 +3404,7 @@ function parsePetugas(json) {
 
 function onPetugasInput(idx, e) {
   const val = e.target.value;
-  const atPos = val.lastIndexOf('@');
+  const atPos = val.lastIndexOf("@");
   if (atPos !== -1) {
     mentionActive.value = idx;
     mentionQuery.value = val.slice(atPos + 1);
@@ -3075,7 +3412,7 @@ function onPetugasInput(idx, e) {
   } else {
     if (mentionActive.value === idx) {
       mentionActive.value = -1;
-      mentionQuery.value = '';
+      mentionQuery.value = "";
       mentionHighlight.value = -1;
     }
   }
@@ -3083,36 +3420,36 @@ function onPetugasInput(idx, e) {
 
 function onPetugasKeydown(idx, e) {
   if (mentionActive.value !== idx || !mentionResults.value.length) return;
-  if (e.key === 'ArrowDown') {
+  if (e.key === "ArrowDown") {
     e.preventDefault();
     mentionHighlight.value =
       (mentionHighlight.value + 1) % mentionResults.value.length;
-  } else if (e.key === 'ArrowUp') {
+  } else if (e.key === "ArrowUp") {
     e.preventDefault();
     mentionHighlight.value =
       (mentionHighlight.value - 1 + mentionResults.value.length) %
       mentionResults.value.length;
-  } else if (e.key === 'Enter') {
+  } else if (e.key === "Enter") {
     e.preventDefault();
     const u = mentionResults.value[mentionHighlight.value];
     if (u) selectMention(idx, u);
-  } else if (e.key === 'Escape') {
+  } else if (e.key === "Escape") {
     mentionActive.value = -1;
-    mentionQuery.value = '';
+    mentionQuery.value = "";
     mentionHighlight.value = -1;
   }
 }
 
 function selectMention(idx, user) {
-  petugasList.value[idx].nama = user.fullName || user.username || '';
+  petugasList.value[idx].nama = user.fullName || user.username || "";
   petugasList.value[idx].departmentId = user.departmentId || null;
   mentionActive.value = -1;
-  mentionQuery.value = '';
+  mentionQuery.value = "";
   mentionHighlight.value = -1;
 }
 
 function addPetugas() {
-  petugasList.value.push({ nama: '', departmentId: null });
+  petugasList.value.push({ nama: "", departmentId: null });
 }
 
 function removePetugas(idx) {
@@ -3123,7 +3460,7 @@ function onPetugasBlur(idx) {
   setTimeout(() => {
     if (mentionActive.value === idx) {
       mentionActive.value = -1;
-      mentionQuery.value = '';
+      mentionQuery.value = "";
     }
   }, 150);
 }
@@ -3176,23 +3513,23 @@ function resetScopeFilter() {
 }
 
 // ── Search & filters ──
-const searchQuery = ref('');
-const filterKategori = ref('');
-const filterStatus = ref('');
+const searchQuery = ref("");
+const filterKategori = ref("");
+const filterStatus = ref("");
 
 // Findings are split into tabs by inspection type instead of a filter dropdown.
-const JENIS_TABS = ['Ronda Kepatuhan', 'Daily Inspection'];
-const activeJenisTab = ref('Ronda Kepatuhan');
+const JENIS_TABS = ["Ronda Kepatuhan", "Daily Inspection"];
+const activeJenisTab = ref("Ronda Kepatuhan");
 // Legacy/null records bucket into the first tab so nothing disappears.
 function jenisOf(r) {
-  return r.jenisInspeksi || 'Ronda Kepatuhan';
+  return r.jenisInspeksi || "Ronda Kepatuhan";
 }
 function switchJenisTab(t) {
   activeJenisTab.value = t;
 }
 // Counts reflect the active search/category/status/date filters (but not the tab itself).
 const jenisCounts = computed(() => {
-  const counts = { 'Ronda Kepatuhan': 0, 'Daily Inspection': 0 };
+  const counts = { "Ronda Kepatuhan": 0, "Daily Inspection": 0 };
   for (const r of filteredExceptJenis.value) {
     const k = jenisOf(r);
     if (counts[k] !== undefined) counts[k] += 1;
@@ -3204,23 +3541,23 @@ const jenisCounts = computed(() => {
 // Mirrors the same gating as the row-action buttons: tindak lanjut only for the dept picked on the temuan, validasi only for Safety dept.
 function needsTindakLanjut(r) {
   return (
-    r.status !== 'Closed' &&
-    r.status !== 'Progress Validasi' &&
+    r.status !== "Closed" &&
+    r.status !== "Progress Validasi" &&
     (r.tindakLanjutCount ?? 0) < 4 &&
     currentUser?.departmentId === r.departmentId
   );
 }
 function needsValidasi(r) {
   return (
-    r.status === 'Progress Validasi' &&
+    r.status === "Progress Validasi" &&
     (r.validasiCount ?? 0) < 4 &&
-    currentUser?.department === 'Safety'
+    currentUser?.department === "Safety"
   );
 }
 const jenisActionCounts = computed(() => {
   const counts = {
-    'Ronda Kepatuhan': { tindakLanjut: 0, validasi: 0 },
-    'Daily Inspection': { tindakLanjut: 0, validasi: 0 },
+    "Ronda Kepatuhan": { tindakLanjut: 0, validasi: 0 },
+    "Daily Inspection": { tindakLanjut: 0, validasi: 0 },
   };
   for (const r of scopedRecords.value) {
     const k = jenisOf(r);
@@ -3230,32 +3567,32 @@ const jenisActionCounts = computed(() => {
   }
   return counts;
 });
-const filterDate = ref('all');
-const customDateFrom = ref('');
-const customDateTo = ref('');
+const filterDate = ref("all");
+const customDateFrom = ref("");
+const customDateTo = ref("");
 
 const DATE_PRESETS = [
-  { label: 'Semua', value: 'all' },
-  { label: 'Hari ini', value: 'today' },
-  { label: 'Minggu ini', value: 'week' },
-  { label: 'Bulan ini', value: 'month' },
-  { label: 'Kustom', value: 'custom' },
+  { label: "Semua", value: "all" },
+  { label: "Hari ini", value: "today" },
+  { label: "Minggu ini", value: "week" },
+  { label: "Bulan ini", value: "month" },
+  { label: "Kustom", value: "custom" },
 ];
 
 function setDatePreset(val) {
   filterDate.value = val;
-  if (val !== 'custom') {
-    customDateFrom.value = '';
-    customDateTo.value = '';
+  if (val !== "custom") {
+    customDateFrom.value = "";
+    customDateTo.value = "";
   }
 }
 
 const hasActiveFilters = computed(
   () =>
-    searchQuery.value.trim() !== '' ||
-    filterKategori.value !== '' ||
-    filterStatus.value !== '' ||
-    filterDate.value !== 'all' ||
+    searchQuery.value.trim() !== "" ||
+    filterKategori.value !== "" ||
+    filterStatus.value !== "" ||
+    filterDate.value !== "all" ||
     (roleLevel <= 2 && (filterBU.value != null || filterPlant.value != null)) ||
     (roleLevel >= 3 && roleLevel < 5 && filterPlant.value != null),
 );
@@ -3276,36 +3613,36 @@ const filteredExceptJenis = computed(() => {
   if (q) {
     result = result.filter(
       (r) =>
-        (r.deskripsiTemuan || '').toLowerCase().includes(q) ||
-        (r.lokasi || '').toLowerCase().includes(q) ||
-        (r.saranPerbaikan || '').toLowerCase().includes(q) ||
-        (r.tanggal || '').includes(q) ||
-        (r.kategoriTemuan || '').toLowerCase().includes(q) ||
-        (r.status || '').toLowerCase().includes(q),
+        (r.deskripsiTemuan || "").toLowerCase().includes(q) ||
+        (r.lokasi || "").toLowerCase().includes(q) ||
+        (r.saranPerbaikan || "").toLowerCase().includes(q) ||
+        (r.tanggal || "").includes(q) ||
+        (r.kategoriTemuan || "").toLowerCase().includes(q) ||
+        (r.status || "").toLowerCase().includes(q),
     );
   }
 
-  if (filterDate.value !== 'all') {
+  if (filterDate.value !== "all") {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     result = result.filter((r) => {
       if (!r.tanggal) return false;
       const d = new Date(r.tanggal);
       d.setHours(0, 0, 0, 0);
-      if (filterDate.value === 'today') return d.getTime() === today.getTime();
-      if (filterDate.value === 'week') {
+      if (filterDate.value === "today") return d.getTime() === today.getTime();
+      if (filterDate.value === "week") {
         const start = new Date(today);
         start.setDate(today.getDate() - today.getDay());
         const end = new Date(start);
         end.setDate(start.getDate() + 6);
         return d >= start && d <= end;
       }
-      if (filterDate.value === 'month')
+      if (filterDate.value === "month")
         return (
           d.getMonth() === today.getMonth() &&
           d.getFullYear() === today.getFullYear()
         );
-      if (filterDate.value === 'custom') {
+      if (filterDate.value === "custom") {
         if (customDateFrom.value) {
           const from = new Date(customDateFrom.value);
           from.setHours(0, 0, 0, 0);
@@ -3325,7 +3662,7 @@ const filteredExceptJenis = computed(() => {
 });
 
 function isOverdueRow(r) {
-  if (!r.targetSelesai || r.status === 'Closed') return false;
+  if (!r.targetSelesai || r.status === "Closed") return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return new Date(r.targetSelesai) < today;
@@ -3355,12 +3692,12 @@ const {
 } = usePagination(filteredRecords);
 
 function resetFilters() {
-  searchQuery.value = '';
-  filterKategori.value = '';
-  filterStatus.value = '';
-  filterDate.value = 'all';
-  customDateFrom.value = '';
-  customDateTo.value = '';
+  searchQuery.value = "";
+  filterKategori.value = "";
+  filterStatus.value = "";
+  filterDate.value = "all";
+  customDateFrom.value = "";
+  customDateTo.value = "";
   resetScopeFilter();
 }
 
@@ -3415,7 +3752,7 @@ function openPhotoModalFromUrls(urls, idx) {
   photoModalImages.value = urls;
   photoModalIndex.value = idx;
   showPhotoModal.value = true;
-  nextTick(() => document.querySelector('.lightbox-overlay')?.focus());
+  nextTick(() => document.querySelector(".lightbox-overlay")?.focus());
 }
 
 async function downloadCurrentPhoto() {
@@ -3424,61 +3761,61 @@ async function downloadCurrentPhoto() {
   try {
     const res = await fetch(url);
     const blob = await res.blob();
-    const ext = url.split('.').pop()?.split('?')[0] || 'jpg';
+    const ext = url.split(".").pop()?.split("?")[0] || "jpg";
     const filename = `foto_${Date.now()}.${ext}`;
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = filename;
     a.click();
     URL.revokeObjectURL(a.href);
   } catch {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   }
 }
 
 // ── Lookup helpers ──
 function getBusinessUnitName(id) {
-  if (!id) return '-';
-  return businessUnits.value.find((u) => u.id === id)?.name ?? '-';
+  if (!id) return "-";
+  return businessUnits.value.find((u) => u.id === id)?.name ?? "-";
 }
 
 function getPlantName(id) {
-  if (!id) return '-';
-  return plants.value.find((p) => p.id === id)?.name ?? '-';
+  if (!id) return "-";
+  return plants.value.find((p) => p.id === id)?.name ?? "-";
 }
 
 function getDepartmentName(id) {
-  if (!id) return '-';
-  return departments.value.find((d) => d.id === id)?.name ?? '-';
+  if (!id) return "-";
+  return departments.value.find((d) => d.id === id)?.name ?? "-";
 }
 
 function formatDate(val) {
-  if (!val) return '-';
-  const d = new Date(val.replace(' ', 'T'));
+  if (!val) return "-";
+  const d = new Date(val.replace(" ", "T"));
   if (isNaN(d)) return val;
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 }
 
 function formatDateOnly(val) {
-  if (!val) return '-';
-  const d = new Date(val.replace(' ', 'T'));
+  if (!val) return "-";
+  const d = new Date(val.replace(" ", "T"));
   if (isNaN(d)) return val;
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
   return `${dd}/${mm}/${yyyy}`;
 }
 
 // ── Toast ──
-const toast = reactive({ show: false, message: '', type: 'success' });
+const toast = reactive({ show: false, message: "", type: "success" });
 let toastTimer = null;
 
-function showToast(msg, type = 'success') {
+function showToast(msg, type = "success") {
   if (toastTimer) clearTimeout(toastTimer);
   toast.show = true;
   toast.message = msg;
@@ -3488,7 +3825,7 @@ function showToast(msg, type = 'success') {
   }, 4000);
 }
 
-function showMessage(msg, type = 'success') {
+function showMessage(msg, type = "success") {
   showToast(msg, type);
 }
 
@@ -3501,28 +3838,28 @@ function onPhotoSelect(event) {
   if (!files.length) return;
   const remaining = 10 - photos.value.length;
   if (files.length > remaining) {
-    event.target.value = '';
+    event.target.value = "";
     showToast(
       `Maksimal 10 foto. Anda hanya dapat menambahkan ${remaining} foto lagi.`,
-      'warning',
+      "warning",
     );
     return;
   }
   for (const file of files) {
     photos.value.push({ file, preview: URL.createObjectURL(file) });
   }
-  event.target.value = '';
+  event.target.value = "";
 }
 
 function removePhotoAt(idx) {
   const photo = photos.value[idx];
-  if (photo.preview?.startsWith('blob:')) URL.revokeObjectURL(photo.preview);
+  if (photo.preview?.startsWith("blob:")) URL.revokeObjectURL(photo.preview);
   photos.value.splice(idx, 1);
 }
 
 function clearPhotos() {
   photos.value.forEach((p) => {
-    if (p.preview?.startsWith('blob:')) URL.revokeObjectURL(p.preview);
+    if (p.preview?.startsWith("blob:")) URL.revokeObjectURL(p.preview);
   });
   photos.value = [];
 }
@@ -3532,45 +3869,45 @@ function onPhotoAfterSelect(event) {
   if (!files.length) return;
   const remaining = 10 - photosAfter.value.length;
   if (files.length > remaining) {
-    event.target.value = '';
+    event.target.value = "";
     showToast(
       `Maksimal 10 foto. Anda hanya dapat menambahkan ${remaining} foto lagi.`,
-      'warning',
+      "warning",
     );
     return;
   }
   for (const file of files) {
     photosAfter.value.push({ file, preview: URL.createObjectURL(file) });
   }
-  event.target.value = '';
+  event.target.value = "";
 }
 
 function removePhotoAfterAt(idx) {
   const photo = photosAfter.value[idx];
-  if (photo.preview?.startsWith('blob:')) URL.revokeObjectURL(photo.preview);
+  if (photo.preview?.startsWith("blob:")) URL.revokeObjectURL(photo.preview);
   photosAfter.value.splice(idx, 1);
 }
 
 function clearPhotosAfter() {
   photosAfter.value.forEach((p) => {
-    if (p.preview?.startsWith('blob:')) URL.revokeObjectURL(p.preview);
+    if (p.preview?.startsWith("blob:")) URL.revokeObjectURL(p.preview);
   });
   photosAfter.value = [];
 }
 
 // ── Form ──
 const defaultForm = () => ({
-  jenisInspeksi: '',
-  pelaporUsername: '',
+  jenisInspeksi: "",
+  pelaporUsername: "",
   pelaporDepartmentId: null,
-  tanggal: '',
-  kategoriTemuan: '',
-  deskripsiTemuan: '',
-  lokasi: '',
-  saranBullets: [''],
-  targetSelesai: '',
-  status: 'Open',
-  aktualClose: '',
+  tanggal: "",
+  kategoriTemuan: "",
+  deskripsiTemuan: "",
+  lokasi: "",
+  saranBullets: [""],
+  targetSelesai: "",
+  status: "Open",
+  aktualClose: "",
   businessUnitId: currentUser?.businessUnitId ?? null,
   plantId: currentUser?.plantId ?? null,
   departmentId: null,
@@ -3595,11 +3932,11 @@ watch(
   ([kategori, tanggal]) => {
     if (!kategori || !tanggal) return;
     const days =
-      kategori === 'Critical'
+      kategori === "Critical"
         ? 1
-        : kategori === 'Major'
+        : kategori === "Major"
           ? 30
-          : kategori === 'Minor'
+          : kategori === "Minor"
             ? 60
             : null;
     if (days === null) return;
@@ -3634,7 +3971,7 @@ function hasFormChanges() {
       f.kategoriTemuan !== o.kategoriTemuan ||
       f.deskripsiTemuan !== o.deskripsiTemuan ||
       f.lokasi !== o.lokasi ||
-      f.saranBullets.join('\n') !== (o.saranBullets || []).join('\n') ||
+      f.saranBullets.join("\n") !== (o.saranBullets || []).join("\n") ||
       f.targetSelesai !== o.targetSelesai ||
       f.status !== o.status ||
       f.businessUnitId !== o.businessUnitId ||
@@ -3665,9 +4002,9 @@ function cancelForm() {
   form.value = defaultForm();
   originalForm.value = null;
   showDiscardConfirm.value = false;
-  petugasList.value = [{ nama: '', departmentId: null }];
+  petugasList.value = [{ nama: "", departmentId: null }];
   mentionActive.value = -1;
-  mentionQuery.value = '';
+  mentionQuery.value = "";
   clearPhotos();
   clearPhotosAfter();
 }
@@ -3678,7 +4015,7 @@ async function loadData() {
   try {
     records.value = await inspectionK3LService.list();
   } catch (e) {
-    console.error('[InspectionK3L] loadData:', e);
+    console.error("[InspectionK3L] loadData:", e);
   } finally {
     loading.value = false;
   }
@@ -3695,7 +4032,7 @@ async function loadLocationOptions() {
     plants.value = plantOptions;
     departments.value = deptOptions;
   } catch (e) {
-    console.error('[InspectionK3L] loadLocationOptions:', e);
+    console.error("[InspectionK3L] loadLocationOptions:", e);
   }
 }
 
@@ -3715,7 +4052,7 @@ async function uploadPhotoList(photoList, isCreate = false) {
 function addBullet(afterIndex) {
   const idx =
     afterIndex !== undefined ? afterIndex + 1 : form.value.saranBullets.length;
-  form.value.saranBullets.splice(idx, 0, '');
+  form.value.saranBullets.splice(idx, 0, "");
 }
 
 function removeBullet(i) {
@@ -3725,7 +4062,7 @@ function removeBullet(i) {
 }
 
 function removeBulletOnEmpty(i, e) {
-  if (form.value.saranBullets[i] === '' && form.value.saranBullets.length > 1) {
+  if (form.value.saranBullets[i] === "" && form.value.saranBullets.length > 1) {
     e.preventDefault();
     removeBullet(i);
   }
@@ -3736,18 +4073,18 @@ const showTindakLanjutModal = ref(false);
 const tlTargetRecord = ref(null);
 const tlSubmitting = ref(false);
 const tlPhotos = ref([]);
-const tlForm = ref({ tindakanBullets: [''] });
+const tlForm = ref({ tindakanBullets: [""] });
 
 const tlTanggalDisplay = computed(() => {
   const now = new Date();
   const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, "0");
   return `${wib.getUTCFullYear()}-${pad(wib.getUTCMonth() + 1)}-${pad(wib.getUTCDate())} ${pad(wib.getUTCHours())}:${pad(wib.getUTCMinutes())}`;
 });
 
 function openTindakLanjut(item) {
   tlTargetRecord.value = item;
-  tlForm.value = { tindakanBullets: [''] };
+  tlForm.value = { tindakanBullets: [""] };
   tlPhotos.value = [];
   showTindakLanjutModal.value = true;
 }
@@ -3763,7 +4100,9 @@ function closeTindakLanjut() {
 
 function tryCloseTindakLanjut() {
   if (tlSubmitting.value) return;
-  const hasChanges = tlForm.value.tindakanBullets.some(b => b.trim()) || tlPhotos.value.length > 0;
+  const hasChanges =
+    tlForm.value.tindakanBullets.some((b) => b.trim()) ||
+    tlPhotos.value.length > 0;
   if (hasChanges) {
     showTLDiscardConfirm.value = true;
   } else {
@@ -3776,7 +4115,7 @@ function tlAddBullet(afterIndex) {
     afterIndex !== undefined
       ? afterIndex + 1
       : tlForm.value.tindakanBullets.length;
-  tlForm.value.tindakanBullets.splice(idx, 0, '');
+  tlForm.value.tindakanBullets.splice(idx, 0, "");
 }
 function tlRemoveBullet(i) {
   if (tlForm.value.tindakanBullets.length > 1)
@@ -3784,7 +4123,7 @@ function tlRemoveBullet(i) {
 }
 function tlRemoveBulletOnEmpty(i, e) {
   if (
-    tlForm.value.tindakanBullets[i] === '' &&
+    tlForm.value.tindakanBullets[i] === "" &&
     tlForm.value.tindakanBullets.length > 1
   ) {
     e.preventDefault();
@@ -3797,17 +4136,17 @@ function tlHandlePhotos(e) {
   if (!files.length) return;
   const remaining = 10 - tlPhotos.value.length;
   if (files.length > remaining) {
-    e.target.value = '';
+    e.target.value = "";
     showToast(
       `Maksimal 10 foto. Anda hanya dapat menambahkan ${remaining} foto lagi.`,
-      'warning',
+      "warning",
     );
     return;
   }
   for (const file of files) {
     tlPhotos.value.push({ file, preview: URL.createObjectURL(file) });
   }
-  e.target.value = '';
+  e.target.value = "";
 }
 
 function submitTindakLanjut() {
@@ -3823,18 +4162,18 @@ async function doSubmitTindakLanjut() {
       ? await uploadPhotoList(tlPhotos.value, false)
       : null;
     const tindakanPerbaikan =
-      tlForm.value.tindakanBullets.filter((b) => b.trim()).join('\n') || null;
+      tlForm.value.tindakanBullets.filter((b) => b.trim()).join("\n") || null;
     await inspectionK3LService.tindakLanjut(tlTargetRecord.value.id, {
       tindakanPerbaikan,
       fotoSesudah,
       ditindaklanjutiDepartmentId: currentUser?.departmentId ?? null,
     });
-    showMessage('Tindak lanjut berhasil disimpan');
+    showMessage("Tindak lanjut berhasil disimpan");
     showTLSaveConfirm.value = false;
     closeTindakLanjut();
     await loadData();
   } catch (e) {
-    console.error('[TindakLanjut]', e);
+    console.error("[TindakLanjut]", e);
     showTLSaveConfirm.value = false;
     showMessage(e.message, true);
   } finally {
@@ -3846,21 +4185,21 @@ async function doSubmitTindakLanjut() {
 const showValidasiModal = ref(false);
 const validasiTargetRecord = ref(null);
 const validasiSubmitting = ref(false);
-const validasiForm = ref({ alasanBullets: [''], statusValidasi: '' });
+const validasiForm = ref({ alasanBullets: [""], statusValidasi: "" });
 
 const validasiTanggalDisplay = computed(() => {
   const now = new Date();
   const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n) => String(n).padStart(2, "0");
   return `${wib.getUTCFullYear()}-${pad(wib.getUTCMonth() + 1)}-${pad(wib.getUTCDate())} ${pad(wib.getUTCHours())}:${pad(wib.getUTCMinutes())}`;
 });
 
 function openValidasi(item) {
   validasiTargetRecord.value = item;
   validasiForm.value = {
-    alasanBullets: [''],
-    statusValidasi: '',
-    aktualClose: '',
+    alasanBullets: [""],
+    statusValidasi: "",
+    aktualClose: "",
   };
   showValidasiModal.value = true;
 }
@@ -3876,7 +4215,9 @@ function closeValidasi() {
 
 function tryCloseValidasi() {
   if (validasiSubmitting.value) return;
-  const hasChanges = validasiForm.value.statusValidasi || validasiForm.value.alasanBullets.some(b => b.trim());
+  const hasChanges =
+    validasiForm.value.statusValidasi ||
+    validasiForm.value.alasanBullets.some((b) => b.trim());
   if (hasChanges) {
     showValidasiDiscardConfirm.value = true;
   } else {
@@ -3889,7 +4230,7 @@ function validasiAddBullet(afterIndex) {
     afterIndex !== undefined
       ? afterIndex + 1
       : validasiForm.value.alasanBullets.length;
-  validasiForm.value.alasanBullets.splice(idx, 0, '');
+  validasiForm.value.alasanBullets.splice(idx, 0, "");
 }
 function validasiRemoveBullet(i) {
   if (validasiForm.value.alasanBullets.length > 1)
@@ -3897,7 +4238,7 @@ function validasiRemoveBullet(i) {
 }
 function validasiRemoveBulletOnEmpty(i, e) {
   if (
-    validasiForm.value.alasanBullets[i] === '' &&
+    validasiForm.value.alasanBullets[i] === "" &&
     validasiForm.value.alasanBullets.length > 1
   ) {
     e.preventDefault();
@@ -3908,7 +4249,7 @@ function validasiRemoveBulletOnEmpty(i, e) {
 function submitValidasi() {
   if (!validasiTargetRecord.value) return;
   if (!validasiForm.value.statusValidasi) {
-    showToast('Pilih status validasi terlebih dahulu', 'warning');
+    showToast("Pilih status validasi terlebih dahulu", "warning");
     return;
   }
   showValidasiSaveConfirm.value = true;
@@ -3919,19 +4260,19 @@ async function doSubmitValidasi() {
   validasiSubmitting.value = true;
   try {
     const alasanValidasi =
-      validasiForm.value.alasanBullets.filter((b) => b.trim()).join('\n') ||
+      validasiForm.value.alasanBullets.filter((b) => b.trim()).join("\n") ||
       null;
     await inspectionK3LService.validasi(validasiTargetRecord.value.id, {
       alasanValidasi,
       statusValidasi: validasiForm.value.statusValidasi,
       divalidasiDepartmentId: currentUser?.departmentId ?? null,
     });
-    showMessage('Validasi berhasil disimpan');
+    showMessage("Validasi berhasil disimpan");
     showValidasiSaveConfirm.value = false;
     closeValidasi();
     await loadData();
   } catch (e) {
-    console.error('[Validasi]', e);
+    console.error("[Validasi]", e);
     showValidasiSaveConfirm.value = false;
     showMessage(e.message, true);
   } finally {
@@ -3942,8 +4283,8 @@ async function doSubmitValidasi() {
 function buildWIBDatetime(dateStr) {
   const now = new Date();
   const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-  const hh = String(wib.getUTCHours()).padStart(2, '0');
-  const mm = String(wib.getUTCMinutes()).padStart(2, '0');
+  const hh = String(wib.getUTCHours()).padStart(2, "0");
+  const mm = String(wib.getUTCMinutes()).padStart(2, "0");
   return `${dateStr}T${hh}:${mm}:00`;
 }
 
@@ -3970,11 +4311,11 @@ async function doSave() {
       deskripsiTemuan: form.value.deskripsiTemuan || null,
       lokasi: form.value.lokasi || null,
       saranPerbaikan:
-        form.value.saranBullets.filter((b) => b.trim()).join('\n') || null,
+        form.value.saranBullets.filter((b) => b.trim()).join("\n") || null,
       targetSelesai: form.value.targetSelesai || null,
-      status: form.value.status || 'Open',
+      status: form.value.status || "Open",
       aktualClose:
-        form.value.status === 'Closed' ? form.value.aktualClose || null : null,
+        form.value.status === "Closed" ? form.value.aktualClose || null : null,
       businessUnitId: form.value.businessUnitId || null,
       plantId: form.value.plantId || null,
       departmentId: form.value.departmentId || null,
@@ -3996,7 +4337,7 @@ async function doSave() {
         fotoSebelum: null,
         fotoSesudah,
       });
-      showMessage('Data berhasil diupdate');
+      showMessage("Data berhasil diupdate");
     } else {
       const fotoSebelum = await uploadPhotoList(photos.value, true);
       await inspectionK3LService.create({
@@ -4004,16 +4345,16 @@ async function doSave() {
         fotoSebelum,
         fotoSesudah: null,
       });
-      showMessage('Data berhasil disimpan');
+      showMessage("Data berhasil disimpan");
     }
     // Jump to the tab of the inspection we just saved so the new row is visible.
-    const savedJenis = form.value.jenisInspeksi || 'Ronda Kepatuhan';
+    const savedJenis = form.value.jenisInspeksi || "Ronda Kepatuhan";
     showUpdateConfirm.value = false;
     cancelForm();
     await loadData();
     if (JENIS_TABS.includes(savedJenis)) activeJenisTab.value = savedJenis;
   } catch (e) {
-    console.error('[InspectionK3L] doSave:', e);
+    console.error("[InspectionK3L] doSave:", e);
     showUpdateConfirm.value = false;
   } finally {
     submitting.value = false;
@@ -4023,28 +4364,28 @@ async function doSave() {
 function editRecord(item) {
   editingId.value = item.id;
   const formValues = {
-    jenisInspeksi: item.jenisInspeksi || '',
-    pelaporUsername: item.pelaporUsername || '',
+    jenisInspeksi: item.jenisInspeksi || "",
+    pelaporUsername: item.pelaporUsername || "",
     pelaporDepartmentId: item.pelaporDepartmentId || null,
-    tanggal: item.tanggal ? item.tanggal.replace(' ', 'T').slice(0, 10) : '',
+    tanggal: item.tanggal ? item.tanggal.replace(" ", "T").slice(0, 10) : "",
     kategoriTemuan: item.kategoriTemuan,
-    deskripsiTemuan: item.deskripsiTemuan || '',
-    lokasi: item.lokasi || '',
+    deskripsiTemuan: item.deskripsiTemuan || "",
+    lokasi: item.lokasi || "",
     saranBullets: item.saranPerbaikan
-      ? item.saranPerbaikan.split('\n').filter(Boolean)
-      : [''],
-    targetSelesai: item.targetSelesai || '',
+      ? item.saranPerbaikan.split("\n").filter(Boolean)
+      : [""],
+    targetSelesai: item.targetSelesai || "",
     status: item.status,
     aktualClose: item.aktualClose
-      ? item.aktualClose.replace(' ', 'T').slice(0, 16)
-      : item.status === 'Closed'
+      ? item.aktualClose.replace(" ", "T").slice(0, 16)
+      : item.status === "Closed"
         ? (() => {
             const now = new Date();
             return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
               .toISOString()
               .slice(0, 16);
           })()
-        : '',
+        : "",
     businessUnitId: item.businessUnitId || null,
     plantId: item.plantId || null,
     departmentId: item.departmentId || null,
@@ -4052,11 +4393,11 @@ function editRecord(item) {
   form.value = { ...formValues };
   originalForm.value = {
     ...formValues,
-    _tanggalFull: item.tanggal ? item.tanggal.replace(' ', 'T') : '',
+    _tanggalFull: item.tanggal ? item.tanggal.replace(" ", "T") : "",
   };
   petugasList.value = parsePetugas(item.petugasInspeksi).length
     ? parsePetugas(item.petugasInspeksi)
-    : [{ nama: '', departmentId: null }];
+    : [{ nama: "", departmentId: null }];
   clearPhotos();
   clearPhotosAfter();
   if (item.fotoSebelum) {
@@ -4089,12 +4430,12 @@ async function confirmDelete() {
   deleting.value = true;
   try {
     await inspectionK3LService.delete(deletingRecord.value.id);
-    showMessage('Data berhasil dihapus');
+    showMessage("Data berhasil dihapus");
     showDeleteModal.value = false;
     deletingRecord.value = null;
     await loadData();
   } catch (e) {
-    console.error('[InspectionK3L] confirmDelete:', e);
+    console.error("[InspectionK3L] confirmDelete:", e);
   } finally {
     deleting.value = false;
   }
@@ -4113,52 +4454,52 @@ function buildK3LExport(source) {
   );
 
   const beforeCols = Array.from({ length: maxBefore }, (_, i) => ({
-    label: maxBefore === 1 ? 'Foto Sebelum' : `Foto Sebelum ${i + 1}`,
+    label: maxBefore === 1 ? "Foto Sebelum" : `Foto Sebelum ${i + 1}`,
     key: `sb_${i}`,
     image: true,
   }));
   const afterCols = Array.from({ length: maxAfter }, (_, i) => ({
-    label: maxAfter === 1 ? 'Foto Sesudah' : `Foto Sesudah ${i + 1}`,
+    label: maxAfter === 1 ? "Foto Sesudah" : `Foto Sesudah ${i + 1}`,
     key: `sa_${i}`,
     image: true,
   }));
 
   const columns = [
-    { label: 'No', key: 'no' },
-    { label: 'Bulan', key: 'bulan' },
-    { label: 'Tanggal', key: 'tanggal' },
+    { label: "No", key: "no" },
+    { label: "Bulan", key: "bulan" },
+    { label: "Tanggal", key: "tanggal" },
     ...beforeCols,
     ...afterCols,
-    { label: 'Lokasi', key: 'lokasi' },
-    { label: 'Deskripsi Temuan', key: 'deskripsiTemuan' },
-    { label: 'Saran Perbaikan', key: 'saranPerbaikan' },
-    { label: 'Target Selesai', key: 'targetSelesai' },
-    { label: 'Status', key: 'status' },
-    { label: 'Aktual Close', key: 'aktualClose' },
-    { label: 'Department', key: 'department' },
-    { label: 'Plant', key: 'plant' },
-    { label: 'Business Unit', key: 'businessUnit' },
+    { label: "Lokasi", key: "lokasi" },
+    { label: "Deskripsi Temuan", key: "deskripsiTemuan" },
+    { label: "Saran Perbaikan", key: "saranPerbaikan" },
+    { label: "Target Selesai", key: "targetSelesai" },
+    { label: "Status", key: "status" },
+    { label: "Aktual Close", key: "aktualClose" },
+    { label: "Department", key: "department" },
+    { label: "Plant", key: "plant" },
+    { label: "Business Unit", key: "businessUnit" },
   ];
 
   const rows = source.map((row, idx) => {
     const before = parsedBefore[idx];
     const after = parsedAfter[idx];
     const sbFields = {};
-    for (let i = 0; i < maxBefore; i++) sbFields[`sb_${i}`] = before[i] || '';
+    for (let i = 0; i < maxBefore; i++) sbFields[`sb_${i}`] = before[i] || "";
     const saFields = {};
-    for (let i = 0; i < maxAfter; i++) saFields[`sa_${i}`] = after[i] || '';
+    for (let i = 0; i < maxAfter; i++) saFields[`sa_${i}`] = after[i] || "";
     return {
       no: idx + 1,
-      bulan: row.tanggal ? MONTH_NAMES[new Date(row.tanggal).getMonth()] : '',
-      tanggal: row.tanggal || '',
+      bulan: row.tanggal ? MONTH_NAMES[new Date(row.tanggal).getMonth()] : "",
+      tanggal: row.tanggal || "",
       ...sbFields,
       ...saFields,
-      lokasi: row.lokasi || '',
-      deskripsiTemuan: row.deskripsiTemuan || '',
-      saranPerbaikan: row.saranPerbaikan || '',
-      targetSelesai: row.targetSelesai || '',
-      status: row.status || '',
-      aktualClose: row.aktualClose || '',
+      lokasi: row.lokasi || "",
+      deskripsiTemuan: row.deskripsiTemuan || "",
+      saranPerbaikan: row.saranPerbaikan || "",
+      targetSelesai: row.targetSelesai || "",
+      status: row.status || "",
+      aktualClose: row.aktualClose || "",
       department: getDepartmentName(row.departmentId),
       plant: getPlantName(row.plantId),
       businessUnit: getBusinessUnitName(row.businessUnitId),
@@ -4181,18 +4522,18 @@ const exportMonth = ref(new Date().getMonth() + 1);
 const exportYear = ref(new Date().getFullYear());
 
 const MONTH_NAMES = [
-  'Januari',
-  'Februari',
-  'Maret',
-  'April',
-  'Mei',
-  'Juni',
-  'Juli',
-  'Agustus',
-  'September',
-  'Oktober',
-  'November',
-  'Desember',
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
 async function exportMonthlyCSV() {
@@ -4209,7 +4550,7 @@ async function exportMonthlyCSV() {
   }
   const { columns, rows: mapped } = buildK3LExport(rows);
   await exportToCsv(
-    `inspection-k3l-${y}-${String(m).padStart(2, '0')}.xlsx`,
+    `inspection-k3l-${y}-${String(m).padStart(2, "0")}.xlsx`,
     columns,
     mapped,
   );
@@ -4237,12 +4578,12 @@ const summaryData = computed(() => {
   today.setHours(0, 0, 0, 0);
   const overdue = rows.filter(
     (r) =>
-      r.status !== 'Closed' &&
+      r.status !== "Closed" &&
       r.targetSelesai &&
       new Date(r.targetSelesai) < today,
   ).length;
   const byKategori = { Minor: 0, Major: 0, Critical: 0 };
-  const byStatus = { Open: 0, 'Progress Validasi': 0, Closed: 0 };
+  const byStatus = { Open: 0, "Progress Validasi": 0, Closed: 0 };
   rows.forEach((r) => {
     if (r.kategoriTemuan in byKategori) byKategori[r.kategoriTemuan]++;
     if (r.status in byStatus) byStatus[r.status]++;
@@ -4250,9 +4591,9 @@ const summaryData = computed(() => {
   });
   return {
     total: rows.length,
-    open: byStatus['Open'] || 0,
-    inProgress: byStatus['Progress Validasi'] || 0,
-    closed: byStatus['Closed'] || 0,
+    open: byStatus["Open"] || 0,
+    inProgress: byStatus["Progress Validasi"] || 0,
+    closed: byStatus["Closed"] || 0,
     overdue,
     byKategori,
     byStatus,
@@ -4282,14 +4623,14 @@ function renderSummaryCharts() {
   const sd = summaryData.value;
   if (summaryChartKategoriRef.value) {
     chartKategori = new Chart(summaryChartKategoriRef.value, {
-      type: 'bar',
+      type: "bar",
       data: {
         labels: Object.keys(sd.byKategori),
         datasets: [
           {
-            label: 'Jumlah Temuan',
+            label: "Jumlah Temuan",
             data: Object.values(sd.byKategori),
-            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+            backgroundColor: ["#22c55e", "#f59e0b", "#ef4444"],
             borderRadius: 6,
             borderSkipped: false,
           },
@@ -4304,24 +4645,24 @@ function renderSummaryCharts() {
   }
   if (summaryChartStatusRef.value) {
     chartStatus = new Chart(summaryChartStatusRef.value, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
-        labels: ['Open', 'Progress Validasi', 'Closed'],
+        labels: ["Open", "Progress Validasi", "Closed"],
         datasets: [
           {
             data: [
-              sd.byStatus['Open'] || 0,
-              sd.byStatus['Progress Validasi'] || 0,
-              sd.byStatus['Closed'] || 0,
+              sd.byStatus["Open"] || 0,
+              sd.byStatus["Progress Validasi"] || 0,
+              sd.byStatus["Closed"] || 0,
             ],
-            backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
+            backgroundColor: ["#ef4444", "#f59e0b", "#22c55e"],
             hoverOffset: 6,
           },
         ],
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: 'bottom' } },
+        plugins: { legend: { position: "bottom" } },
       },
     });
   }
@@ -4337,15 +4678,15 @@ watch([summaryMonth, summaryYear], async () => {
 watch(
   () => form.value.status,
   (newStatus) => {
-    if (newStatus === 'Closed' && !form.value.aktualClose) {
+    if (newStatus === "Closed" && !form.value.aktualClose) {
       const now = new Date();
       form.value.aktualClose = new Date(
         now.getTime() - now.getTimezoneOffset() * 60000,
       )
         .toISOString()
         .slice(0, 16);
-    } else if (newStatus !== 'Closed') {
-      form.value.aktualClose = '';
+    } else if (newStatus !== "Closed") {
+      form.value.aktualClose = "";
     }
   },
 );
@@ -4369,79 +4710,81 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
     const fmtDate = (v) => {
-      if (!v) return '-';
+      if (!v) return "-";
       const d = new Date(v);
       return isNaN(d)
         ? v
-        : d.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
+        : d.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
           });
     };
 
     const total = monthRows.length;
-    const open = monthRows.filter((r) => r.status === 'Open').length;
-    const inProg = monthRows.filter((r) => r.status === 'Progress Validasi').length;
-    const closed = monthRows.filter((r) => r.status === 'Closed').length;
+    const open = monthRows.filter((r) => r.status === "Open").length;
+    const inProg = monthRows.filter(
+      (r) => r.status === "Progress Validasi",
+    ).length;
+    const closed = monthRows.filter((r) => r.status === "Closed").length;
     const overdue = monthRows.filter(
       (r) =>
-        r.status !== 'Closed' &&
+        r.status !== "Closed" &&
         r.targetSelesai &&
         new Date(r.targetSelesai) < todayDate,
     ).length;
 
     const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4',
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
     });
     const pageW = doc.internal.pageSize.getWidth();
 
     // Header bar
     doc.setFillColor(30, 58, 95);
-    doc.rect(0, 0, pageW, 22, 'F');
+    doc.rect(0, 0, pageW, 22, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('LAPORAN BULANAN INSPEKSI K3L', pageW / 2, 10, {
-      align: 'center',
+    doc.setFont("helvetica", "bold");
+    doc.text("LAPORAN BULANAN INSPEKSI K3L", pageW / 2, 10, {
+      align: "center",
     });
     doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.text(
       `PT Charoen Pokphand Indonesia  |  Periode: ${MONTH_NAMES[m - 1]} ${y}`,
       pageW / 2,
       17,
-      { align: 'center' },
+      { align: "center" },
     );
 
     // Generated date
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
-    const genDate = new Date().toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
+    const genDate = new Date().toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
-    doc.text(`Dibuat: ${genDate}`, pageW - 14, 27, { align: 'right' });
+    doc.text(`Dibuat: ${genDate}`, pageW - 14, 27, { align: "right" });
 
     // KPI summary table
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RINGKASAN EKSEKUTIF', 14, 34);
+    doc.setFont("helvetica", "bold");
+    doc.text("RINGKASAN EKSEKUTIF", 14, 34);
 
     autoTable(doc, {
       startY: 37,
       head: [
         [
-          'Total Temuan',
-          'Open',
-          'Progress Validasi',
-          'Closed',
-          'Overdue',
-          'Close Rate',
+          "Total Temuan",
+          "Open",
+          "Progress Validasi",
+          "Closed",
+          "Overdue",
+          "Close Rate",
         ],
       ],
       body: [
@@ -4454,15 +4797,15 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
           `${total > 0 ? Math.round((closed / total) * 100) : 0}%`,
         ],
       ],
-      theme: 'grid',
+      theme: "grid",
       headStyles: {
         fillColor: [30, 58, 95],
         textColor: 255,
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 9,
-        halign: 'center',
+        halign: "center",
       },
-      bodyStyles: { fontSize: 11, fontStyle: 'bold', halign: 'center' },
+      bodyStyles: { fontSize: 11, fontStyle: "bold", halign: "center" },
       columnStyles: {
         0: { cellWidth: 35 },
         1: { textColor: [220, 38, 38] },
@@ -4478,19 +4821,19 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const breakdownY = doc.lastAutoTable.finalY + 8;
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BREAKDOWN PER KATEGORI', 14, breakdownY);
+    doc.setFont("helvetica", "bold");
+    doc.text("BREAKDOWN PER KATEGORI", 14, breakdownY);
 
-    const breakdownRows = ['Minor', 'Major', 'Critical'].map((k) => {
+    const breakdownRows = ["Minor", "Major", "Critical"].map((k) => {
       const rows = monthRows.filter((r) => r.kategoriTemuan === k);
-      const closed = rows.filter((r) => r.status === 'Closed').length;
+      const closed = rows.filter((r) => r.status === "Closed").length;
       const pct =
-        rows.length > 0 ? `${Math.round((closed / rows.length) * 100)}%` : '-';
+        rows.length > 0 ? `${Math.round((closed / rows.length) * 100)}%` : "-";
       return [
         k,
         rows.length,
-        rows.filter((r) => r.status === 'Open').length,
-        rows.filter((r) => r.status === 'Progress Validasi').length,
+        rows.filter((r) => r.status === "Open").length,
+        rows.filter((r) => r.status === "Progress Validasi").length,
         closed,
         pct,
       ];
@@ -4499,19 +4842,26 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     autoTable(doc, {
       startY: breakdownY + 3,
       head: [
-        ['Kategori', 'Jumlah', 'Open', 'Progress Validasi', 'Closed', '% Close'],
+        [
+          "Kategori",
+          "Jumlah",
+          "Open",
+          "Progress Validasi",
+          "Closed",
+          "% Close",
+        ],
       ],
       body: breakdownRows,
-      theme: 'striped',
+      theme: "striped",
       headStyles: {
         fillColor: [71, 85, 105],
         textColor: 255,
         fontSize: 8,
-        fontStyle: 'bold',
-        halign: 'center',
+        fontStyle: "bold",
+        halign: "center",
       },
-      bodyStyles: { fontSize: 9, halign: 'center' },
-      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
+      bodyStyles: { fontSize: 9, halign: "center" },
+      columnStyles: { 0: { halign: "left", fontStyle: "bold" } },
       margin: { left: 14, right: 14 },
     });
 
@@ -4519,8 +4869,8 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const deptBreakdownY = doc.lastAutoTable.finalY + 8;
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BREAKDOWN PER DEPARTEMEN', 14, deptBreakdownY);
+    doc.setFont("helvetica", "bold");
+    doc.text("BREAKDOWN PER DEPARTEMEN", 14, deptBreakdownY);
 
     const allDepts = departments.value;
     const headerBg = [200, 210, 220];
@@ -4531,23 +4881,23 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const dark = [30, 41, 59];
 
     const catStats = (rows, kat) => ({
-      O: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Open')
+      O: rows.filter((r) => r.kategoriTemuan === kat && r.status === "Open")
         .length,
       I: rows.filter(
-        (r) => r.kategoriTemuan === kat && r.status === 'Progress Validasi',
+        (r) => r.kategoriTemuan === kat && r.status === "Progress Validasi",
       ).length,
-      C: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Closed')
+      C: rows.filter((r) => r.kategoriTemuan === kat && r.status === "Closed")
         .length,
     });
 
     const deptBodyRows = allDepts.map((dept, idx) => {
       const rows = monthRows.filter((r) => r.departmentId === dept.id);
-      const minor = catStats(rows, 'Minor');
-      const major = catStats(rows, 'Major');
-      const critical = catStats(rows, 'Critical');
+      const minor = catStats(rows, "Minor");
+      const major = catStats(rows, "Major");
+      const critical = catStats(rows, "Critical");
       const dTotal = rows.length;
       const dClosed = minor.C + major.C + critical.C;
-      const pct = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : '-';
+      const pct = dTotal > 0 ? `${Math.round((dClosed / dTotal) * 100)}%` : "-";
       return [
         idx + 1,
         dept.name.toUpperCase(),
@@ -4565,22 +4915,22 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     });
 
     // Totals row
-    const tMinor = catStats(monthRows, 'Minor');
-    const tMajor = catStats(monthRows, 'Major');
-    const tCritical = catStats(monthRows, 'Critical');
+    const tMinor = catStats(monthRows, "Minor");
+    const tMajor = catStats(monthRows, "Major");
+    const tCritical = catStats(monthRows, "Critical");
     const tAll = monthRows.length;
     const tClosed = tMinor.C + tMajor.C + tCritical.C;
-    const tPct = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : '-';
+    const tPct = tAll > 0 ? `${Math.round((tClosed / tAll) * 100)}%` : "-";
     const totalCellStyle = (color) => ({
-      styles: { fontStyle: 'bold', textColor: color },
+      styles: { fontStyle: "bold", textColor: color },
     });
     deptBodyRows.push([
       {
-        content: 'TOTAL TEMUAN',
+        content: "TOTAL TEMUAN",
         colSpan: 2,
         styles: {
-          fontStyle: 'bold',
-          halign: 'center',
+          fontStyle: "bold",
+          halign: "center",
           fillColor: [220, 230, 242],
           textColor: dark,
         },
@@ -4594,7 +4944,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       { content: tCritical.O, ...totalCellStyle(redBg) },
       { content: tCritical.I, ...totalCellStyle(amberBg) },
       { content: tCritical.C, ...totalCellStyle(greenBg) },
-      { content: tPct, styles: { fontStyle: 'bold', textColor: dark } },
+      { content: tPct, styles: { fontStyle: "bold", textColor: dark } },
     ]);
 
     const monthLabel = MONTH_NAMES[m - 1].toUpperCase();
@@ -4613,14 +4963,14 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const fillText = (txt, x, y, w, rh, fill, fg, fs = 7.5) => {
       doc.setFillColor(...fill);
       doc.setDrawColor(...borderClr);
-      doc.rect(x, y, w, rh, 'FD');
+      doc.rect(x, y, w, rh, "FD");
       if (txt) {
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(fs);
         doc.setTextColor(...fg);
         doc.text(String(txt), x + w / 2, y + rh / 2, {
-          align: 'center',
-          baseline: 'middle',
+          align: "center",
+          baseline: "middle",
         });
       }
     };
@@ -4628,9 +4978,9 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const totalHdrH = hRowH * 3;
 
     // NO, DEPARTEMEN, % CLOSE — span all 3 rows vertically
-    fillText('NO', colX[0], hdrY, colW[0], totalHdrH, headerBg, dark);
-    fillText('DEPARTEMEN', colX[1], hdrY, colW[1], totalHdrH, headerBg, dark);
-    fillText('% CLOSE', colX[11], hdrY, colW[11], totalHdrH, headerBg, dark);
+    fillText("NO", colX[0], hdrY, colW[0], totalHdrH, headerBg, dark);
+    fillText("DEPARTEMEN", colX[1], hdrY, colW[1], totalHdrH, headerBg, dark);
+    fillText("% CLOSE", colX[11], hdrY, colW[11], totalHdrH, headerBg, dark);
 
     // Header row 1 (cols 2-10): MONTH label merged
     fillText(
@@ -4646,7 +4996,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
 
     // Header row 2: MINOR | MAJOR | CRITICAL
     fillText(
-      'MINOR',
+      "MINOR",
       colX[2],
       hdrY,
       colW.slice(2, 5).reduce((a, b) => a + b, 0),
@@ -4655,7 +5005,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       dark,
     );
     fillText(
-      'MAJOR',
+      "MAJOR",
       colX[5],
       hdrY,
       colW.slice(5, 8).reduce((a, b) => a + b, 0),
@@ -4664,7 +5014,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       dark,
     );
     fillText(
-      'CRITICAL',
+      "CRITICAL",
       colX[8],
       hdrY,
       colW.slice(8, 11).reduce((a, b) => a + b, 0),
@@ -4675,26 +5025,26 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     hdrY += hRowH;
 
     // Header row 3: O I C repeated
-    fillText('O', colX[2], hdrY, colW[2], hRowH, redBg, white);
-    fillText('V', colX[3], hdrY, colW[3], hRowH, amberBg, white);
-    fillText('C', colX[4], hdrY, colW[4], hRowH, greenBg, white);
-    fillText('O', colX[5], hdrY, colW[5], hRowH, redBg, white);
-    fillText('V', colX[6], hdrY, colW[6], hRowH, amberBg, white);
-    fillText('C', colX[7], hdrY, colW[7], hRowH, greenBg, white);
-    fillText('O', colX[8], hdrY, colW[8], hRowH, redBg, white);
-    fillText('V', colX[9], hdrY, colW[9], hRowH, amberBg, white);
-    fillText('C', colX[10], hdrY, colW[10], hRowH, greenBg, white);
+    fillText("O", colX[2], hdrY, colW[2], hRowH, redBg, white);
+    fillText("V", colX[3], hdrY, colW[3], hRowH, amberBg, white);
+    fillText("C", colX[4], hdrY, colW[4], hRowH, greenBg, white);
+    fillText("O", colX[5], hdrY, colW[5], hRowH, redBg, white);
+    fillText("V", colX[6], hdrY, colW[6], hRowH, amberBg, white);
+    fillText("C", colX[7], hdrY, colW[7], hRowH, greenBg, white);
+    fillText("O", colX[8], hdrY, colW[8], hRowH, redBg, white);
+    fillText("V", colX[9], hdrY, colW[9], hRowH, amberBg, white);
+    fillText("C", colX[10], hdrY, colW[10], hRowH, greenBg, white);
     hdrY += hRowH;
 
     autoTable(doc, {
       startY: hdrY,
-      showHead: 'never',
+      showHead: "never",
       body: deptBodyRows,
-      theme: 'grid',
-      bodyStyles: { fontSize: 8, halign: 'center', textColor: dark },
+      theme: "grid",
+      bodyStyles: { fontSize: 8, halign: "center", textColor: dark },
       columnStyles: {
-        0: { cellWidth: colW[0], halign: 'center' },
-        1: { cellWidth: colW[1], halign: 'left', fontStyle: 'bold' },
+        0: { cellWidth: colW[0], halign: "center" },
+        1: { cellWidth: colW[1], halign: "left", fontStyle: "bold" },
         2: { cellWidth: colW[2] },
         3: { cellWidth: colW[3] },
         4: { cellWidth: colW[4] },
@@ -4713,11 +5063,11 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     const detailY = doc.lastAutoTable.finalY + 8;
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DETAIL TEMUAN', 14, detailY);
+    doc.setFont("helvetica", "bold");
+    doc.text("DETAIL TEMUAN", 14, detailY);
 
     if (monthRows.length === 0) {
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(148, 163, 184);
       doc.text(
@@ -4730,63 +5080,63 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         startY: detailY + 3,
         head: [
           [
-            'No',
-            'Tanggal',
-            'Kategori',
-            'Deskripsi Temuan',
-            'Lokasi',
-            'Saran Perbaikan',
-            'Target',
-            'Status',
-            'Aktual Close',
+            "No",
+            "Tanggal",
+            "Kategori",
+            "Deskripsi Temuan",
+            "Lokasi",
+            "Saran Perbaikan",
+            "Target",
+            "Status",
+            "Aktual Close",
           ],
         ],
         body: monthRows.map((r, i) => {
           const isOvd =
-            r.status !== 'Closed' &&
+            r.status !== "Closed" &&
             r.targetSelesai &&
             new Date(r.targetSelesai) < todayDate;
           return [
             i + 1,
             fmtDate(r.tanggal),
-            r.kategoriTemuan || '-',
-            r.deskripsiTemuan || '-',
-            r.lokasi || '-',
-            r.saranPerbaikan || '-',
+            r.kategoriTemuan || "-",
+            r.deskripsiTemuan || "-",
+            r.lokasi || "-",
+            r.saranPerbaikan || "-",
             fmtDate(r.targetSelesai),
-            r.status || '-',
+            r.status || "-",
             fmtDate(r.aktualClose),
           ];
         }),
-        theme: 'striped',
+        theme: "striped",
         headStyles: {
           fillColor: [71, 85, 105],
           textColor: 255,
           fontSize: 7.5,
-          fontStyle: 'bold',
+          fontStyle: "bold",
         },
         bodyStyles: { fontSize: 8, textColor: [51, 65, 85] },
         columnStyles: {
-          0: { cellWidth: 8, halign: 'center' },
+          0: { cellWidth: 8, halign: "center" },
           1: { cellWidth: 22 },
-          2: { cellWidth: 18, halign: 'center' },
-          3: { cellWidth: 'auto', minCellWidth: 35 },
+          2: { cellWidth: 18, halign: "center" },
+          3: { cellWidth: "auto", minCellWidth: 35 },
           4: { cellWidth: 25 },
-          5: { cellWidth: 'auto', minCellWidth: 35 },
+          5: { cellWidth: "auto", minCellWidth: 35 },
           6: { cellWidth: 22 },
-          7: { cellWidth: 22, halign: 'center' },
+          7: { cellWidth: 22, halign: "center" },
           8: { cellWidth: 22 },
         },
         didParseCell(data) {
-          if (data.section === 'body') {
+          if (data.section === "body") {
             const row = monthRows[data.row.index];
             const isOvd =
               row &&
-              row.status !== 'Closed' &&
+              row.status !== "Closed" &&
               row.targetSelesai &&
               new Date(row.targetSelesai) < todayDate;
             if (isOvd) data.cell.styles.textColor = [220, 38, 38];
-            if (row && row.status === 'Closed')
+            if (row && row.status === "Closed")
               data.cell.styles.textColor = [148, 163, 184];
           }
         },
@@ -4804,11 +5154,11 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         `Halaman ${i} dari ${pageCount}`,
         pageW / 2,
         doc.internal.pageSize.getHeight() - 6,
-        { align: 'center' },
+        { align: "center" },
       );
     }
 
-    doc.save(`laporan-k3l-${y}-${String(m).padStart(2, '0')}.pdf`);
+    doc.save(`laporan-k3l-${y}-${String(m).padStart(2, "0")}.pdf`);
     if (closeModal) showExportModal.value = false;
   } finally {
     pdfGenerating.value = false;
@@ -5593,7 +5943,7 @@ onActivated(() => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .tooltip-box::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;
@@ -6623,7 +6973,7 @@ thead {
 
 th {
   padding: 10px 14px;
-  text-align: left;
+  text-align: center;
   font-size: 12px;
   font-weight: 700;
   color: #64748b;
@@ -6634,10 +6984,16 @@ th {
 
 td {
   padding: 11px 14px;
+  text-align: left;
   font-size: 13px;
   color: #334155;
   border-top: 1px solid #e2e8f0;
   vertical-align: middle;
+}
+/* Vertical dividers between columns */
+th:not(:first-child),
+td:not(:first-child) {
+  border-left: 1px solid #e2e8f0;
 }
 
 .td-nowrap {
@@ -6663,6 +7019,100 @@ td {
   gap: 2px;
   align-items: center;
   justify-content: center;
+}
+
+/* ── Mobile card list ── */
+.card-list {
+  display: none;
+}
+.row-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.row-card:active {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+.row-card.row-overdue {
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+.rc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rc-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.3;
+}
+.rc-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+.rc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rc-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.rc-label {
+  color: #64748b;
+  flex-shrink: 0;
+}
+.rc-value {
+  color: #1e293b;
+  text-align: right;
+  word-break: break-word;
+}
+.rc-foto {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.rc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+.rc-foot-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rc-actions {
+  display: flex;
+  gap: 6px;
+}
+@media (max-width: 768px) {
+  .table-wrapper table {
+    display: none;
+  }
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
 }
 
 tbody tr:hover {

@@ -329,6 +329,47 @@
             </tr>
           </tbody>
         </table>
+        <!-- Mobile card list -->
+        <div class="card-list" v-if="pagedRecords.length > 0">
+          <div
+            v-for="(r, idx) in pagedRecords"
+            :key="r.id"
+            class="row-card"
+            @click="openView(r)"
+          >
+            <div class="rc-head">
+              <div>
+                <div class="rc-title">{{ firstBullet(r.pekerjaan) }}</div>
+                <div class="rc-sub">{{ formatDate(r.tanggal) }}</div>
+              </div>
+              <span class="badge-risiko" :class="r.levelRisiko?.toLowerCase()">{{ r.levelRisiko || '-' }}</span>
+            </div>
+            <div class="rc-body">
+              <div class="rc-row"><span class="rc-label">Lokasi</span><span class="rc-value">{{ r.lokasiPekerjaan || '-' }}</span></div>
+              <div class="rc-row"><span class="rc-label">Jenis Pekerjaan</span><span class="rc-value">{{ displayJenis(r) }}</span></div>
+              <div class="rc-row"><span class="rc-label">Pengawas HSE</span><span class="rc-value">{{ r.pengawasHse || '-' }}</span></div>
+            </div>
+            <div class="rc-footer">
+              <div class="rc-foot-badges">
+                <span class="badge-permit" :class="r.statusPermit ? 'ada' : 'tidak'">{{ r.statusPermit ? 'Ada' : 'Tidak' }}</span>
+                <span class="comment-badge" :class="{ 'has-comments': (r.commentCount || 0) > 0 }">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  {{ r.commentCount || 0 }}
+                </span>
+              </div>
+              <div class="rc-actions" @click.stop>
+                <button class="btn-icon btn-del" @click="confirmDelete(r)" title="Hapus">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <PaginationBar
         :current-page="hseCurrentPage"
@@ -2325,6 +2366,33 @@ async function downloadMonthlyPDF() {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* ── Mobile card list ── */
+.card-list { display: none; }
+.row-card {
+  border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+.row-card:active { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.rc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.rc-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.rc-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+.rc-body { display: flex; flex-direction: column; gap: 6px; }
+.rc-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.rc-label { color: #64748b; flex-shrink: 0; }
+.rc-value { color: #1e293b; text-align: right; word-break: break-word; }
+.rc-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-top: 10px; border-top: 1px solid #f1f5f9;
+}
+.rc-foot-badges { display: flex; align-items: center; gap: 8px; }
+.rc-actions { display: flex; gap: 6px; }
+@media (max-width: 768px) {
+  .table-scroll table { display: none; }
+  .table-card table { min-width: 0; }
+  .card-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+}
 .loading {
   display: flex;
   align-items: center;
@@ -2507,7 +2575,7 @@ thead {
 }
 th {
   padding: 10px 14px;
-  text-align: left;
+  text-align: center;
   font-size: 12px;
   font-weight: 700;
   color: #64748b;
@@ -2517,11 +2585,17 @@ th {
 }
 td {
   padding: 11px 14px;
+  text-align: left;
   font-size: 13px;
   color: #334155;
   border-top: 1px solid #e2e8f0;
   border-bottom: none;
   vertical-align: middle;
+}
+/* Vertical dividers between columns */
+th:not(:first-child),
+td:not(:first-child) {
+  border-left: 1px solid #e2e8f0;
 }
 .btn-icon {
   background: #f1f5f9;
@@ -2632,6 +2706,7 @@ tbody tr.row-clickable:hover td {
   display: flex;
   gap: 2px;
   align-items: center;
+  justify-content: center;
 }
 
 /* Form */
