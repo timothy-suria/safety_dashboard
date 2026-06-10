@@ -36,7 +36,6 @@
       <select v-model="filterStatus" class="filter-select">
         <option value="">Semua Status</option>
         <option value="Open">Open</option>
-        <option value="In Progress">In Progress</option>
         <option value="Closed">Closed</option>
       </select>
 
@@ -391,7 +390,6 @@
                       <label>Status</label>
                       <select v-model="form.status" disabled>
                         <option value="Open">Open</option>
-                        <option value="In Progress">In Progress</option>
                         <option value="Closed">Closed</option>
                       </select>
                     </div>
@@ -1362,7 +1360,6 @@ tbody td { padding: 10px 14px; font-size: 13px; color: #1e293b; }
   font-size: 11px; font-weight: 700; white-space: nowrap;
 }
 .status-open { background: #fef3c7; color: #92400e; }
-.status-in-progress { background: #dbeafe; color: #1e40af; }
 .status-closed { background: #dcfce7; color: #166534; }
 
 /* ── Jenis badge ── */

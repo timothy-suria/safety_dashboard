@@ -238,8 +238,8 @@
           </div>
           <div class="kpi-body">
             <div class="kpi-value">{{ stats.inProgress }}</div>
-            <div class="kpi-label">Dalam Proses</div>
-            <div class="kpi-meta">Sedang diselesaikan</div>
+            <div class="kpi-label">Progres Validasi</div>
+            <div class="kpi-meta">Menunggu validasi</div>
           </div>
           <div class="kpi-bar" style="background: #6366f1"></div>
         </div>
@@ -880,7 +880,7 @@
               </div>
               <div class="kpi-body">
                 <div class="kpi-value">{{ hseStats.highRisk }}</div>
-                <div class="kpi-label">Risiko Tinggi</div>
+                <div class="kpi-label">Critical</div>
                 <div class="kpi-meta">Perlu perhatian</div>
               </div>
               <div class="kpi-bar" style="background:#ef4444"></div>
@@ -924,9 +924,9 @@
               <div class="rate-fill" :style="{ width: hseStats.permitRate + '%' }"></div>
             </div>
             <div class="rate-breakdown hse-rate-breakdown">
-              <span class="rb-chip rb-high"><span class="rb-dot" style="background:#ef4444"></span>{{ hseStats.highRisk }} Risiko Tinggi</span>
-              <span class="rb-chip rb-med"><span class="rb-dot" style="background:#f59e0b"></span>{{ hseStats.medRisk }} Risiko Sedang</span>
-              <span class="rb-chip rb-low"><span class="rb-dot" style="background:#10b981"></span>{{ hseStats.lowRisk }} Risiko Rendah</span>
+              <span class="rb-chip rb-high"><span class="rb-dot" style="background:#ef4444"></span>{{ hseStats.highRisk }} Critical</span>
+              <span class="rb-chip rb-med"><span class="rb-dot" style="background:#f59e0b"></span>{{ hseStats.medRisk }} Major</span>
+              <span class="rb-chip rb-low"><span class="rb-dot" style="background:#10b981"></span>{{ hseStats.lowRisk }} Minor</span>
             </div>
           </div>
 
@@ -1120,8 +1120,8 @@
             <div class="chart-card">
               <div class="chart-header">
                 <div>
-                  <div class="chart-title">Laporan Risiko Tinggi Terbaru</div>
-                  <div class="chart-subtitle">Risiko tinggi dalam periode dipilih</div>
+                  <div class="chart-title">Laporan Critical Terbaru</div>
+                  <div class="chart-subtitle">Risiko Critical dalam periode dipilih</div>
                 </div>
                 <router-link to="/dashboard/reports/hse-daily" class="view-all-link">
                   Lihat semua
@@ -1134,7 +1134,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" width="40" height="40">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
-                <p>Tidak ada laporan risiko tinggi</p>
+                <p>Tidak ada laporan Critical</p>
               </div>
               <div v-else class="hse-recent-table">
                 <table>
@@ -1466,9 +1466,9 @@ function firstBullet(raw) {
 const hseStats = computed(() => {
   const recs = hseFilteredRecords.value;
   const total = recs.length;
-  const highRisk = recs.filter(r => r.levelRisiko === 'Tinggi').length;
-  const medRisk = recs.filter(r => r.levelRisiko === 'Sedang').length;
-  const lowRisk = recs.filter(r => r.levelRisiko === 'Rendah').length;
+  const highRisk = recs.filter(r => r.levelRisiko === 'Critical').length;
+  const medRisk = recs.filter(r => r.levelRisiko === 'Major').length;
+  const lowRisk = recs.filter(r => r.levelRisiko === 'Minor').length;
   const withPermit = recs.filter(r => r.statusPermit).length;
   const permitRate = total ? Math.round((withPermit / total) * 100) : 0;
   const workerSet = new Set(recs.map(r => r.pekerja).filter(Boolean));
@@ -1481,9 +1481,9 @@ const HSE_CHART_H = 140;
 const HSE_CHART_LEFT = 48;
 
 const HSE_RISK_CATS = [
-  { key: 'low', label: 'Rendah', color: '#4ade80' },
-  { key: 'med', label: 'Sedang', color: '#fbbf24' },
-  { key: 'high', label: 'Tinggi', color: '#f87171' },
+  { key: 'low', label: 'Minor', color: '#4ade80' },
+  { key: 'med', label: 'Major', color: '#fbbf24' },
+  { key: 'high', label: 'Critical', color: '#f87171' },
 ];
 
 const hseBarTooltip = ref(null);
@@ -1524,9 +1524,9 @@ const hseMonthlyData = computed(() => {
     const d = new Date(r.tanggal);
     const idx = months.findIndex(m => m.year === d.getFullYear() && m.month === d.getMonth());
     if (idx < 0) return;
-    if (r.levelRisiko === 'Tinggi') months[idx].high++;
-    else if (r.levelRisiko === 'Sedang') months[idx].med++;
-    else if (r.levelRisiko === 'Rendah') months[idx].low++;
+    if (r.levelRisiko === 'Critical') months[idx].high++;
+    else if (r.levelRisiko === 'Major') months[idx].med++;
+    else if (r.levelRisiko === 'Minor') months[idx].low++;
   });
   return months;
 });
@@ -1595,11 +1595,11 @@ const hseDonutSegments = computed(() => {
   const recs = hseFilteredRecords.value;
   const total = recs.length;
   if (!total) return [];
-  const order = ['Tinggi','Sedang','Rendah','Tidak diisi'];
-  const colors = { 'Tinggi': '#f87171', 'Sedang': '#fbbf24', 'Rendah': '#4ade80', 'Tidak diisi': '#94a3b8' };
-  const counts = { 'Tinggi': 0, 'Sedang': 0, 'Rendah': 0, 'Tidak diisi': 0 };
+  const order = ['Critical','Major','Minor','Tidak diisi'];
+  const colors = { 'Critical': '#f87171', 'Major': '#fbbf24', 'Minor': '#4ade80', 'Tidak diisi': '#94a3b8' };
+  const counts = { 'Critical': 0, 'Major': 0, 'Minor': 0, 'Tidak diisi': 0 };
   recs.forEach(r => {
-    const k = ['Tinggi','Sedang','Rendah'].includes(r.levelRisiko) ? r.levelRisiko : 'Tidak diisi';
+    const k = ['Critical','Major','Minor'].includes(r.levelRisiko) ? r.levelRisiko : 'Tidak diisi';
     counts[k]++;
   });
   let cumulative = 0;
@@ -1676,7 +1676,7 @@ const hseDeptDist = computed(() => {
 // HSE high-risk recent
 const hseHighRiskRecent = computed(() =>
   [...hseFilteredRecords.value]
-    .filter(r => r.levelRisiko === 'Tinggi')
+    .filter(r => r.levelRisiko === 'Critical')
     .sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal))
     .slice(0, 6)
 );
@@ -1814,7 +1814,7 @@ const currentMonthYear = computed(() =>
 const stats = computed(() => ({
   total: filteredByDate.value.length,
   open: filteredByDate.value.filter((r) => r.status === 'Open').length,
-  inProgress: filteredByDate.value.filter((r) => r.status === 'In Progress')
+  inProgress: filteredByDate.value.filter((r) => r.status === 'Progress Validasi')
     .length,
   closed: filteredByDate.value.filter((r) => r.status === 'Closed').length,
 }));
@@ -1838,7 +1838,7 @@ const kpiBreakdown = computed(() => {
   if (!selectedKpi.value) return counts;
   let rows = filteredByDate.value;
   if (selectedKpi.value === 'open') rows = rows.filter((r) => r.status === 'Open');
-  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'In Progress');
+  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'Progress Validasi');
   else if (selectedKpi.value === 'closed') rows = rows.filter((r) => r.status === 'Closed');
   rows.forEach((r) => {
     if (r.kategoriTemuan in counts) counts[r.kategoriTemuan]++;
@@ -1868,7 +1868,7 @@ const deptLaporan = computed(() => {
   if (selectedDept.value === undefined || !selectedCategory.value || !selectedKpi.value) return [];
   let rows = filteredByDate.value;
   if (selectedKpi.value === 'open') rows = rows.filter((r) => r.status === 'Open');
-  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'In Progress');
+  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'Progress Validasi');
   else if (selectedKpi.value === 'closed') rows = rows.filter((r) => r.status === 'Closed');
   return rows.filter(
     (r) => r.kategoriTemuan === selectedCategory.value && r.departmentId === selectedDept.value,
@@ -1879,7 +1879,7 @@ const categoryDeptBreakdown = computed(() => {
   if (!selectedKpi.value || !selectedCategory.value) return [];
   let rows = filteredByDate.value;
   if (selectedKpi.value === 'open') rows = rows.filter((r) => r.status === 'Open');
-  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'In Progress');
+  else if (selectedKpi.value === 'inProgress') rows = rows.filter((r) => r.status === 'Progress Validasi');
   else if (selectedKpi.value === 'closed') rows = rows.filter((r) => r.status === 'Closed');
   rows = rows.filter((r) => r.kategoriTemuan === selectedCategory.value);
 
@@ -2343,7 +2343,6 @@ onMounted(async () => {
 }
 .status-open { background: #dbeafe; color: #1d4ed8; }
 .status-closed { background: #dcfce7; color: #16a34a; }
-.status-in-progress { background: #fef3c7; color: #b45309; }
 .status-progress-validasi { background: #ede9fe; color: #7c3aed; }
 .saran-list { margin: 0; padding-left: 18px; }
 .saran-list li { margin-bottom: 2px; }
@@ -3498,9 +3497,9 @@ onMounted(async () => {
   background: #fef3c7;
   color: #92400e;
 }
-.sc-in-progress {
-  background: #e0e7ff;
-  color: #3730a3;
+.sc-progress-validasi {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 .sc-closed {
   background: #dcfce7;

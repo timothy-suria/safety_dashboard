@@ -1358,7 +1358,7 @@ class Mutation:
         if not user:
             return InspectionK3LPayload(success=False, message="Authentication required")
 
-        if status and status not in ("Open", "In Progress", "Closed", "Progress Validasi"):
+        if status and status not in ("Open", "Closed", "Progress Validasi"):
             return InspectionK3LPayload(success=False, message="Status tidak valid")
 
         db = _get_db()
@@ -1490,8 +1490,8 @@ class Mutation:
             if target_selesai is not None:
                 record.target_selesai = date.fromisoformat(target_selesai)
             if status is not None:
-                if status not in ("Open", "In Progress", "Closed", "Progress Validasi"):
-                    return InspectionK3LPayload(success=False, message="Status must be Open, In Progress, or Closed")
+                if status not in ("Open", "Closed", "Progress Validasi"):
+                    return InspectionK3LPayload(success=False, message="Status must be Open, Progress Validasi, or Closed")
                 record.status = status
             if aktual_close is not None:
                 record.aktual_close = datetime.fromisoformat(aktual_close)
@@ -2407,8 +2407,8 @@ class Mutation:
         user = _get_current_user(info)
         if not user:
             return HseDailyPayload(success=False, message="Authentication required")
-        if level_risiko and level_risiko not in ("Rendah", "Sedang", "Tinggi"):
-            return HseDailyPayload(success=False, message="Level risiko must be Rendah, Sedang, or Tinggi")
+        if level_risiko and level_risiko not in ("Minor", "Major", "Critical"):
+            return HseDailyPayload(success=False, message="Level risiko must be Minor, Major, or Critical")
         db = _get_db()
         try:
             record = models.HseDailyReport(
@@ -2479,8 +2479,8 @@ class Mutation:
             record = db.query(models.HseDailyReport).filter(models.HseDailyReport.id == id).first()
             if not record:
                 return HseDailyPayload(success=False, message="Record not found")
-            if level_risiko and level_risiko not in ("Rendah", "Sedang", "Tinggi"):
-                return HseDailyPayload(success=False, message="Level risiko must be Rendah, Sedang, or Tinggi")
+            if level_risiko and level_risiko not in ("Minor", "Major", "Critical"):
+                return HseDailyPayload(success=False, message="Level risiko must be Minor, Major, or Critical")
             if tanggal is not None:
                 record.tanggal = datetime.fromisoformat(tanggal)
             if pekerjaan is not None:

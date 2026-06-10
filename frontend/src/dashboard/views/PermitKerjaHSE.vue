@@ -231,9 +231,9 @@
         </select>
         <select v-model="filterRisiko" class="toolbar-select">
           <option value="">Semua Risiko</option>
-          <option value="Rendah">Rendah</option>
-          <option value="Sedang">Sedang</option>
-          <option value="Tinggi">Tinggi</option>
+          <option value="Minor">Minor</option>
+          <option value="Major">Major</option>
+          <option value="Critical">Critical</option>
         </select>
         <button
           v-if="hasActiveFilter"
@@ -735,9 +735,9 @@
                 <label>Level Risiko</label>
                 <select v-model="form.levelRisiko">
                   <option value="">Pilih level risiko</option>
-                  <option value="Rendah">Rendah</option>
-                  <option value="Sedang">Sedang</option>
-                  <option value="Tinggi">Tinggi</option>
+                  <option value="Minor">Minor</option>
+                  <option value="Major">Major</option>
+                  <option value="Critical">Critical</option>
                 </select>
               </div>
             </div>
@@ -2024,16 +2024,16 @@ async function downloadMonthlyPDF() {
 
     // Summary stats
     const total = monthRows.length;
-    const rendah = monthRows.filter((r) => r.levelRisiko === 'Rendah').length;
-    const sedang = monthRows.filter((r) => r.levelRisiko === 'Sedang').length;
-    const tinggi = monthRows.filter((r) => r.levelRisiko === 'Tinggi').length;
+    const minor = monthRows.filter((r) => r.levelRisiko === 'Minor').length;
+    const major = monthRows.filter((r) => r.levelRisiko === 'Major').length;
+    const critical = monthRows.filter((r) => r.levelRisiko === 'Critical').length;
     const withPermit = monthRows.filter((r) => r.statusPermit).length;
 
     const stats = [
       { label: 'Total Laporan', value: total },
-      { label: 'Risiko Rendah', value: rendah },
-      { label: 'Risiko Sedang', value: sedang },
-      { label: 'Risiko Tinggi', value: tinggi },
+      { label: 'Minor', value: minor },
+      { label: 'Major', value: major },
+      { label: 'Critical', value: critical },
       { label: 'Dengan Permit', value: withPermit },
     ];
     const boxW = (pageW - 28) / stats.length;
@@ -2109,9 +2109,9 @@ async function downloadMonthlyPDF() {
       didParseCell(data) {
         if (data.section === 'body' && data.column.index === 4) {
           const v = data.cell.raw;
-          if (v === 'Rendah') data.cell.styles.textColor = [22, 163, 74];
-          else if (v === 'Sedang') data.cell.styles.textColor = [217, 119, 6];
-          else if (v === 'Tinggi') data.cell.styles.textColor = [220, 38, 38];
+          if (v === 'Minor') data.cell.styles.textColor = [22, 163, 74];
+          else if (v === 'Major') data.cell.styles.textColor = [217, 119, 6];
+          else if (v === 'Critical') data.cell.styles.textColor = [220, 38, 38];
         }
       },
     });
@@ -2123,7 +2123,7 @@ async function downloadMonthlyPDF() {
     doc.setFont('helvetica', 'bold');
     doc.text('BREAKDOWN PER LEVEL RISIKO', 14, risikoY);
 
-    const risikoRows = ['Rendah', 'Sedang', 'Tinggi'].map((lv) => {
+    const risikoRows = ['Minor', 'Major', 'Critical'].map((lv) => {
       const rows = monthRows.filter((r) => r.levelRisiko === lv);
       const withP = rows.filter((r) => r.statusPermit).length;
       const pct =
@@ -2528,15 +2528,15 @@ tbody tr.row-clickable:hover td {
   font-size: 12px;
   font-weight: 600;
 }
-.badge-risiko.rendah {
+.badge-risiko.minor {
   background: #d1fae5;
   color: #065f46;
 }
-.badge-risiko.sedang {
+.badge-risiko.major {
   background: #fef3c7;
   color: #92400e;
 }
-.badge-risiko.tinggi {
+.badge-risiko.critical {
   background: #fee2e2;
   color: #991b1b;
 }

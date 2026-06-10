@@ -131,7 +131,7 @@ class InspectionK3L(Base):
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
     __table_args__ = (
-        CheckConstraint("status IN ('Open', 'In Progress', 'Closed', 'Progress Validasi')", name="reports_inspectionk3l_status_check"),
+        CheckConstraint("status IN ('Open', 'Closed', 'Progress Validasi')", name="reports_inspectionk3l_status_check"),
     )
 
 
@@ -204,7 +204,7 @@ class HseDailyReport(Base):
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
     __table_args__ = (
-        CheckConstraint("level_risiko IN ('Rendah', 'Sedang', 'Tinggi')", name="reports_hse_daily_level_risiko_check"),
+        CheckConstraint("level_risiko IN ('Minor', 'Major', 'Critical')", name="reports_hse_daily_level_risiko_check"),
     )
 
 
@@ -289,7 +289,7 @@ class CaseIncident(Base):
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
     __table_args__ = (
-        CheckConstraint("status IN ('Open', 'In Progress', 'Closed')", name="case_incidents_status_check"),
+        CheckConstraint("status IN ('Open', 'Closed')", name="case_incidents_status_check"),
     )
 
 

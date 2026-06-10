@@ -842,7 +842,7 @@
                       <label>Status</label>
                       <select v-model="form.status" :disabled="!editingId">
                         <option value="Open">Open</option>
-                        <option value="In Progress">In Progress</option>
+                        <option value="Progress Validasi">Progress Validasi</option>
                         <option value="Closed">Closed</option>
                       </select>
                     </div>
@@ -2476,7 +2476,6 @@
         <select v-model="filterStatus" class="filter-select">
           <option value="">Semua Status</option>
           <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
           <option value="Progress Validasi">Progress Validasi</option>
           <option value="Closed">Closed</option>
         </select>
@@ -4243,7 +4242,7 @@ const summaryData = computed(() => {
       new Date(r.targetSelesai) < today,
   ).length;
   const byKategori = { Minor: 0, Major: 0, Critical: 0 };
-  const byStatus = { Open: 0, 'In Progress': 0, Closed: 0 };
+  const byStatus = { Open: 0, 'Progress Validasi': 0, Closed: 0 };
   rows.forEach((r) => {
     if (r.kategoriTemuan in byKategori) byKategori[r.kategoriTemuan]++;
     if (r.status in byStatus) byStatus[r.status]++;
@@ -4252,7 +4251,7 @@ const summaryData = computed(() => {
   return {
     total: rows.length,
     open: byStatus['Open'] || 0,
-    inProgress: byStatus['In Progress'] || 0,
+    inProgress: byStatus['Progress Validasi'] || 0,
     closed: byStatus['Closed'] || 0,
     overdue,
     byKategori,
@@ -4307,12 +4306,12 @@ function renderSummaryCharts() {
     chartStatus = new Chart(summaryChartStatusRef.value, {
       type: 'doughnut',
       data: {
-        labels: ['Open', 'In Progress', 'Closed'],
+        labels: ['Open', 'Progress Validasi', 'Closed'],
         datasets: [
           {
             data: [
               sd.byStatus['Open'] || 0,
-              sd.byStatus['In Progress'] || 0,
+              sd.byStatus['Progress Validasi'] || 0,
               sd.byStatus['Closed'] || 0,
             ],
             backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
@@ -4383,7 +4382,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
 
     const total = monthRows.length;
     const open = monthRows.filter((r) => r.status === 'Open').length;
-    const inProg = monthRows.filter((r) => r.status === 'In Progress').length;
+    const inProg = monthRows.filter((r) => r.status === 'Progress Validasi').length;
     const closed = monthRows.filter((r) => r.status === 'Closed').length;
     const overdue = monthRows.filter(
       (r) =>
@@ -4439,7 +4438,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         [
           'Total Temuan',
           'Open',
-          'In Progress',
+          'Progress Validasi',
           'Closed',
           'Overdue',
           'Close Rate',
@@ -4491,7 +4490,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
         k,
         rows.length,
         rows.filter((r) => r.status === 'Open').length,
-        rows.filter((r) => r.status === 'In Progress').length,
+        rows.filter((r) => r.status === 'Progress Validasi').length,
         closed,
         pct,
       ];
@@ -4500,7 +4499,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
     autoTable(doc, {
       startY: breakdownY + 3,
       head: [
-        ['Kategori', 'Jumlah', 'Open', 'In Progress', 'Closed', '% Close'],
+        ['Kategori', 'Jumlah', 'Open', 'Progress Validasi', 'Closed', '% Close'],
       ],
       body: breakdownRows,
       theme: 'striped',
@@ -4535,7 +4534,7 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
       O: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Open')
         .length,
       I: rows.filter(
-        (r) => r.kategoriTemuan === kat && r.status === 'In Progress',
+        (r) => r.kategoriTemuan === kat && r.status === 'Progress Validasi',
       ).length,
       C: rows.filter((r) => r.kategoriTemuan === kat && r.status === 'Closed')
         .length,
@@ -4677,13 +4676,13 @@ async function downloadMonthlyPDF(month, year, closeModal = false) {
 
     // Header row 3: O I C repeated
     fillText('O', colX[2], hdrY, colW[2], hRowH, redBg, white);
-    fillText('I', colX[3], hdrY, colW[3], hRowH, amberBg, white);
+    fillText('V', colX[3], hdrY, colW[3], hRowH, amberBg, white);
     fillText('C', colX[4], hdrY, colW[4], hRowH, greenBg, white);
     fillText('O', colX[5], hdrY, colW[5], hRowH, redBg, white);
-    fillText('I', colX[6], hdrY, colW[6], hRowH, amberBg, white);
+    fillText('V', colX[6], hdrY, colW[6], hRowH, amberBg, white);
     fillText('C', colX[7], hdrY, colW[7], hRowH, greenBg, white);
     fillText('O', colX[8], hdrY, colW[8], hRowH, redBg, white);
-    fillText('I', colX[9], hdrY, colW[9], hRowH, amberBg, white);
+    fillText('V', colX[9], hdrY, colW[9], hRowH, amberBg, white);
     fillText('C', colX[10], hdrY, colW[10], hRowH, greenBg, white);
     hdrY += hRowH;
 
@@ -6696,10 +6695,6 @@ tbody tr.row-overdue:hover {
 .status-open {
   background: #fef3c7;
   color: #92400e;
-}
-.status-in-progress {
-  background: #dbeafe;
-  color: #1e40af;
 }
 .status-closed {
   background: #dcfce7;
