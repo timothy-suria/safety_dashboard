@@ -2207,7 +2207,6 @@ onMounted(async () => {
 /* ── Page layout ── */
 .case-incident {
   padding: 28px 32px;
-  max-width: 1400px;
   overflow-x: hidden;
 }
 @media (max-width: 1024px) {
