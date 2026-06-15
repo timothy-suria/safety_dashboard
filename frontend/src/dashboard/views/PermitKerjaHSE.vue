@@ -994,7 +994,7 @@
                       style="display: none"
                     />
                   </label>
-                  <label class="photo-btn">
+                  <button type="button" class="photo-btn" @click="openCamera">
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -1009,14 +1009,7 @@
                       <circle cx="12" cy="13" r="4" />
                     </svg>
                     Kamera
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      @change="onFotoSelect"
-                      style="display: none"
-                    />
-                  </label>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1282,6 +1275,8 @@
         </div>
       </div>
     </div>
+
+    <CameraCaptureModal ref="cameraModalRef" @capture="handleCameraCapture" />
   </div>
 </template>
 
@@ -1294,6 +1289,7 @@ import { inspectionK3LService } from '@/services/inspectionK3LService.js';
 import { usePagination } from '@/composables/usePagination.js';
 import PaginationBar from '@/components/PaginationBar.vue';
 import CommentSection from '@/components/CommentSection.vue';
+import CameraCaptureModal from '@/components/CameraCaptureModal.vue';
 import { exportToCsv } from '@/services/exportCsvService.js';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -1642,6 +1638,17 @@ function removeFoto(index) {
   const photo = form.value.fotos[index];
   if (photo.preview?.startsWith('blob:')) URL.revokeObjectURL(photo.preview);
   form.value.fotos.splice(index, 1);
+}
+
+// ── Camera capture ──
+const cameraModalRef = ref(null);
+
+function openCamera() {
+  cameraModalRef.value?.open();
+}
+
+function handleCameraCapture(file) {
+  onFotoSelect({ target: { files: [file], value: '' } });
 }
 
 function clearFotos() {

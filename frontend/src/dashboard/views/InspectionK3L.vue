@@ -2,7 +2,7 @@
   <div class="inspection-k3l">
     <div class="page-header">
       <div>
-        <h2>Inspection K3L</h2>
+        <h2>Inspeksi K3L</h2>
         <p class="subtitle">
           Laporan inspeksi Keselamatan, Kesehatan Kerja & Lingkungan
         </p>
@@ -149,13 +149,13 @@
                     <span>Ronda Kepatuhan</span>
                     <span class="jenis-pick-desc"
                       >Inspeksi terjadwal kepatuhan prosedur & peraturan K3L di
-                      area kerja</span
+                      area kerja, meliputi keterlibatan berbagai departemen</span
                     >
                   </button>
                   <button
                     type="button"
                     class="jenis-pick-btn"
-                    @click="form.jenisInspeksi = 'Daily Inspection'"
+                    @click="form.jenisInspeksi = 'Inspeksi Harian'"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -170,10 +170,12 @@
                       <line x1="9" y1="11" x2="15" y2="11" />
                       <line x1="9" y1="15" x2="12" y2="15" />
                     </svg>
-                    <span>Daily Inspection</span>
+                    <span>Inspeksi Harian</span>
                     <span class="jenis-pick-desc"
-                      >Inspeksi harian kondisi fisik & keselamatan area kerja
-                      setiap hari</span
+                      >Inspeksi yang dilakukan oleh tim Safety setiap hari di
+                      seluruh area kerja untuk mengidentifikasi tindakan tidak
+                      aman (unsafe action) dan kondisi tidak aman (unsafe
+                      condition)</span
                     >
                   </button>
                 </div>
@@ -194,8 +196,8 @@
                       <select v-model="form.jenisInspeksi">
                         <option value="">-- Pilih Jenis --</option>
                         <option value="Ronda Kepatuhan">Ronda Kepatuhan</option>
-                        <option value="Daily Inspection">
-                          Daily Inspection
+                        <option value="Inspeksi Harian">
+                          Inspeksi Harian
                         </option>
                       </select>
                     </div>
@@ -385,7 +387,7 @@
                     <div class="form-group">
                       <label
                         >Kategori Temuan <span class="required">*</span>
-                        <span class="info-tooltip">
+                        <span class="info-tooltip" @mouseenter="positionTooltip">
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -398,18 +400,23 @@
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="16" x2="12.01" y2="16" />
                           </svg>
-                          <span class="tooltip-box">
+                          <span class="tooltip-box" :style="kategoriTooltipStyle">
                             <span class="tooltip-row"
-                              ><b>Critical</b> — Bahaya langsung mengancam
-                              keselamatan jiwa atau aset</span
+                              ><b>Critical</b> — Bahaya langsung ke jiwa/aset
+                              (ex: kerja di ketinggian tanpa APD, kebocoran
+                              gas/kimia, instalasi listrik terbuka). Perbaikan:
+                              <b>1x24 jam</b></span
                             >
                             <span class="tooltip-row"
-                              ><b>Major</b> — Potensi bahaya serius bila tidak
-                              segera ditangani</span
+                              ><b>Major</b> — Potensi bahaya serius (ex: APD
+                              tidak sesuai, mesin tanpa guarding, lantai
+                              licin/berlubang). Perbaikan:
+                              <b>30 hari</b></span
                             >
                             <span class="tooltip-row"
-                              ><b>Minor</b> — Temuan kecil dengan risiko
-                              rendah</span
+                              ><b>Minor</b> — Risiko rendah (ex: rambu K3
+                              pudar, housekeeping kurang rapi). Perbaikan:
+                              <b>60 hari</b></span
                             >
                             <span class="tooltip-row"
                               ><b>No Findings</b> — Tidak ditemukan temuan,
@@ -507,7 +514,7 @@
                                 style="display: none"
                               />
                             </label>
-                            <label class="photo-btn">
+                            <button type="button" class="photo-btn" @click="openCamera('main')">
                               <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -522,14 +529,7 @@
                                 <circle cx="12" cy="13" r="4" />
                               </svg>
                               Kamera
-                              <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                @change="onPhotoSelect"
-                                style="display: none"
-                              />
-                            </label>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -639,7 +639,7 @@
                                 style="display: none"
                               />
                             </label>
-                            <label class="photo-btn">
+                            <button type="button" class="photo-btn" @click="openCamera('after')">
                               <svg
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -654,14 +654,7 @@
                                 <circle cx="12" cy="13" r="4" />
                               </svg>
                               Kamera
-                              <input
-                                type="file"
-                                accept="image/*"
-                                capture="environment"
-                                @change="onPhotoAfterSelect"
-                                style="display: none"
-                              />
-                            </label>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -1772,7 +1765,7 @@
                               style="display: none"
                             />
                           </label>
-                          <label class="photo-btn">
+                          <button type="button" class="photo-btn" @click="openCamera('tl')">
                             <svg
                               viewBox="0 0 24 24"
                               fill="none"
@@ -1787,14 +1780,7 @@
                               <circle cx="12" cy="13" r="4" />
                             </svg>
                             Kamera
-                            <input
-                              type="file"
-                              accept="image/*"
-                              capture="environment"
-                              @change="tlHandlePhotos"
-                              style="display: none"
-                            />
-                          </label>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -3105,7 +3091,7 @@
         </div>
         <div class="modal-body">
           <p class="modal-desc">
-            Pilih bulan dan tahun untuk mengekspor data Inspection K3L.
+            Pilih bulan dan tahun untuk mengekspor data Inspeksi K3L.
           </p>
           <div class="export-month-row">
             <div class="export-field">
@@ -3199,7 +3185,7 @@
     >
       <div class="modal-container modal-summary">
         <div class="modal-header">
-          <h3 class="modal-title">Ringkasan Bulanan — Inspection K3L</h3>
+          <h3 class="modal-title">Ringkasan Bulanan — Inspeksi K3L</h3>
           <button class="modal-close" @click="showSummaryModal = false">
             <svg
               viewBox="0 0 24 24"
@@ -3317,6 +3303,8 @@
         </div>
       </div>
     </div>
+
+    <CameraCaptureModal ref="cameraModalRef" @capture="handleCameraCapture" />
   </div>
 </template>
 
@@ -3341,6 +3329,7 @@ import { authService } from "@/services/authService.js";
 import { usePagination } from "@/composables/usePagination.js";
 import PaginationBar from "@/components/PaginationBar.vue";
 import CommentSection from "@/components/CommentSection.vue";
+import CameraCaptureModal from "@/components/CameraCaptureModal.vue";
 import Chart from "chart.js/auto";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -3518,7 +3507,7 @@ const filterKategori = ref("");
 const filterStatus = ref("");
 
 // Findings are split into tabs by inspection type instead of a filter dropdown.
-const JENIS_TABS = ["Ronda Kepatuhan", "Daily Inspection"];
+const JENIS_TABS = ["Ronda Kepatuhan", "Inspeksi Harian"];
 const activeJenisTab = ref("Ronda Kepatuhan");
 // Legacy/null records bucket into the first tab so nothing disappears.
 function jenisOf(r) {
@@ -3529,7 +3518,7 @@ function switchJenisTab(t) {
 }
 // Counts reflect the active search/category/status/date filters (but not the tab itself).
 const jenisCounts = computed(() => {
-  const counts = { "Ronda Kepatuhan": 0, "Daily Inspection": 0 };
+  const counts = { "Ronda Kepatuhan": 0, "Inspeksi Harian": 0 };
   for (const r of filteredExceptJenis.value) {
     const k = jenisOf(r);
     if (counts[k] !== undefined) counts[k] += 1;
@@ -3557,7 +3546,7 @@ function needsValidasi(r) {
 const jenisActionCounts = computed(() => {
   const counts = {
     "Ronda Kepatuhan": { tindakLanjut: 0, validasi: 0 },
-    "Daily Inspection": { tindakLanjut: 0, validasi: 0 },
+    "Inspeksi Harian": { tindakLanjut: 0, validasi: 0 },
   };
   for (const r of scopedRecords.value) {
     const k = jenisOf(r);
@@ -3905,6 +3894,22 @@ function removePhotoAfterAt(idx) {
   photosAfter.value.splice(idx, 1);
 }
 
+// ── Camera capture ──
+const cameraModalRef = ref(null);
+const cameraTarget = ref(null);
+
+function openCamera(target) {
+  cameraTarget.value = target;
+  cameraModalRef.value?.open();
+}
+
+function handleCameraCapture(file) {
+  const fakeEvent = { target: { files: [file], value: "" } };
+  if (cameraTarget.value === "after") onPhotoAfterSelect(fakeEvent);
+  else if (cameraTarget.value === "tl") tlHandlePhotos(fakeEvent);
+  else onPhotoSelect(fakeEvent);
+}
+
 function clearPhotosAfter() {
   photosAfter.value.forEach((p) => {
     if (p.preview?.startsWith("blob:")) URL.revokeObjectURL(p.preview);
@@ -3931,6 +3936,20 @@ const defaultForm = () => ({
 });
 
 const form = ref(defaultForm());
+
+// ── Kategori tooltip positioning (fixed, escapes modal scroll clipping) ──
+const kategoriTooltipStyle = ref({});
+function positionTooltip(e) {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const width = 280;
+  let left = rect.left;
+  if (left + width > window.innerWidth - 12) left = window.innerWidth - width - 12;
+  if (left < 12) left = 12;
+  kategoriTooltipStyle.value = {
+    left: `${left}px`,
+    top: `${rect.bottom + 8}px`,
+  };
+}
 
 watch(
   () => form.value.businessUnitId,
@@ -5939,17 +5958,15 @@ onActivated(() => {
 .tooltip-box {
   visibility: hidden;
   opacity: 0;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   background: #1e293b;
   color: #f1f5f9;
   font-size: 12px;
   font-weight: 400;
   border-radius: 8px;
   padding: 10px 12px;
-  width: 260px;
+  width: 280px;
+  max-width: calc(100vw - 24px);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -5957,15 +5974,6 @@ onActivated(() => {
   pointer-events: none;
   transition: opacity 0.15s;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-}
-.tooltip-box::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #1e293b;
 }
 .info-tooltip:hover .tooltip-box {
   visibility: visible;

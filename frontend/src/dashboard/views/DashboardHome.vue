@@ -18,7 +18,7 @@
     <div class="dash-tabs">
       <button class="dash-tab" :class="{ active: activeTab === 'k3l' }" @click="activeTab = 'k3l'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-        Inspection K3L
+        Inspeksi K3L
       </button>
       <button class="dash-tab" :class="{ active: activeTab === 'hse' }" @click="activeTab = 'hse'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -49,7 +49,7 @@
       <h3>Tidak dapat memuat data</h3>
       <p>Pastikan server backend sudah berjalan, lalu refresh halaman ini.</p>
       <button class="empty-btn" @click="loadDashboardData" :disabled="loading">
-        Segarkan
+        Refresh
       </button>
     </div>
 
@@ -72,7 +72,7 @@
       </svg>
       <h3>Belum ada data temuan</h3>
       <p>
-        Data Inspection K3L belum tersedia. Mulai dengan menambahkan temuan
+        Data Inspeksi K3L belum tersedia. Mulai dengan menambahkan temuan
         pertama.
       </p>
       <button
@@ -1247,7 +1247,7 @@
                 <div class="detail-photo-grid">
                   <img v-for="(url, idx) in parsePhotos(viewingTemuan.fotoSebelum)" :key="'b'+idx"
                     :src="url" alt="Foto sebelum" class="detail-photo-thumb"
-                    @click="window.open(url, '_blank')" />
+                    @click="openPhotoModal(parsePhotos(viewingTemuan.fotoSebelum), idx)" />
                 </div>
               </div>
               <div v-if="parsePhotos(viewingTemuan.fotoSesudah).length && !viewingTemuan.tindakLanjutList?.length" style="margin-top:12px">
@@ -1255,7 +1255,7 @@
                 <div class="detail-photo-grid">
                   <img v-for="(url, idx) in parsePhotos(viewingTemuan.fotoSesudah)" :key="'a'+idx"
                     :src="url" alt="Foto sesudah" class="detail-photo-thumb"
-                    @click="window.open(url, '_blank')" />
+                    @click="openPhotoModal(parsePhotos(viewingTemuan.fotoSesudah), idx)" />
                 </div>
               </div>
             </div>
@@ -1344,7 +1344,7 @@
                   <div class="detail-photo-grid" style="margin-top:4px">
                     <img v-for="(url, idx) in parsePhotos(tl.fotoSesudah)" :key="'tl'+tl.id+idx"
                       :src="url" alt="Foto sesudah" class="detail-photo-thumb"
-                      @click="window.open(url, '_blank')" />
+                      @click="openPhotoModal(parsePhotos(tl.fotoSesudah), idx)" />
                   </div>
                 </div>
               </div>
@@ -1388,6 +1388,58 @@
       </div>
     </div>
   </Transition>
+
+  <!-- ── Photo Lightbox Modal ───────────────────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="fade">
+      <div
+        v-if="showPhotoModal"
+        class="lightbox-overlay"
+        @click.self="showPhotoModal = false"
+        @keydown.left="photoModalIndex = (photoModalIndex - 1 + photoModalImages.length) % photoModalImages.length"
+        @keydown.right="photoModalIndex = (photoModalIndex + 1) % photoModalImages.length"
+        @keydown.esc="showPhotoModal = false"
+        tabindex="0"
+      >
+        <button class="lightbox-close" @click="showPhotoModal = false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <button
+          class="lightbox-nav lightbox-prev"
+          v-if="photoModalImages.length > 1"
+          @click="photoModalIndex = (photoModalIndex - 1 + photoModalImages.length) % photoModalImages.length"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <div class="lightbox-content">
+          <img :src="photoModalImages[photoModalIndex]" alt="Foto" class="lightbox-img" />
+        </div>
+        <div v-if="photoModalImages.length > 1" class="lightbox-dots">
+          <span
+            v-for="(_, i) in photoModalImages"
+            :key="i"
+            class="lightbox-dot"
+            :class="{ active: i === photoModalIndex }"
+            @click.stop="photoModalIndex = i"
+          ></span>
+        </div>
+        <button
+          class="lightbox-nav lightbox-next"
+          v-if="photoModalImages.length > 1"
+          @click="photoModalIndex = (photoModalIndex + 1) % photoModalImages.length"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
@@ -2207,6 +2259,18 @@ function parsePhotos(val) {
   try { const p = JSON.parse(val); return Array.isArray(p) ? p : [val]; } catch { return [val]; }
 }
 
+// ── Photo lightbox ──
+const showPhotoModal = ref(false);
+const photoModalImages = ref([]);
+const photoModalIndex = ref(0);
+
+function openPhotoModal(urls, idx) {
+  photoModalImages.value = urls;
+  photoModalIndex.value = idx;
+  showPhotoModal.value = true;
+  nextTick(() => document.querySelector('.lightbox-overlay')?.focus());
+}
+
 function parsePetugas(json) {
   if (!json) return [];
   try { return JSON.parse(json); } catch { return []; }
@@ -2380,7 +2444,7 @@ onMounted(loadDashboardData);
 
 .dash {
   padding: 28px 32px;
-  max-width: 1400px;
+  overflow-x: hidden;
 }
 @media (max-width: 1024px) {
   .dash {
@@ -3712,4 +3776,89 @@ onMounted(loadDashboardData);
 }
 .chip-yes { background: #dcfce7; color: #16a34a; }
 .chip-no { background: #fee2e2; color: #dc2626; }
+
+/* ── Photo Lightbox ── */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.lightbox-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+.lightbox-img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.lightbox-dots {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+.lightbox-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lightbox-dot.active { background: #fff; }
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.25); }
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.lightbox-nav:hover { background: rgba(255, 255, 255, 0.28); }
+.lightbox-prev { left: 20px; }
+.lightbox-next { right: 20px; }
+
+@media (max-width: 640px) {
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+}
 </style>

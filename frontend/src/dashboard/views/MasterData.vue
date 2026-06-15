@@ -1276,7 +1276,6 @@ function formatDate(val) {
 <style scoped>
 .master-data {
   padding: 28px 32px;
-  max-width: 1400px;
 }
 @media (max-width: 1024px) { .master-data { padding: 20px 20px; } }
 @media (max-width: 640px)  { .master-data { padding: 16px 14px; } }

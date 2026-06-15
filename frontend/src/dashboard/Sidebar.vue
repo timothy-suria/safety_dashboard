@@ -120,7 +120,7 @@
             class="nav-subitem"
             active-class="active"
           >
-            Inspection K3L
+            Inspeksi K3L
           </router-link>
           <router-link
             to="/dashboard/reports/hse-daily"
@@ -134,7 +134,7 @@
             class="nav-subitem"
             active-class="active"
           >
-            Case Incident
+            Insiden & Kecelakaan Kerja
           </router-link>
         </div>
       </div>
@@ -276,8 +276,18 @@ async function handleLogout() {
   transition: width 0.25s ease;
 }
 
+.sidebar > * {
+  width: 240px;
+  min-width: 240px;
+}
+
 .sidebar.collapsed {
   width: 0;
+  border: none;
+}
+
+.sidebar.collapsed > * {
+  opacity: 0;
 }
 
 /* On mobile: sidebar floats over content, doesn't push layout */

@@ -2,7 +2,7 @@
   <div class="case-incident">
     <div class="page-header">
       <div>
-        <h2>Case Incident</h2>
+        <h2>Insiden & Kecelakaan Kerja</h2>
         <p class="subtitle">Laporan insiden &amp; kecelakaan kerja</p>
       </div>
       <button class="btn-primary" @click="openForm">+ Tambah Laporan</button>
@@ -733,7 +733,7 @@
                           style="display: none"
                         />
                       </label>
-                      <label class="photo-btn">
+                      <button type="button" class="photo-btn" @click="openCamera">
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
@@ -748,14 +748,7 @@
                           <circle cx="12" cy="13" r="4" />
                         </svg>
                         Kamera
-                        <input
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          @change="onPhotoSelect"
-                          style="display: none"
-                        />
-                      </label>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1430,6 +1423,8 @@
         </div>
       </Transition>
     </Teleport>
+
+    <CameraCaptureModal ref="cameraModalRef" @capture="handleCameraCapture" />
   </div>
 </template>
 
@@ -1442,6 +1437,7 @@ import { caseIncidentService } from '@/services/caseIncidentService.js';
 import { usePagination } from '@/composables/usePagination.js';
 import { exportToCsv } from '@/services/exportCsvService.js';
 import PaginationBar from '@/components/PaginationBar.vue';
+import CameraCaptureModal from '@/components/CameraCaptureModal.vue';
 
 const currentUser = authService.getCurrentUser();
 const roleLevel = authService.getRoleLevel();
@@ -1909,6 +1905,17 @@ function removePhotoAt(idx) {
   const photo = photos.value[idx];
   if (photo.preview?.startsWith('blob:')) URL.revokeObjectURL(photo.preview);
   photos.value.splice(idx, 1);
+}
+
+// ── Camera capture ──
+const cameraModalRef = ref(null);
+
+function openCamera() {
+  cameraModalRef.value?.open();
+}
+
+function handleCameraCapture(file) {
+  onPhotoSelect({ target: { files: [file], value: '' } });
 }
 
 function clearPhotos() {
