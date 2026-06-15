@@ -145,7 +145,7 @@
           <tr
             v-for="(item, idx) in pagedRecords"
             :key="item.id"
-            class="row-clickable"
+            :class="['row-clickable', { 'row-overdue': isOverdueRow(item), 'row-warning-urgent': isUrgentWarningRow(item), 'row-warning-soon': isSoonWarningRow(item) }]"
             @click="viewRecord(item)"
           >
             <td style="text-align: center">
@@ -243,7 +243,7 @@
         <div
           v-for="(item, idx) in pagedRecords"
           :key="item.id"
-          class="row-card"
+          :class="['row-card', { 'row-overdue': isOverdueRow(item), 'row-warning-urgent': isUrgentWarningRow(item), 'row-warning-soon': isSoonWarningRow(item) }]"
           @click="viewRecord(item)"
         >
           <div class="rc-head">
@@ -1490,7 +1490,7 @@ const DATE_PRESETS = [
   { label: 'Hari ini', value: 'today' },
   { label: 'Minggu ini', value: 'week' },
   { label: 'Bulan ini', value: 'month' },
-  { label: 'Kustom', value: 'custom' },
+  { label: 'Kustom Periode', value: 'custom' },
 ];
 
 function setDatePreset(val) {
@@ -1542,6 +1542,31 @@ const hasActiveFilters = computed(
     filterStatus.value !== '' ||
     filterDate.value !== 'all',
 );
+
+function isOverdueRow(r) {
+  if (!r.targetPenyelesaian || r.status === 'Closed') return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(r.targetPenyelesaian) < today;
+}
+
+function isUrgentWarningRow(r) {
+  if (!r.targetPenyelesaian || r.status === 'Closed') return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(r.targetPenyelesaian);
+  const daysLeft = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  return daysLeft === 0 || daysLeft === 1;
+}
+
+function isSoonWarningRow(r) {
+  if (!r.targetPenyelesaian || r.status === 'Closed') return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(r.targetPenyelesaian);
+  const daysLeft = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  return daysLeft === 3;
+}
 
 const filteredRecords = computed(() => {
   let result = records.value;
@@ -2478,6 +2503,43 @@ thead th:not(:first-child),
 tbody td:not(:first-child) { border-left: 1px solid #e2e8f0; }
 
 .row-clickable { cursor: pointer; }
+.row-card.row-overdue { border-color: #fecaca; background: #fff5f5; animation: pulse-overdue-card 1.2s ease-in-out 0s 3; }
+.row-card.row-warning-urgent { border-color: #fdba74; background: #fff7ed; animation: pulse-warning-urgent-card 1.2s ease-in-out 0s 3; }
+.row-card.row-warning-soon { border-color: #fde68a; background: #fffbeb; animation: pulse-warning-soon-card 1.2s ease-in-out 0s 3; }
+tbody tr.row-overdue { background: #fff1f1; animation: pulse-overdue 1.2s ease-in-out 0s 3; }
+tbody tr.row-overdue td { border-top: 0.5px solid #f87171; border-bottom: 0.5px solid #f87171; }
+tbody tr.row-overdue:hover { background: #ffe4e4; }
+tbody tr.row-warning-urgent { background: #fff7ed; animation: pulse-warning-urgent 1.2s ease-in-out 0s 3; }
+tbody tr.row-warning-urgent td { border-top: 0.5px solid #fb923c; border-bottom: 0.5px solid #fb923c; }
+tbody tr.row-warning-urgent:hover { background: #ffedd5; }
+tbody tr.row-warning-soon { background: #fffbeb; animation: pulse-warning-soon 1.2s ease-in-out 0s 3; }
+tbody tr.row-warning-soon td { border-top: 0.5px solid #fbbf24; border-bottom: 0.5px solid #fbbf24; }
+tbody tr.row-warning-soon:hover { background: #fef3c7; }
+
+@keyframes pulse-overdue {
+  0%, 100% { background-color: #fff1f1; }
+  50% { background-color: #fecaca; }
+}
+@keyframes pulse-warning-urgent {
+  0%, 100% { background-color: #fff7ed; }
+  50% { background-color: #fdba74; }
+}
+@keyframes pulse-warning-soon {
+  0%, 100% { background-color: #fffbeb; }
+  50% { background-color: #fde68a; }
+}
+@keyframes pulse-overdue-card {
+  0%, 100% { background-color: #fff5f5; }
+  50% { background-color: #fecaca; }
+}
+@keyframes pulse-warning-urgent-card {
+  0%, 100% { background-color: #fff7ed; }
+  50% { background-color: #fdba74; }
+}
+@keyframes pulse-warning-soon-card {
+  0%, 100% { background-color: #fffbeb; }
+  50% { background-color: #fde68a; }
+}
 .td-nowrap { white-space: nowrap; }
 .td-truncate { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .td-actions { white-space: nowrap; }

@@ -2657,7 +2657,7 @@
             <tr
               v-for="(item, idx) in pagedRecords"
               :key="item.id"
-              :class="['row-clickable', { 'row-overdue': isOverdueRow(item) }]"
+              :class="['row-clickable', { 'row-overdue': isOverdueRow(item), 'row-warning-urgent': isUrgentWarningRow(item), 'row-warning-soon': isSoonWarningRow(item) }]"
               @click="viewRecord(item)"
             >
               <td style="text-align: center">
@@ -2857,7 +2857,7 @@
           <div
             v-for="(item, idx) in pagedRecords"
             :key="item.id"
-            :class="['row-card', { 'row-overdue': isOverdueRow(item) }]"
+            :class="['row-card', { 'row-overdue': isOverdueRow(item), 'row-warning-urgent': isUrgentWarningRow(item), 'row-warning-soon': isSoonWarningRow(item) }]"
             @click="viewRecord(item)"
           >
             <div class="rc-head">
@@ -3576,7 +3576,7 @@ const DATE_PRESETS = [
   { label: "Hari ini", value: "today" },
   { label: "Minggu ini", value: "week" },
   { label: "Bulan ini", value: "month" },
-  { label: "Kustom", value: "custom" },
+  { label: "Kustom Periode", value: "custom" },
 ];
 
 function setDatePreset(val) {
@@ -3668,17 +3668,34 @@ function isOverdueRow(r) {
   return new Date(r.targetSelesai) < today;
 }
 
+// 1d/0d = urgent (orange), 3d = soon (yellow)
+function isUrgentWarningRow(r) {
+  if (!r.targetSelesai || r.status === "Closed") return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(r.targetSelesai);
+  const daysLeft = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  return daysLeft === 0 || daysLeft === 1;
+}
+
+function isSoonWarningRow(r) {
+  if (!r.targetSelesai || r.status === "Closed") return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(r.targetSelesai);
+  const daysLeft = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  return daysLeft === 3;
+}
+
 // The active tab narrows the already-filtered list down to one inspection type.
 // Overdue rows bubble to the top.
 const filteredRecords = computed(() => {
   const rows = filteredExceptJenis.value.filter(
     (r) => jenisOf(r) === activeJenisTab.value,
   );
-  return [...rows].sort((a, b) => {
-    const ao = isOverdueRow(a) ? 0 : 1;
-    const bo = isOverdueRow(b) ? 0 : 1;
-    return ao - bo;
-  });
+  const rank = (r) =>
+    isOverdueRow(r) ? 0 : isUrgentWarningRow(r) ? 1 : isSoonWarningRow(r) ? 2 : 3;
+  return [...rows].sort((a, b) => rank(a) - rank(b));
 });
 
 const {
@@ -7041,6 +7058,29 @@ td:not(:first-child) {
 .row-card.row-overdue {
   border-color: #fecaca;
   background: #fff5f5;
+  animation: pulse-overdue-card 1.2s ease-in-out 0s 3;
+}
+.row-card.row-warning-urgent {
+  border-color: #fdba74;
+  background: #fff7ed;
+  animation: pulse-warning-urgent-card 1.2s ease-in-out 0s 3;
+}
+.row-card.row-warning-soon {
+  border-color: #fde68a;
+  background: #fffbeb;
+  animation: pulse-warning-soon-card 1.2s ease-in-out 0s 3;
+}
+@keyframes pulse-overdue-card {
+  0%, 100% { background-color: #fff5f5; }
+  50% { background-color: #fecaca; }
+}
+@keyframes pulse-warning-urgent-card {
+  0%, 100% { background-color: #fff7ed; }
+  50% { background-color: #fdba74; }
+}
+@keyframes pulse-warning-soon-card {
+  0%, 100% { background-color: #fffbeb; }
+  50% { background-color: #fde68a; }
 }
 .rc-head {
   display: flex;
@@ -7123,6 +7163,7 @@ tbody tr.row-clickable {
 }
 tbody tr.row-overdue {
   background: #fff1f1;
+  animation: pulse-overdue 1.2s ease-in-out 0s 3;
 }
 tbody tr.row-overdue td {
   border-top: 0.5px solid #f87171;
@@ -7130,6 +7171,41 @@ tbody tr.row-overdue td {
 }
 tbody tr.row-overdue:hover {
   background: #ffe4e4;
+}
+tbody tr.row-warning-urgent {
+  background: #fff7ed;
+  animation: pulse-warning-urgent 1.2s ease-in-out 0s 3;
+}
+tbody tr.row-warning-urgent td {
+  border-top: 0.5px solid #fb923c;
+  border-bottom: 0.5px solid #fb923c;
+}
+tbody tr.row-warning-urgent:hover {
+  background: #ffedd5;
+}
+tbody tr.row-warning-soon {
+  background: #fffbeb;
+  animation: pulse-warning-soon 1.2s ease-in-out 0s 3;
+}
+tbody tr.row-warning-soon td {
+  border-top: 0.5px solid #fbbf24;
+  border-bottom: 0.5px solid #fbbf24;
+}
+tbody tr.row-warning-soon:hover {
+  background: #fef3c7;
+}
+
+@keyframes pulse-overdue {
+  0%, 100% { background-color: #fff1f1; }
+  50% { background-color: #fecaca; }
+}
+@keyframes pulse-warning-urgent {
+  0%, 100% { background-color: #fff7ed; }
+  50% { background-color: #fdba74; }
+}
+@keyframes pulse-warning-soon {
+  0%, 100% { background-color: #fffbeb; }
+  50% { background-color: #fde68a; }
 }
 
 /* ── Badges ── */

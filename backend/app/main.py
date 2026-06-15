@@ -91,6 +91,76 @@ def _run_overdue_notifications() -> None:
             if user_ids:
                 _notify_users(db, list(user_ids), notif_type, title, message, link)
 
+        case_records = (
+            db.query(_models.CaseIncident)
+            .filter(
+                _models.CaseIncident.status != "Closed",
+                _models.CaseIncident.target_penyelesaian.isnot(None),
+            )
+            .all()
+        )
+        for record in case_records:
+            days_left = (record.target_penyelesaian - today).days
+            if days_left == 3:
+                notif_type = "overdue_warning_3d"
+                title = "Tindak Lanjut Kasus Mendekati Batas Waktu"
+                message = (
+                    f'Tindak lanjut kasus "{record.nama_korban}" '
+                    f"akan overdue dalam 3 hari (target: {record.target_penyelesaian})"
+                )
+            elif days_left == 1:
+                notif_type = "overdue_warning_1d"
+                title = "Tindak Lanjut Kasus Hampir Overdue"
+                message = (
+                    f'Tindak lanjut kasus "{record.nama_korban}" '
+                    f"akan overdue besok (target: {record.target_penyelesaian})"
+                )
+            elif days_left < 0:
+                notif_type = "overdue_daily"
+                title = "Tindak Lanjut Kasus Overdue"
+                message = (
+                    f'Tindak lanjut kasus "{record.nama_korban}" '
+                    f"telah melewati target penyelesaian ({record.target_penyelesaian})"
+                )
+            else:
+                continue
+
+            link = f"/dashboard/reports/case-incident?view={record.id}"
+            today_start = datetime.combine(today, datetime.min.time())
+            already = (
+                db.query(_models.Notification)
+                .filter(
+                    _models.Notification.type == notif_type,
+                    _models.Notification.link == link,
+                    _models.Notification.created_at >= today_start,
+                )
+                .first()
+            )
+            if already:
+                continue
+
+            user_ids = set()
+            if record.korban_dept_id:
+                for u in (
+                    db.query(_models.User)
+                    .filter(
+                        _models.User.department_id == record.korban_dept_id,
+                        _models.User.is_active == True,
+                    )
+                    .all()
+                ):
+                    user_ids.add(u.id)
+            for u in (
+                db.query(_models.User)
+                .join(_models.Role)
+                .filter(_models.Role.level <= 3, _models.User.is_active == True)
+                .all()
+            ):
+                user_ids.add(u.id)
+
+            if user_ids:
+                _notify_users(db, list(user_ids), notif_type, title, message, link)
+
         db.commit()
     except Exception as exc:
         db.rollback()

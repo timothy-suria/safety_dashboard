@@ -1700,7 +1700,7 @@ const DATE_PRESETS = [
   { label: 'Hari ini', value: 'today' },
   { label: 'Minggu ini', value: 'week' },
   { label: 'Bulan ini', value: 'month' },
-  { label: 'Kustom', value: 'custom' },
+  { label: 'Kustom Periode', value: 'custom' },
 ];
 
 function setDatePreset(val) {
