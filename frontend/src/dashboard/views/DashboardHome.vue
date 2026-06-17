@@ -87,7 +87,7 @@
       <!-- ── K3L tab ─────────────────────────────────────────────── -->
       <div v-show="activeTab === 'k3l'">
       <!-- Date filter row -->
-      <div class="date-filter-row">
+      <div class="date-filter-row" style="padding-left: 5px">
         <button
           v-for="opt in DATE_PRESETS"
           :key="opt.value"
