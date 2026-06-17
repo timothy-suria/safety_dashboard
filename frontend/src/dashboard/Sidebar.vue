@@ -268,6 +268,7 @@ async function handleLogout() {
 .sidebar {
   width: 240px;
   height: 100vh;
+  height: 100dvh;
   background: #1e2a3a;
   display: flex;
   flex-direction: column;
@@ -298,6 +299,7 @@ async function handleLogout() {
     top: 0;
     left: 0;
     height: 100vh;
+    height: 100dvh;
     width: 240px;
     z-index: 200;
     transform: translateX(0);

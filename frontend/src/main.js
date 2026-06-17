@@ -7,12 +7,8 @@ const app = createApp(App);
 app.use(router);
 app.mount("#app");
 
-// Register the service worker so the app is installable as a PWA and works
-// offline. (Push notifications reuse this same registration.)
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      /* registration failed (e.g. unsupported context) — app still works */
-    });
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
 }
