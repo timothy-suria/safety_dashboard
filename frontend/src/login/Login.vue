@@ -4,12 +4,12 @@
       <h1>Login</h1>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">Email:</label>
+          <label for="identifier">Email atau Username:</label>
           <input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="Masukkan email Anda"
+            id="identifier"
+            v-model="identifier"
+            type="text"
+            placeholder="Masukkan email atau username Anda"
             required
           />
         </div>
@@ -42,7 +42,7 @@ import { useRouter } from "vue-router";
 import { authService } from "@/services/authService";
 
 const router = useRouter();
-const email = ref("");
+const identifier = ref("");
 const password = ref("");
 const loading = ref(false);
 const error = ref("");
@@ -54,11 +54,11 @@ const handleLogin = async () => {
   loading.value = true;
 
   try {
-    if (!email.value || !password.value) {
+    if (!identifier.value || !password.value) {
       throw new Error("Harap isi semua kolom");
     }
 
-    const result = await authService.login(email.value, password.value);
+    const result = await authService.login(identifier.value, password.value);
     successMessage.value = result.message;
     setTimeout(() => router.push("/dashboard"), 1500);
   } catch (err) {

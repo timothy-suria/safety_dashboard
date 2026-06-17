@@ -555,6 +555,7 @@
                             :key="idx"
                             :src="photo.preview"
                             alt="Foto sebelum"
+                            loading="lazy"
                             class="photo-readonly-thumb"
                             @click="
                               openPhotoModalFromUrls(
@@ -1042,6 +1043,7 @@
                         :key="'before-' + idx"
                         :src="url"
                         alt="Foto sebelum"
+                        loading="lazy"
                         class="detail-photo-thumb"
                         @click="
                           openPhotoModalFromUrls(
@@ -1068,6 +1070,7 @@
                         :key="'after-' + idx"
                         :src="url"
                         alt="Foto sesudah"
+                        loading="lazy"
                         class="detail-photo-thumb"
                         @click="
                           openPhotoModalFromUrls(
@@ -1228,6 +1231,7 @@
                           :key="'tl-' + tl.id + '-' + idx"
                           :src="url"
                           alt="Foto sesudah"
+                          loading="lazy"
                           class="detail-photo-thumb"
                           @click="
                             openPhotoModalFromUrls(

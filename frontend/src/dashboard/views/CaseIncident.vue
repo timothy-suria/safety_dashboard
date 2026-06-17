@@ -1248,6 +1248,7 @@
                       :key="idx"
                       :src="url"
                       alt="Foto kejadian"
+                      loading="lazy"
                       class="detail-photo-thumb"
                       @click="
                         openPhotoModalFromUrls(

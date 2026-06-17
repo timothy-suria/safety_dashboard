@@ -36,15 +36,15 @@ export const authService = {
     return result;
   },
 
-  async login(email, password) {
+  async login(identifier, password) {
     const data = await gql(
-      `mutation Login($email: String!, $password: String!) {
-        login(email: $email, password: $password) {
+      `mutation Login($identifier: String!, $password: String!) {
+        login(identifier: $identifier, password: $password) {
           success message token
           user { id email fullName username role roleId roleLevel businessUnit plant businessUnitId plantId departmentId department }
         }
       }`,
-      { email, password },
+      { identifier, password },
     );
     const result = data.login;
     if (!result.success) throw new Error(result.message);

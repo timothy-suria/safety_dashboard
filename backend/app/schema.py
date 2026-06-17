@@ -1272,19 +1272,19 @@ class Mutation:
             db.close()
 
     @strawberry.mutation
-    def login(self, email: str, password: str) -> AuthPayload:
-        if not email.endswith("@cp.co.id"):
-            return AuthPayload(success=False, message="Invalid email format")
-
+    def login(self, identifier: str, password: str) -> AuthPayload:
         db = _get_db()
         try:
-            user = db.query(models.User).filter(models.User.email == email).first()
+            if "@" in identifier:
+                user = db.query(models.User).filter(models.User.email == identifier).first()
+            else:
+                user = db.query(models.User).filter(models.User.username == identifier).first()
             if not user:
                 return AuthPayload(success=False, message="User not found. Please register first")
             if not auth.verify_password(password, user.hashed_password):
                 return AuthPayload(success=False, message="Invalid password")
 
-            token = auth.create_token(email)
+            token = auth.create_token(user.email)
             role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
             bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
             plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()

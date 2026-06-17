@@ -405,7 +405,7 @@
             class="view-banner"
             @click="openLightbox(parseFotos(modal.record.foto), 0)"
           >
-            <img :src="parseFotos(modal.record.foto)[0]" />
+            <img :src="parseFotos(modal.record.foto)[0]" loading="lazy" />
             <span
               v-if="parseFotos(modal.record.foto).length > 1"
               class="view-banner-count"
@@ -577,6 +577,7 @@
                   v-for="(url, i) in parseFotos(modal.record.foto).slice(1)"
                   :key="i"
                   :src="url"
+                  loading="lazy"
                   class="foto-thumb"
                   @click="openLightbox(parseFotos(modal.record.foto), i + 1)"
                 />

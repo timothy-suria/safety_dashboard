@@ -4,7 +4,7 @@
  * 2. Offline app shell: caches the built assets so the installed PWA opens
  *    instantly and works without a connection. */
 
-const CACHE = "safety-dashboard-v1";
+const CACHE = "safety-dashboard-v2";
 const APP_SHELL = ["/", "/index.html", "/CPIN.JK.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -54,7 +54,26 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first, then network (and cache the result).
+  // JS/CSS assets: network-first so code updates take effect immediately.
+  // Falls back to cache for offline support.
+  const url = new URL(req.url);
+  const isAsset = /\.(js|css|woff2?|ttf|otf)(\?.*)?$/.test(url.pathname);
+  if (isAsset) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.status === 200 && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req)),
+    );
+    return;
+  }
+
+  // Other static assets (images, icons): cache-first.
   event.respondWith(
     caches.match(req).then(
       (cached) =>
