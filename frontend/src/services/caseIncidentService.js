@@ -39,7 +39,7 @@ export const caseIncidentService = {
           deskripsiKecelakaan penyebabKecelakaan perbaikanDilakukan
           saksiList fotoKejadian targetPenyelesaian status
           businessUnitId businessUnitName plantId plantName
-          createdBy createdAt updatedAt commentCount
+          createdBy updatedByName createdAt updatedAt commentCount
         }
       }
     `);

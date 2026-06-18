@@ -953,6 +953,12 @@
                       )?.name || "-"
                     }}</span>
                   </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Terakhir Diubah Oleh</span>
+                    <span class="detail-value">{{
+                      viewingRecord.updatedByName || "-"
+                    }}</span>
+                  </div>
                 </div>
 
                 <div

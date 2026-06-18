@@ -245,6 +245,7 @@ class InspectionK3LType:
     tindak_lanjut_list: Optional[List[InspectionK3LTindakLanjutHistoryType]] = None
     validasi_count: int = 0
     validasi_list: Optional[List[InspectionK3LValidasiHistoryType]] = None
+    updated_by_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     comment_count: int = 0
@@ -283,6 +284,7 @@ class CaseIncidentType:
     business_unit_name: Optional[str] = None
     plant_id: Optional[int] = None
     plant_name: Optional[str] = None
+    updated_by_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     comment_count: int = 0
@@ -328,6 +330,7 @@ def _ci_to_type(r: models.CaseIncident, db=None) -> CaseIncidentType:
             business_unit_name=bu.name if bu else None,
             plant_id=r.plant_id,
             plant_name=plant.name if plant else None,
+            updated_by_name=r.updated_by_name,
             created_at=str(r.created_at) if r.created_at else None,
             updated_at=str(r.updated_at) if r.updated_at else None,
             comment_count=_comment_count(db, "case_incident", r.id),
@@ -361,6 +364,7 @@ class HseDailyType:
     plant_id: Optional[int] = None
     plant_name: Optional[str] = None
     created_by: Optional[int] = None
+    updated_by_name: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     comment_count: int = 0
@@ -571,6 +575,7 @@ def _model_to_type(record: models.InspectionK3L, db: Optional[Session] = None) -
             tindak_lanjut_list=_tl_list(db, record.id),
             validasi_count=_val_count(db, record.id),
             validasi_list=_val_list(db, record.id),
+            updated_by_name=record.updated_by_name,
             created_at=str(record.created_at) if record.created_at else None,
             updated_at=str(record.updated_at) if record.updated_at else None,
             comment_count=_comment_count(db, "inspection_k3l", record.id),
@@ -612,6 +617,7 @@ def _hse_daily_to_type(r: models.HseDailyReport, db=None) -> HseDailyType:
             plant_id=r.plant_id,
             plant_name=plant.name if plant else None,
             created_by=r.created_by,
+            updated_by_name=r.updated_by_name,
             created_at=str(r.created_at) if r.created_at else None,
             updated_at=str(r.updated_at) if r.updated_at else None,
             comment_count=_comment_count(db, "hse_daily", r.id),
@@ -1394,6 +1400,7 @@ class Mutation:
                 status=status or "Open",
                 aktual_close=datetime.fromisoformat(aktual_close) if aktual_close else None,
                 created_by=user.id,
+                updated_by_name=user.full_name or user.username or user.email,
                 pelapor_username=user.full_name or user.username or user.email,
                 pelapor_department_id=user.department_id,
                 business_unit_id=business_unit_id,
@@ -1509,6 +1516,9 @@ class Mutation:
                 record.jenis_inspeksi = jenis_inspeksi
             if petugas_inspeksi is not None:
                 record.petugas_inspeksi = petugas_inspeksi
+
+            # Record whoever last edited the data
+            record.updated_by_name = user.full_name or user.username or user.email
 
             db.commit()
             db.refresh(record)
@@ -2434,6 +2444,7 @@ class Mutation:
                 business_unit_id=business_unit_id,
                 plant_id=plant_id,
                 created_by=user.id,
+                updated_by_name=user.full_name or user.username or user.email,
             )
             db.add(record)
             db.commit()
@@ -2519,6 +2530,8 @@ class Mutation:
                 record.business_unit_id = business_unit_id
             if plant_id is not None:
                 record.plant_id = plant_id
+            # Record whoever last edited the data
+            record.updated_by_name = user.full_name or user.username or user.email
             db.commit()
             db.refresh(record)
             try:
@@ -3043,6 +3056,7 @@ class Mutation:
                 target_penyelesaian=date.fromisoformat(target_penyelesaian) if target_penyelesaian else None,
                 status=status or "Open",
                 created_by=user.id,
+                updated_by_name=user.full_name or user.username or user.email,
                 business_unit_id=business_unit_id if business_unit_id is not None else user.business_unit_id,
                 plant_id=plant_id if plant_id is not None else user.plant_id,
             )
@@ -3110,6 +3124,8 @@ class Mutation:
             if status is not None: record.status = status
             if business_unit_id is not None: record.business_unit_id = business_unit_id
             if plant_id is not None: record.plant_id = plant_id
+            # Record whoever last edited the data
+            record.updated_by_name = user.full_name or user.username or user.email
             db.commit()
             db.refresh(record)
             return CaseIncidentPayload(success=True, message="Laporan berhasil diperbarui", incident=_ci_to_type(record))

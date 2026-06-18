@@ -127,6 +127,8 @@ class InspectionK3L(Base):
     status_validasi = Column(String(20))
 
     # Audit trail
+    # Display name of whoever last touched the record (creator on create, editor on update)
+    updated_by_name = Column(String(100))
     created_at = Column(DateTime, server_default=func.current_timestamp())
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
@@ -200,6 +202,8 @@ class HseDailyReport(Base):
     plant_id = Column(Integer, ForeignKey("plants.id"))
     created_by = Column(Integer, ForeignKey("users.id"))
 
+    # Display name of whoever last touched the record (creator on create, editor on update)
+    updated_by_name = Column(String(100))
     created_at = Column(DateTime, server_default=func.current_timestamp())
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 
@@ -285,6 +289,8 @@ class CaseIncident(Base):
     business_unit_id = Column(Integer, ForeignKey("business_units.id"))
     plant_id = Column(Integer, ForeignKey("plants.id"))
 
+    # Display name of whoever last touched the record (creator on create, editor on update)
+    updated_by_name = Column(String(100))
     created_at = Column(DateTime, server_default=func.current_timestamp())
     updated_at = Column(DateTime, server_default=func.current_timestamp(), onupdate=func.current_timestamp())
 

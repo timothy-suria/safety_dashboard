@@ -49,7 +49,7 @@ const REPORT_FIELDS = `
   potensiBahaya levelRisiko pengendalianBahaya
   pengawasHse saranMasukan foto
   departmentId departmentName businessUnitId businessUnitName plantId plantName createdBy
-  createdAt updatedAt commentCount
+  updatedByName createdAt updatedAt commentCount
 `;
 
 export const hseDailyService = {

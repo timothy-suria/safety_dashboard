@@ -1154,6 +1154,12 @@
                       )?.name || '-'
                     }}</span>
                   </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Terakhir Diubah Oleh</span>
+                    <span class="detail-value">{{
+                      viewingRecord.updatedByName || '-'
+                    }}</span>
+                  </div>
                   <template v-if="parseSaksi(viewingRecord.saksiList).length">
                     <div
                       v-for="(s, i) in parseSaksi(viewingRecord.saksiList)"

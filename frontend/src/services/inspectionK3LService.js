@@ -127,7 +127,7 @@ export const inspectionK3LService = {
             id roundNumber divalidasiOleh divalidasiDepartmentId
             tanggalValidasi alasanValidasi statusValidasi
           }
-          createdAt updatedAt commentCount
+          updatedByName createdAt updatedAt commentCount
         }
       }
     `);
