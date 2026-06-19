@@ -42,3 +42,6 @@ seeds.py
 
 #local sql
 local_data.sql
+
+# Uploaded files
+uploads/

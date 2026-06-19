@@ -9,6 +9,7 @@ export async function uploadChatMedia(file) {
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("prefix", "chat");
 
   const res = await fetch(CHAT_UPLOAD_URL, {
     method: "POST",

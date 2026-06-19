@@ -4087,7 +4087,7 @@ async function uploadPhotoList(photoList, isCreate = false) {
   const urls = [];
   for (const photo of photoList) {
     if (photo.file) {
-      urls.push(await uploadImage(photo.file));
+      urls.push(await uploadImage(photo.file, "inspectionk3l"));
     } else if (photo.preview) {
       urls.push(photo.preview);
     }

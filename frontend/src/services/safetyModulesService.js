@@ -24,10 +24,11 @@ async function gql(query, variables = {}) {
   return data;
 }
 
-async function uploadToEndpoint(url, file) {
+async function uploadToEndpoint(url, file, prefix = "") {
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
+  if (prefix) formData.append("prefix", prefix);
 
   const res = await fetch(url, {
     method: "POST",
@@ -50,14 +51,15 @@ export function getMediaType(file) {
   return "document";
 }
 
-export async function uploadVideo(file) {
-  return uploadToEndpoint(UPLOAD_VIDEO_URL, file);
+export async function uploadVideo(file, prefix = "") {
+  return uploadToEndpoint(UPLOAD_VIDEO_URL, file, prefix);
 }
 
-export async function uploadImage(file) {
+export async function uploadImage(file, prefix = "") {
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
+  if (prefix) formData.append("prefix", prefix);
 
   const res = await fetch(`${API_BASE}/upload`, {
     method: "POST",
@@ -74,15 +76,15 @@ export async function uploadImage(file) {
   return url;
 }
 
-export async function uploadDocument(file) {
-  return uploadToEndpoint(UPLOAD_DOC_URL, file);
+export async function uploadDocument(file, prefix = "") {
+  return uploadToEndpoint(UPLOAD_DOC_URL, file, prefix);
 }
 
-export async function uploadFile(file) {
+export async function uploadFile(file, prefix = "") {
   const type = getMediaType(file);
-  if (type === "video") return { url: await uploadVideo(file), mediaType: "video" };
-  if (type === "image") return { url: await uploadImage(file), mediaType: "image" };
-  return { url: await uploadDocument(file), mediaType: "document" };
+  if (type === "video") return { url: await uploadVideo(file, prefix), mediaType: "video" };
+  if (type === "image") return { url: await uploadImage(file, prefix), mediaType: "image" };
+  return { url: await uploadDocument(file, prefix), mediaType: "document" };
 }
 
 export const safetyModulesService = {

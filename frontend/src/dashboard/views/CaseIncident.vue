@@ -2090,7 +2090,7 @@ async function uploadPhotoList(photoList) {
   if (!photoList.length) return null;
   const urls = [];
   for (const photo of photoList) {
-    if (photo.file) urls.push(await uploadImage(photo.file));
+    if (photo.file) urls.push(await uploadImage(photo.file, "caseincident"));
     else if (photo.preview) urls.push(photo.preview);
   }
   return JSON.stringify(urls);

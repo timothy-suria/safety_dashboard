@@ -1791,7 +1791,7 @@ async function uploadFotoList() {
   const urls = [];
   for (const photo of form.value.fotos) {
     if (photo.file) {
-      urls.push(await uploadImage(photo.file));
+      urls.push(await uploadImage(photo.file, "permitkerjahse"));
     } else if (photo.preview) {
       urls.push(photo.preview);
     }

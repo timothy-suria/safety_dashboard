@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime, date, timedelta, timezone
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 import os
 from dotenv import load_dotenv
 
@@ -221,6 +223,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_upload_dir = Path(os.getenv("UPLOAD_DIR", "/app/uploads"))
+_upload_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
+
 app.include_router(graphql_router, prefix="/graphql")
 
 
@@ -230,19 +236,19 @@ def health():
 
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), prefix: str = Form("")):
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
     try:
         contents = await file.read()
-        url = upload_image(contents)
+        url = upload_image(contents, prefix=prefix)
         return {"url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/upload-video")
-async def upload_video_file(request: Request, file: UploadFile = File(...)):
+async def upload_video_file(request: Request, file: UploadFile = File(...), prefix: str = Form("")):
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.removeprefix("Bearer ").strip()
     email = _auth.decode_token(token) if token else None
@@ -263,7 +269,7 @@ async def upload_video_file(request: Request, file: UploadFile = File(...)):
 
     try:
         contents = await file.read()
-        url = upload_video(contents)
+        url = upload_video(contents, prefix=prefix)
         return {"url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -274,7 +280,7 @@ CHAT_VIDEO_MAX_BYTES = 50 * 1024 * 1024   # 50 MB
 
 
 @app.post("/upload-chat-media")
-async def upload_chat_media(request: Request, file: UploadFile = File(...)):
+async def upload_chat_media(request: Request, file: UploadFile = File(...), prefix: str = Form("chat")):
     """Authenticated users (any role) upload an image or video for a chat message."""
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.removeprefix("Bearer ").strip()
@@ -307,8 +313,8 @@ async def upload_chat_media(request: Request, file: UploadFile = File(...)):
         raise HTTPException(status_code=413, detail=f"File too large (max {limit_mb} MB)")
 
     try:
-        url = upload_image(contents, folder="safety_dashboard/chat") if kind == "image" \
-            else upload_video(contents, folder="safety_dashboard/chat")
+        url = upload_image(contents, prefix=prefix) if kind == "image" \
+            else upload_video(contents, prefix=prefix)
         return {"url": url, "type": kind}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -326,7 +332,7 @@ ALLOWED_DOC_TYPES = {
 
 
 @app.post("/upload-document")
-async def upload_document_file(request: Request, file: UploadFile = File(...)):
+async def upload_document_file(request: Request, file: UploadFile = File(...), prefix: str = Form("")):
     auth_header = request.headers.get("Authorization", "")
     token = auth_header.removeprefix("Bearer ").strip()
     email = _auth.decode_token(token) if token else None
@@ -346,8 +352,10 @@ async def upload_document_file(request: Request, file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only document files are allowed (PDF, Word, Excel, PowerPoint)")
 
     try:
+        import os as _os
         contents = await file.read()
-        url = upload_document(contents)
+        ext = _os.path.splitext(file.filename or "")[1] or ".bin"
+        url = upload_document(contents, ext=ext, prefix=prefix)
         return {"url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -553,7 +553,7 @@ async function submitUpload() {
   uploading.value = true;
   try {
     const uploaded = await Promise.all(uploadForm.value.files.map(async (f) => {
-      const { url, mediaType } = await uploadFile(f);
+      const { url, mediaType } = await uploadFile(f, props.kategori || "safetymodule");
       return { url, mediaType, name: f.name };
     }));
     await safetyModulesService.create(
@@ -746,7 +746,7 @@ async function submitEdit() {
   editSaving.value = true;
   try {
     const uploaded = await Promise.all(editForm.value.newFiles.map(async (f) => {
-      const { url, mediaType } = await uploadFile(f);
+      const { url, mediaType } = await uploadFile(f, props.kategori || "safetymodule");
       return { url, mediaType, name: f.name };
     }));
     const allFiles = [...editForm.value.existingFiles, ...uploaded];

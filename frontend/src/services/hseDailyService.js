@@ -23,10 +23,11 @@ async function gql(query, variables = {}) {
   return data;
 }
 
-export async function uploadImage(file) {
+export async function uploadImage(file, prefix = "") {
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
+  if (prefix) formData.append("prefix", prefix);
 
   const res = await fetch(UPLOAD_URL, {
     method: "POST",
