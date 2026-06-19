@@ -5272,8 +5272,9 @@ onActivated(() => {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
+.page-header > div { min-width: 0; }
 
 .page-header h2 {
   font-size: 22px;

@@ -2459,7 +2459,7 @@ onMounted(async () => {
   justify-content: center;
   gap: 6px;
   padding: 9px 18px;
-  background: #2563eb;
+  background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -2470,7 +2470,7 @@ onMounted(async () => {
   white-space: nowrap;
 }
 .btn-primary:hover {
-  background: #1d4ed8;
+  background: #2563eb;
 }
 .btn-primary:disabled {
   opacity: 0.55;

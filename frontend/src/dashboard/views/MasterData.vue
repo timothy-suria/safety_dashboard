@@ -6,6 +6,36 @@
         <h2 class="page-title">Master Data</h2>
         <p class="page-sub">Kelola data Business Unit, Plant, User, dan Department</p>
       </div>
+      <button v-if="activeTab === 'bu'" class="btn-primary" @click="openBuForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Tambah Business Unit
+      </button>
+      <button v-else-if="activeTab === 'plant'" class="btn-primary" @click="openPlantForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Tambah Plant
+      </button>
+      <button v-else-if="activeTab === 'user'" class="btn-primary" @click="openUserForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Tambah Pengguna
+      </button>
+      <button v-else-if="activeTab === 'role' && roleLevel <= 2" class="btn-primary" @click="openRoleForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Tambah Peran
+      </button>
+      <button v-else-if="activeTab === 'dept'" class="btn-primary" @click="openDeptForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
+          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Tambah Department
+      </button>
     </div>
 
     <!-- Tabs -->
@@ -64,12 +94,6 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openBuForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tambah Business Unit
-        </button>
       </div>
 
       <div class="card">
@@ -126,8 +150,8 @@
               </tr>
             </tbody>
           </table>
-          <PaginationBar :current-page="buPage" :total-pages="buPages" :total-items="buTotal" :per-page="buPer" @page="buGo" @per-page="buSetPer" />
         </div>
+        <PaginationBar :current-page="buPage" :total-pages="buPages" :total-items="buTotal" :per-page="buPer" @page="buGo" @per-page="buSetPer" />
       </div>
     </div>
 
@@ -152,12 +176,6 @@
             <option v-for="bu in buList" :key="bu.id" :value="bu.id">{{ bu.name }}</option>
           </select>
         </div>
-        <button class="btn-primary" @click="openPlantForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tambah Plant
-        </button>
       </div>
 
       <div class="card">
@@ -216,8 +234,8 @@
               </tr>
             </tbody>
           </table>
-          <PaginationBar :current-page="plantPage" :total-pages="plantPages" :total-items="plantTotal" :per-page="plantPer" @page="plantGo" @per-page="plantSetPer" />
         </div>
+        <PaginationBar :current-page="plantPage" :total-pages="plantPages" :total-items="plantTotal" :per-page="plantPer" @page="plantGo" @per-page="plantSetPer" />
       </div>
     </div>
 
@@ -327,12 +345,6 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openUserForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tambah Pengguna
-        </button>
       </div>
 
       <div class="card">
@@ -395,8 +407,8 @@
               </tr>
             </tbody>
           </table>
-          <PaginationBar :current-page="userPage" :total-pages="userPages" :total-items="userTotal" :per-page="userPer" @page="userGo" @per-page="userSetPer" />
         </div>
+        <PaginationBar :current-page="userPage" :total-pages="userPages" :total-items="userTotal" :per-page="userPer" @page="userGo" @per-page="userSetPer" />
       </div>
     </div>
 
@@ -417,12 +429,6 @@
             </button>
           </div>
         </div>
-        <button v-if="roleLevel <= 2" class="btn-primary" @click="openRoleForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tambah Peran
-        </button>
       </div>
 
       <div class="card">
@@ -471,8 +477,8 @@
               </tr>
             </tbody>
           </table>
-          <PaginationBar :current-page="rolePage" :total-pages="rolePages" :total-items="roleTotal" :per-page="rolePer" @page="roleGo" @per-page="roleSetPer" />
         </div>
+        <PaginationBar :current-page="rolePage" :total-pages="rolePages" :total-items="roleTotal" :per-page="rolePer" @page="roleGo" @per-page="roleSetPer" />
       </div>
     </div>
 
@@ -604,12 +610,6 @@
             </button>
           </div>
         </div>
-        <button class="btn-primary" @click="openDeptForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon-inline">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Tambah Department
-        </button>
       </div>
 
       <div class="card">
@@ -666,8 +666,8 @@
               </tr>
             </tbody>
           </table>
-          <PaginationBar :current-page="deptPage" :total-pages="deptPages" :total-items="deptTotal" :per-page="deptPer" @page="deptGo" @per-page="deptSetPer" />
         </div>
+        <PaginationBar :current-page="deptPage" :total-pages="deptPages" :total-items="deptTotal" :per-page="deptPer" @page="deptGo" @per-page="deptSetPer" />
       </div>
     </div>
 
@@ -1277,8 +1277,14 @@ function formatDate(val) {
 
 /* Header */
 .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 20px;
+  flex-wrap: nowrap;
 }
+.page-header > div { min-width: 0; }
 .page-title {
   font-size: 22px;
   font-weight: 700;
@@ -1421,6 +1427,7 @@ function formatDate(val) {
 .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 .data-table {
   width: 100%;
@@ -1473,7 +1480,8 @@ function formatDate(val) {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .th-action { text-align: center; width: 90px; }
-.td-action { text-align: center; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.td-action { text-align: center; white-space: nowrap; vertical-align: middle; }
+.td-action .btn-icon + .btn-icon { margin-left: 6px; }
 
 .code-badge {
   display: inline-block;
@@ -1567,8 +1575,9 @@ function formatDate(val) {
 /* Mobile */
 @media (max-width: 767px) {
   .master-data { padding: 16px; }
+  .page-header { flex-wrap: wrap; }
+  .page-header .btn-primary { width: 100%; justify-content: center; }
   .section-bar { flex-direction: column; align-items: flex-start; }
-  .btn-primary { width: 100%; justify-content: center; }
   .tabs { width: 100%; }
   .tab-btn { flex: 1; text-align: center; }
 }
