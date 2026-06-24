@@ -433,7 +433,7 @@ async function handleLogout() {
   color: #60a5fa;
 }
 
-/* ── Sidebar footer ── */
+/* Sidebar footer */
 .sidebar-footer {
   display: flex;
   align-items: center;

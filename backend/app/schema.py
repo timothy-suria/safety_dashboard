@@ -693,7 +693,7 @@ def _can_access_report(db: Session, user: models.User, report_type: str, report_
     return True
 
 
-# ── Chat types & helpers ─────────────────────────────────────────────────
+# Chat types & helpers
 
 @strawberry.type
 class ChatMessageType:
@@ -1227,6 +1227,34 @@ def _delete_module_files(files_json: str | None) -> None:
             pass
 
 
+def _auth_payload_for(db, user, message: str) -> "AuthPayload":
+    # token + user details for a successful auth
+    token = auth.create_token(user.email)
+    role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
+    bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
+    plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()
+    dept_rec = db.query(models.Department).filter(models.Department.id == user.department_id).first()
+    return AuthPayload(
+        success=True,
+        message=message,
+        token=token,
+        user=UserType(
+            id=user.id, email=user.email,
+            role=role_name.name if role_name else "",
+            business_unit=bu_name.name if bu_name else "",
+            plant=plant_rec.name if plant_rec else None,
+            full_name=user.full_name,
+            username=user.username,
+            role_id=user.role_id,
+            role_level=role_name.level if role_name else None,
+            business_unit_id=user.business_unit_id,
+            plant_id=user.plant_id,
+            department_id=user.department_id,
+            department=dept_rec.name if dept_rec else None,
+        ),
+    )
+
+
 @strawberry.type
 class Mutation:
     @strawberry.mutation
@@ -1249,30 +1277,7 @@ class Mutation:
             db.commit()
             db.refresh(user)
 
-            token = auth.create_token(email)
-            role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
-            bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
-            plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()
-            dept_rec = db.query(models.Department).filter(models.Department.id == user.department_id).first()
-            return AuthPayload(
-                success=True,
-                message="Registration successful",
-                token=token,
-                user=UserType(
-                    id=user.id, email=user.email,
-                    role=role_name.name if role_name else "",
-                    business_unit=bu_name.name if bu_name else "",
-                    plant=plant_rec.name if plant_rec else None,
-                    full_name=user.full_name,
-                    username=user.username,
-                    role_id=user.role_id,
-                    role_level=role_name.level if role_name else None,
-                    business_unit_id=user.business_unit_id,
-                    plant_id=user.plant_id,
-                    department_id=user.department_id,
-                    department=dept_rec.name if dept_rec else None,
-                ),
-            )
+            return _auth_payload_for(db, user, "Registration successful")
         except Exception as e:
             db.rollback()
             return AuthPayload(success=False, message=f"Registration failed: {str(e)}")
@@ -1281,44 +1286,35 @@ class Mutation:
 
     @strawberry.mutation
     def login(self, identifier: str, password: str) -> AuthPayload:
+        # gateway checks password + active account
+        result = auth.verify_employee(identifier, password)
+        if not result.ok:
+            return AuthPayload(success=False, message=result.message)
+
         db = _get_db()
         try:
             if "@" in identifier:
                 user = db.query(models.User).filter(models.User.email == identifier).first()
             else:
                 user = db.query(models.User).filter(models.User.username == identifier).first()
-            if not user:
-                return AuthPayload(success=False, message="User not found. Please register first")
-            if not auth.verify_password(password, user.hashed_password):
-                return AuthPayload(success=False, message="Invalid password")
 
-            user.last_login = datetime.now()
+            if not user:
+                # first login: create a local record, admin assigns role/BU later
+                user = models.User(
+                    email=identifier,
+                    username=None if "@" in identifier else identifier,
+                    hashed_password=auth.unusable_password_hash(),
+                    verified=True,
+                    is_active=True,
+                )
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+
+            user.last_login = datetime.utcnow()
             db.commit()
 
-            token = auth.create_token(user.email)
-            role_name = db.query(models.Role).filter(models.Role.id == user.role_id).first()
-            bu_name = db.query(models.BusinessUnit).filter(models.BusinessUnit.id == user.business_unit_id).first()
-            plant_rec = db.query(models.Plant).filter(models.Plant.id == user.plant_id).first()
-            dept_rec = db.query(models.Department).filter(models.Department.id == user.department_id).first()
-            return AuthPayload(
-                success=True,
-                message="Login successful",
-                token=token,
-                user=UserType(
-                    id=user.id, email=user.email,
-                    role=role_name.name if role_name else "",
-                    business_unit=bu_name.name if bu_name else "",
-                    plant=plant_rec.name if plant_rec else None,
-                    full_name=user.full_name,
-                    username=user.username,
-                    role_id=user.role_id,
-                    role_level=role_name.level if role_name else None,
-                    business_unit_id=user.business_unit_id,
-                    plant_id=user.plant_id,
-                    department_id=user.department_id,
-                    department=dept_rec.name if dept_rec else None,
-                ),
-            )
+            return _auth_payload_for(db, user, "Login successful")
         finally:
             db.close()
 
@@ -1733,7 +1729,7 @@ class Mutation:
             db.close()
 
 
-    # ── Business Unit mutations ──────────────────────────────────────────
+    # Business Unit mutations
 
     @strawberry.mutation
     def create_business_unit(
@@ -1833,7 +1829,7 @@ class Mutation:
         finally:
             db.close()
 
-    # ── Department mutations ─────────────────────────────────────────────
+    # Department mutations
 
     @strawberry.mutation
     def create_department(
@@ -1933,7 +1929,7 @@ class Mutation:
         finally:
             db.close()
 
-    # ── Plant mutations ──────────────────────────────────────────────────
+    # Plant mutations
 
     @strawberry.mutation
     def create_plant(
@@ -2039,7 +2035,7 @@ class Mutation:
             db.close()
 
 
-    # ── Role mutations ───────────────────────────────────────────────────
+    # Role mutations
 
     @strawberry.mutation
     def create_role(
@@ -2134,7 +2130,7 @@ class Mutation:
         finally:
             db.close()
 
-    # ── User mutations ───────────────────────────────────────────────────
+    # User mutations
 
     @strawberry.mutation
     def create_user(
@@ -2272,7 +2268,7 @@ class Mutation:
             db.close()
 
 
-    # ── Safety Module mutations ──────────────────────────────────────────
+    # Safety Module mutations
 
     @strawberry.mutation
     def create_safety_module(
@@ -2404,7 +2400,7 @@ class Mutation:
             db.close()
 
 
-    # ── HSE Daily Report mutations ───────────────────────────────────────
+    # HSE Daily Report mutations
 
     @strawberry.mutation
     def create_hse_daily(
@@ -2598,7 +2594,7 @@ class Mutation:
             db.close()
 
 
-    # ── Comment mutations ────────────────────────────────────────────────
+    # Comment mutations
 
     @strawberry.mutation
     def create_comment(
@@ -2725,7 +2721,7 @@ class Mutation:
             db.close()
 
 
-    # ── Chat mutations ───────────────────────────────────────────────────
+    # Chat mutations
 
     @strawberry.mutation
     def send_chat_message(

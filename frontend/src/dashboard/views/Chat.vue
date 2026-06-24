@@ -1,6 +1,6 @@
 <template>
   <div class="chat-page">
-    <!-- ── Sidebar: contacts ── -->
+    <!-- Sidebar: contacts -->
     <aside class="chat-sidebar" :class="{ 'mobile-hidden': activeUserId && isMobile }">
       <div class="chat-sidebar-head">
         <h2 class="chat-title">Chat</h2>
@@ -56,7 +56,7 @@
       </div>
     </aside>
 
-    <!-- ── Conversation pane ── -->
+    <!-- Conversation pane -->
     <section class="chat-pane">
       <div v-if="!activeUserId" class="chat-blank">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56">
@@ -605,7 +605,7 @@ function onThreadScroll() {
 
 watch(messages, () => { nextTick(scrollToBottom); });
 
-// ── Display helpers ────────────────────────────────────────────────────────
+// Display helpers
 function displayName(u) {
   if (!u) return '';
   return u.fullName || u.username || u.email || `User #${u.id}`;

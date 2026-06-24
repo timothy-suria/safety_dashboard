@@ -455,7 +455,7 @@
       </div>
     </div>
 
-    <!-- ── Form Modal ── -->
+    <!-- Form Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showForm" class="modal-overlay" @click.self="tryClose">
@@ -486,7 +486,7 @@
 
             <div class="modal-body">
               <form @submit.prevent="submitForm" class="form-grid" id="ci-form">
-                <!-- ── Data Kecelakaan ── -->
+                <!-- Data Kecelakaan -->
                 <div class="form-section">
                   <h4 class="section-title">Data Kecelakaan</h4>
 
@@ -801,7 +801,7 @@
                   </div>
                 </div>
 
-                <!-- ── Foto Kejadian ── -->
+                <!-- Foto Kejadian -->
                 <div class="form-section">
                   <h4 class="section-title">
                     Foto Kejadian
@@ -889,7 +889,7 @@
                   </div>
                 </div>
 
-                <!-- ── Hasil Investigasi ── -->
+                <!-- Hasil Investigasi -->
                 <div class="form-section">
                   <h4 class="section-title">Hasil Investigasi</h4>
                   <div class="form-row">
@@ -914,7 +914,7 @@
                   </div>
                 </div>
 
-                <!-- ── Tindakan Perbaikan ── -->
+                <!-- Tindakan Perbaikan -->
                 <div class="form-section">
                   <h4 class="section-title">Tindakan Perbaikan</h4>
                   <div class="form-row">
@@ -1096,7 +1096,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Detail Modal ── -->
+    <!-- Detail Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -1349,7 +1349,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Lightbox ── -->
+    <!-- Lightbox -->
     <Teleport to="body">
       <Transition name="lightbox-fade">
         <div
@@ -1456,7 +1456,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Delete Confirm Modal ── -->
+    <!-- Delete Confirm Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -1564,7 +1564,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Toast notification ── -->
+    <!-- Toast notification -->
     <Teleport to="body">
       <Transition name="toast">
         <div v-if="toast.show" :class="['toast', `toast-${toast.type}`]">
@@ -1595,7 +1595,7 @@ const roleLevel = authService.getRoleLevel();
 const isPrivileged = roleLevel <= 3;
 const canEditStatus = isPrivileged || currentUser?.department === 'Safety';
 
-// ── Toast ──
+// Toast
 const toast = reactive({ show: false, message: '', type: 'success' });
 let toastTimer = null;
 
@@ -1609,7 +1609,7 @@ function showToast(msg, type = 'success') {
   }, 4000);
 }
 
-// ── Table state ──
+// Table state
 const records = ref([]);
 const loading = ref(false);
 
@@ -1625,7 +1625,7 @@ async function loadRecords() {
   }
 }
 
-// ── Search / filter ──
+// Search / filter
 const searchQuery = ref('');
 const filterJenis = ref('');
 const filterStatus = ref('');
@@ -1750,7 +1750,7 @@ function resetFilters() {
   customDateTo.value = '';
 }
 
-// ── Excel export ──
+// Excel export
 function buildCiExport(source) {
   const parsedFotos = source.map((r) => parsePhotos(r.fotoKejadian));
   const maxFotos = Math.max(
@@ -1822,7 +1822,7 @@ async function exportExcel() {
   await exportToCsv(`case-incident-${today}.xlsx`, columns, rows);
 }
 
-// ── Pagination ──
+// Pagination
 const {
   currentPage: ciCurrentPage,
   perPage: ciPerPage,
@@ -1833,7 +1833,7 @@ const {
   setPerPage: ciSetPerPage,
 } = usePagination(filteredRecords);
 
-// ── Helpers ──
+// Helpers
 function formatDate(val) {
   if (!val) return '-';
   const d = new Date(val.replace(' ', 'T'));
@@ -1875,7 +1875,7 @@ function jenisClass(j) {
   return 'jenis-default';
 }
 
-// ── Form modal ──
+// Form modal
 const showForm = ref(false);
 const editingId = ref(null);
 const submitting = ref(false);
@@ -1897,7 +1897,7 @@ function getPlantName(id) {
   return plants.value.find((p) => p.id === id)?.name ?? '-';
 }
 
-// ── Saksi mention ──
+// Saksi mention
 const saksiList = ref([{ nama: '', departmentId: null }]);
 const saksiMentionActive = ref(-1);
 const saksiMentionQuery = ref('');
@@ -1977,7 +1977,7 @@ function onSaksiBlur(idx) {
   }, 150);
 }
 
-// ── Korban mention ──
+// Korban mention
 const korbanMentionOpen = ref(false);
 const korbanMentionQuery = ref('');
 const korbanMentionHighlight = ref(0);
@@ -2041,7 +2041,7 @@ function onKorbanBlur() {
   }, 150);
 }
 
-// ── Photos ──
+// Photos
 const photos = ref([]);
 
 function onPhotoSelect(event) {
@@ -2068,7 +2068,7 @@ function removePhotoAt(idx) {
   photos.value.splice(idx, 1);
 }
 
-// ── Camera capture ──
+// Camera capture
 const cameraModalRef = ref(null);
 
 function openCamera() {
@@ -2096,7 +2096,7 @@ async function uploadPhotoList(photoList) {
   return JSON.stringify(urls);
 }
 
-// ── Form ──
+// Form
 const emptyForm = () => ({
   businessUnitId: currentUser?.businessUnitId ?? null,
   plantId: currentUser?.plantId ?? null,
@@ -2177,7 +2177,7 @@ function editRecord(item) {
   showForm.value = true;
 }
 
-// ── Delete confirm ──
+// Delete confirm
 const showDeleteModal = ref(false);
 const deletingRecord = ref(null);
 const deleting = ref(false);
@@ -2323,7 +2323,7 @@ async function doSaveCI() {
   }
 }
 
-// ── View detail ──
+// View detail
 const showViewModal = ref(false);
 const viewingRecord = ref(null);
 
@@ -2360,7 +2360,7 @@ function parseSaksi(val) {
   }
 }
 
-// ── Lightbox ──
+// Lightbox
 const showPhotoModal = ref(false);
 const photoModalImages = ref([]);
 const photoModalIndex = ref(0);
@@ -2405,7 +2405,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* ── Page layout ── */
+/* Page layout */
 .case-incident {
   padding: 28px 32px;
   overflow-x: hidden;
@@ -2421,7 +2421,7 @@ onMounted(async () => {
   }
 }
 
-/* ── Page header ── */
+/* Page header */
 .page-header {
   display: flex;
   align-items: center;
@@ -2452,7 +2452,7 @@ onMounted(async () => {
   }
 }
 
-/* ── Buttons ── */
+/* Buttons */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -2495,7 +2495,7 @@ onMounted(async () => {
   background: #e2e8f0;
 }
 
-/* ── Filter bar ── */
+/* Filter bar */
 .filter-bar {
   display: flex;
   align-items: center;
@@ -2681,7 +2681,7 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-/* ── Table ── */
+/* Table */
 .table-wrapper {
   overflow-x: auto;
   border-radius: 10px;
@@ -2689,7 +2689,7 @@ onMounted(async () => {
   background: #fff;
 }
 
-/* ── Mobile card list ── */
+/* Mobile card list */
 .card-list {
   display: none;
 }
@@ -2960,7 +2960,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   color: #94a3b8;
 }
 
-/* ── Action buttons ── */
+/* Action buttons */
 .btn-icon {
   width: 30px;
   height: 30px;
@@ -2993,7 +2993,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   border-color: #fca5a5;
 }
 
-/* ── Status badge ── */
+/* Status badge */
 .status-badge {
   display: inline-block;
   padding: 3px 9px;
@@ -3015,7 +3015,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   color: #166534;
 }
 
-/* ── Jenis badge ── */
+/* Jenis badge */
 .jenis-badge {
   display: inline-block;
   padding: 3px 8px;
@@ -3037,7 +3037,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   color: #475569;
 }
 
-/* ── Photo count badge (table) ── */
+/* Photo count badge (table) */
 .photo-count-badge {
   display: inline-flex;
   align-items: center;
@@ -3059,7 +3059,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   background: #dbeafe;
 }
 
-/* ── Delete confirm modal ── */
+/* Delete confirm modal */
 .modal-sm {
   max-width: 460px;
 }
@@ -3144,7 +3144,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   cursor: not-allowed;
 }
 
-/* ── Toast ── */
+/* Toast */
 .toast {
   position: fixed;
   top: 24px;
@@ -3203,7 +3203,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   transform: translateX(40px);
 }
 
-/* ── Loading ── */
+/* Loading */
 .ci-loading {
   display: flex;
   flex-direction: column;
@@ -3228,7 +3228,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   }
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -3253,7 +3253,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   padding: 0;
 }
 
-/* ── Modal ── */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -3327,7 +3327,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   flex-shrink: 0;
 }
 
-/* ── Modal transition ── */
+/* Modal transition */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;
@@ -3348,7 +3348,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   opacity: 0;
 }
 
-/* ── Form ── */
+/* Form */
 .form-grid {
   display: flex;
   flex-direction: column;
@@ -3454,7 +3454,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   opacity: 1;
 }
 
-/* ── Pelapor (disabled) ── */
+/* Pelapor (disabled) */
 .input-pelapor {
   width: 100%;
   box-sizing: border-box;
@@ -3467,7 +3467,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   cursor: not-allowed;
 }
 
-/* ── Date input wrapper ── */
+/* Date input wrapper */
 .date-input-wrapper {
   position: relative;
   display: flex;
@@ -3484,7 +3484,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   pointer-events: auto;
 }
 
-/* ── Saksi / Petugas rows ── */
+/* Saksi / Petugas rows */
 .petugas-list {
   display: flex;
   flex-direction: column;
@@ -3557,7 +3557,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   background: #fee2e2;
 }
 
-/* ── Mention dropdown ── */
+/* Mention dropdown */
 .mention-dropdown {
   position: absolute;
   top: calc(100% + 4px);
@@ -3605,7 +3605,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   margin-left: auto;
 }
 
-/* ── Add button ── */
+/* Add button */
 .bullet-add {
   display: inline-flex;
   align-items: center;
@@ -3628,7 +3628,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   color: #1e293b;
 }
 
-/* ── Photo upload ── */
+/* Photo upload */
 .photo-upload {
   border: 2px dashed #e2e8f0;
   border-radius: 8px;
@@ -3712,7 +3712,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   color: #3b82f6;
 }
 
-/* ── Detail modal ── */
+/* Detail modal */
 .detail-grid {
   display: flex;
   flex-direction: column;
@@ -3780,7 +3780,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   transform: scale(1.03);
 }
 
-/* ── Lightbox ── */
+/* Lightbox */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -3939,7 +3939,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   background: #dc2626;
 }
 
-/* ── Comment badge ── */
+/* Comment badge */
 .comment-badge {
   display: inline-flex;
   align-items: center;
@@ -3961,7 +3961,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   margin-top: 6px;
 }
 
-/* ── Mobile: stack filters, no horizontal scroll (placed last to win cascade) ── */
+/* Mobile: stack filters, no horizontal scroll (placed last to win cascade) */
 @media (max-width: 768px) {
   /* Date presets: wrap instead of scroll; hide "Hari ini" to save space */
   .date-filter-row {

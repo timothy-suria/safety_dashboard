@@ -23,7 +23,7 @@ async function gql(query, variables = {}) {
 }
 
 export const masterDataService = {
-  // ── Business Unit ─────────────────────────────────────────────────────
+  // Business Unit
 
   async listBusinessUnits() {
     const hit = _cache.get('bu');
@@ -84,7 +84,7 @@ export const masterDataService = {
     return r;
   },
 
-  // ── Plant ─────────────────────────────────────────────────────────────
+  // Plant
 
   async listPlants(businessUnitId = null) {
     const key = 'plants:' + businessUnitId;
@@ -150,7 +150,7 @@ export const masterDataService = {
     return r;
   },
 
-  // ── Roles ─────────────────────────────────────────────────────────────
+  // Roles
 
   async listRoles() {
     const hit = _cache.get('roles');
@@ -209,7 +209,7 @@ export const masterDataService = {
     return r;
   },
 
-  // ── Users ─────────────────────────────────────────────────────────────
+  // Users
 
   async listUsers() {
     const hit = _cache.get('users');
@@ -276,7 +276,7 @@ export const masterDataService = {
     return r;
   },
 
-  // ── Department ────────────────────────────────────────────────────────
+  // Department
 
   async listDepartments() {
     const hit = _cache.get('dept');

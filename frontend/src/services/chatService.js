@@ -127,7 +127,7 @@ export const chatService = {
   },
 };
 
-// ── Subscription client ────────────────────────────────────────────────────
+// Subscription client
 let _wsClient = null;
 
 function getWsClient() {

@@ -129,7 +129,7 @@ const emit = defineEmits(["toggle-sidebar"]);
 
 const router = useRouter();
 
-// ── Notifications ──────────────────────────────────────────────────
+// Notifications
 const open = ref(false);
 const loading = ref(false);
 const notifications = ref([]);
@@ -230,7 +230,7 @@ function onOutsideClick(e) {
   }
 }
 
-// ── Toast (chat notifications only, tab visible) ──────────────────
+// Toast (chat notifications only, tab visible)
 const TOAST_DURATION = 8000; // ms
 const toasts = ref([]);
 let toastKey = 0;
@@ -271,7 +271,7 @@ async function handleToastClick(t) {
   }
 }
 
-// ── WebSocket subscription ─────────────────────────────────────────
+// WebSocket subscription
 let wsClient = null;
 let wsUnsub = null;
 
@@ -333,7 +333,7 @@ onUnmounted(() => {
   toasts.value.forEach((t) => clearTimeout(t.timer));
 });
 
-// ── Helpers ────────────────────────────────────────────────────────
+// Helpers
 function iconClass(type) {
   if (isOverdue(type)) return "icon-overdue";
   if (type.startsWith("reopen")) return "icon-reopen";
@@ -410,7 +410,7 @@ function timeAgo(ts) {
   gap: 16px;
 }
 
-/* ── Bell button ── */
+/* Bell button */
 .notif-wrap {
   position: relative;
 }
@@ -459,7 +459,7 @@ function timeAgo(ts) {
   box-sizing: border-box;
 }
 
-/* ── Dropdown ── */
+/* Dropdown */
 .notif-dropdown {
   position: absolute;
   top: calc(100% + 8px);

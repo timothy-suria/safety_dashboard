@@ -84,7 +84,7 @@
     </div>
 
     <template v-else>
-      <!-- ── K3L tab ─────────────────────────────────────────────── -->
+      <!-- K3L tab -->
       <div v-show="activeTab === 'k3l'">
       <!-- Date filter row -->
       <div class="date-filter-row" style="padding-left: 5px">
@@ -807,7 +807,7 @@
       </div>
       </div><!-- end k3l tab -->
 
-      <!-- ── Permit Kerja HSE tab ───────────────────────────────── -->
+      <!-- Permit Kerja HSE tab -->
       <div v-show="activeTab === 'hse'">
         <!-- HSE Date filter -->
         <div class="date-filter-row">
@@ -1170,7 +1170,7 @@
     </template>
   </div>
 
-  <!-- ── Detail Temuan Modal ───────────────────────────────────────── -->
+  <!-- Detail Temuan Modal -->
   <Transition name="modal">
     <div v-if="showTemuanModal && viewingTemuan" class="modal-overlay" @click.self="closeTemuanModal">
       <div class="modal-container modal-lg">
@@ -1389,7 +1389,7 @@
     </div>
   </Transition>
 
-  <!-- ── Photo Lightbox Modal ───────────────────────────────────────── -->
+  <!-- Photo Lightbox Modal -->
   <Teleport to="body">
     <Transition name="fade">
       <div
@@ -1451,10 +1451,10 @@ import { authService } from '@/services/authService.js';
 
 const router = useRouter();
 
-// ── Tab state ──────────────────────────────────────────────────────
+// Tab state
 const activeTab = ref('k3l');
 
-// ── HSE Daily data ─────────────────────────────────────────────────
+// HSE Daily data
 const hseRecords = ref([]);
 const hseDateFilter = ref('all');
 const hseCustomFrom = ref('');
@@ -1862,7 +1862,7 @@ const currentMonthYear = computed(() =>
   new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
 );
 
-// ── Stats ──────────────────────────────────────────────────────────
+// Stats
 const stats = computed(() => ({
   total: filteredByDate.value.length,
   open: filteredByDate.value.filter((r) => r.status === 'Open').length,
@@ -1946,7 +1946,7 @@ const categoryDeptBreakdown = computed(() => {
   return Array.from(counts.values()).sort((a, b) => b.count - a.count);
 });
 
-// ── Grouped bar chart (by category) ───────────────────────────────
+// Grouped bar chart (by category)
 const CAT_COLORS = {
   Minor: '#4ade80',
   Major: '#fbbf24',
@@ -2071,7 +2071,7 @@ const gridLines = computed(() => {
   return ticks;
 });
 
-// ── Tooltip ────────────────────────────────────────────────────────
+// Tooltip
 const tooltipData = ref(null);
 const tooltipPos = ref({ x: 0, y: 0 });
 
@@ -2091,7 +2091,7 @@ function onChartMouseMove(e) {
   tooltipPos.value = { x, y };
 }
 
-// ── Donut chart ────────────────────────────────────────────────────
+// Donut chart
 const hoveredDonut = ref(null);
 const donutTooltipPos = ref({ x: 0, y: 0 });
 
@@ -2142,7 +2142,7 @@ const donutSegments = computed(() => {
     });
 });
 
-// ── Calendar ───────────────────────────────────────────────────────
+// Calendar
 const hoveredDay = ref(null);
 const dayTooltipPos = ref({ x: 0, y: 0 });
 
@@ -2229,7 +2229,7 @@ function nextMonth() {
   calendarDate.value = d;
 }
 
-// ── Recent records ─────────────────────────────────────────────────
+// Recent records
 const recentRecords = computed(() =>
   [...filteredByDate.value]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
@@ -2259,7 +2259,7 @@ function parsePhotos(val) {
   try { const p = JSON.parse(val); return Array.isArray(p) ? p : [val]; } catch { return [val]; }
 }
 
-// ── Photo lightbox ──
+// Photo lightbox
 const showPhotoModal = ref(false);
 const photoModalImages = ref([]);
 const photoModalIndex = ref(0);
@@ -2360,7 +2360,7 @@ onMounted(loadDashboardData);
 </script>
 
 <style scoped>
-/* ── Detail Temuan Modal ────────────────────────────────────────── */
+/* Detail Temuan Modal */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(15,23,42,0.45);
   display: flex; align-items: center; justify-content: center;
@@ -2457,7 +2457,7 @@ onMounted(loadDashboardData);
   }
 }
 
-/* ── Date filter ─────────────────────────────────────────────────── */
+/* Date filter */
 .date-filter-row {
   display: flex;
   align-items: center;
@@ -2527,7 +2527,7 @@ onMounted(loadDashboardData);
   font-size: 13px;
 }
 
-/* ── Scope filter ───────────────────────────────────────────────── */
+/* Scope filter */
 .scope-filter-row {
   display: flex;
   align-items: center;
@@ -2583,7 +2583,7 @@ onMounted(loadDashboardData);
   }
 }
 
-/* ── Header ─────────────────────────────────────────────────────── */
+/* Header */
 .dash-header {
   display: flex;
   align-items: flex-start;
@@ -2627,7 +2627,7 @@ onMounted(loadDashboardData);
   flex-shrink: 0;
 }
 
-/* ── Loading ────────────────────────────────────────────────────── */
+/* Loading */
 .loading-state {
   display: flex;
   align-items: center;
@@ -2653,7 +2653,7 @@ onMounted(loadDashboardData);
   }
 }
 
-/* ── Empty / error state ────────────────────────────────────────── */
+/* Empty / error state */
 .dashboard-empty-state {
   display: flex;
   flex-direction: column;
@@ -2696,7 +2696,7 @@ onMounted(loadDashboardData);
   background: #2563eb;
 }
 
-/* ── KPI cards ──────────────────────────────────────────────────── */
+/* KPI cards */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2989,7 +2989,7 @@ onMounted(loadDashboardData);
   text-transform: uppercase;
 }
 
-/* ── Resolution rate ────────────────────────────────────────────── */
+/* Resolution rate */
 .rate-card {
   background: #fff;
   border-radius: 14px;
@@ -3046,7 +3046,7 @@ onMounted(loadDashboardData);
   font-weight: 600;
 }
 
-/* ── Chart cards ────────────────────────────────────────────────── */
+/* Chart cards */
 .charts-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -3111,7 +3111,7 @@ onMounted(loadDashboardData);
   display: block;
 }
 
-/* ── Grouped chart legend ────────────────────────────────────────── */
+/* Grouped chart legend */
 .grouped-legend {
   display: flex;
   gap: 12px;
@@ -3135,7 +3135,7 @@ onMounted(loadDashboardData);
   flex-shrink: 0;
 }
 
-/* ── Tooltip ─────────────────────────────────────────────────────── */
+/* Tooltip */
 .bar-tooltip {
   position: absolute;
   pointer-events: none;
@@ -3183,7 +3183,7 @@ onMounted(loadDashboardData);
   color: #fff;
 }
 
-/* ── Donut chart ────────────────────────────────────────────────── */
+/* Donut chart */
 .donut-body {
   display: flex;
   flex-direction: column;
@@ -3276,14 +3276,14 @@ onMounted(loadDashboardData);
   line-height: 1;
 }
 
-/* ── Bottom row ─────────────────────────────────────────────────── */
+/* Bottom row */
 .bottom-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-/* ── Calendar tooltip ───────────────────────────────────────────── */
+/* Calendar tooltip */
 .cal-body {
   position: relative;
 }
@@ -3341,7 +3341,7 @@ onMounted(loadDashboardData);
   color: #fff;
 }
 
-/* ── Calendar ───────────────────────────────────────────────────── */
+/* Calendar */
 .cal-nav {
   display: flex;
   gap: 4px;
@@ -3470,7 +3470,7 @@ onMounted(loadDashboardData);
   border: 1.5px solid #3b82f6;
 }
 
-/* ── Recent reports ─────────────────────────────────────────────── */
+/* Recent reports */
 .view-all-link {
   display: flex;
   align-items: center;
@@ -3586,7 +3586,7 @@ onMounted(loadDashboardData);
   color: #94a3b8;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 1100px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -3614,7 +3614,7 @@ onMounted(loadDashboardData);
   }
 }
 
-/* ── Tab switcher ──────────────────────────────────────────────────── */
+/* Tab switcher */
 .dash-tabs {
   display: flex;
   gap: 4px;
@@ -3646,14 +3646,14 @@ onMounted(loadDashboardData);
   .dash-tab { flex: 1; justify-content: center; font-size: 12px; padding: 7px 10px; }
 }
 
-/* ── HSE empty ─────────────────────────────────────────────────────── */
+/* HSE empty */
 .hse-empty {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 10px; padding: 60px 20px; color: #94a3b8; text-align: center;
 }
 .hse-empty p { font-size: 14px; margin: 0; }
 
-/* ── HSE rate card (permit compliance) ─────────────────────────────── */
+/* HSE rate card (permit compliance) */
 .hse-rate-card {
   padding: 22px 26px;
   margin-bottom: 18px;
@@ -3680,7 +3680,7 @@ onMounted(loadDashboardData);
   .rb-chip { font-size: 11px; padding: 4px 10px; }
 }
 
-/* ── HSE row grids ─────────────────────────────────────────────────── */
+/* HSE row grids */
 .hse-half-row {
   grid-template-columns: 1fr 1fr;
 }
@@ -3694,7 +3694,7 @@ onMounted(loadDashboardData);
   }
 }
 
-/* ── HSE donut ─────────────────────────────────────────────────────── */
+/* HSE donut */
 .hse-donut-wrap {
   display: flex; flex-direction: column; align-items: center; padding: 8px 4px 12px;
 }
@@ -3717,7 +3717,7 @@ onMounted(loadDashboardData);
 .hse-dl-val { font-size: 12px; font-weight: 600; color: #1e293b; flex-shrink: 0; }
 .hse-dl-pct { font-weight: 400; color: #94a3b8; font-size: 11px; }
 
-/* ── HSE horizontal bar list ───────────────────────────────────────── */
+/* HSE horizontal bar list */
 .hse-hbar-list {
   display: flex; flex-direction: column; gap: 14px; padding: 4px 0;
 }
@@ -3742,7 +3742,7 @@ onMounted(loadDashboardData);
   .hbar-label { width: 80px; font-size: 11px; }
 }
 
-/* ── HSE recent high-risk table ────────────────────────────────────── */
+/* HSE recent high-risk table */
 .hse-recent-table {
   overflow-x: auto;
   padding: 6px 16px 14px;
@@ -3777,7 +3777,7 @@ onMounted(loadDashboardData);
 .chip-yes { background: #dcfce7; color: #16a34a; }
 .chip-no { background: #fee2e2; color: #dc2626; }
 
-/* ── Photo Lightbox ── */
+/* Photo Lightbox */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 

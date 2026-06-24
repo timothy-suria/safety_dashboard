@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <!-- ── Input / Edit Form Modal ── -->
+ <!-- Input / Edit Form Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showForm" class="modal-overlay" @click.self="tryCloseForm">
@@ -910,7 +910,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── View Detail Modal ── -->
+ <!-- View Detail Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -1351,7 +1351,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Photo Lightbox Modal ── -->
+ <!-- Photo Lightbox Modal -->
     <Teleport to="body">
       <Transition name="fade">
         <div
@@ -1458,7 +1458,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Delete Confirm Modal ── -->
+ <!-- Delete Confirm Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -1567,7 +1567,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Tindak Lanjut Modal ── -->
+ <!-- Tindak Lanjut Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -1833,7 +1833,7 @@
       </Transition>
     </Teleport>
 
-    <!-- ── Validasi Safety Modal ── -->
+ <!-- Validasi Safety Modal -->
     <Teleport to="body">
       <Transition name="modal">
         <div
@@ -3076,7 +3076,7 @@
       </div>
     </div>
 
-    <!-- ── Modal: Export Bulanan (Option 1 + PDF) ──────────────────────── -->
+ <!-- Modal: Export Bulanan (Option 1 + PDF) -->
     <div
       v-if="showExportModal"
       class="modal-overlay"
@@ -3187,7 +3187,7 @@
       </div>
     </div>
 
-    <!-- ── Modal: Ringkasan Bulanan (Option 2) ──────────────────────────── -->
+ <!-- Modal: Ringkasan Bulanan (Option 2) -->
     <div
       v-if="showSummaryModal"
       class="modal-overlay"
@@ -3471,7 +3471,7 @@ const filteredPlants = computed(() => {
   );
 });
 
-// ── Scope filter (BU + Plant) ──
+// Scope filter (BU + Plant)
 const filterBU = ref(null);
 const filterPlant = ref(null);
 const availablePlants = ref([]);
@@ -3511,7 +3511,7 @@ function resetScopeFilter() {
   filterPlant.value = null;
 }
 
-// ── Search & filters ──
+// Search & filters
 const searchQuery = ref("");
 const filterKategori = ref("");
 const filterStatus = ref("");
@@ -3536,8 +3536,8 @@ const jenisCounts = computed(() => {
   return counts;
 });
 
-// How many items per jenis still need Tindak Lanjut or Validasi from THIS user — drives the action badge on each tab.
-// Mirrors the same gating as the row-action buttons: tindak lanjut only for the dept picked on the temuan, validasi only for Safety dept.
+// counts per jenis needing this user's action; drives the tab badges
+// tindak lanjut only for the temuan's dept, validasi only for Safety
 function needsTindakLanjut(r) {
   return (
     r.status !== "Closed" &&
@@ -3717,7 +3717,7 @@ function resetFilters() {
   resetScopeFilter();
 }
 
-// ── View detail modal ──
+// View detail modal
 const showViewModal = ref(false);
 const viewingRecord = ref(null);
 
@@ -3740,7 +3740,7 @@ function onCommentCountChange(count) {
     records.value[idx] = { ...records.value[idx], commentCount: count };
 }
 
-// ── Photo lightbox ──
+// Photo lightbox
 const showPhotoModal = ref(false);
 const photoModalImages = ref([]);
 const photoModalIndex = ref(0);
@@ -3789,7 +3789,7 @@ async function downloadCurrentPhoto() {
   }
 }
 
-// ── Lookup helpers ──
+// Lookup helpers
 function getBusinessUnitName(id) {
   if (!id) return "-";
   return businessUnits.value.find((u) => u.id === id)?.name ?? "-";
@@ -3827,7 +3827,7 @@ function formatDateOnly(val) {
   return `${dd}/${mm}/${yyyy}`;
 }
 
-// ── Toast ──
+// Toast
 const toast = reactive({ show: false, message: "", type: "success" });
 let toastTimer = null;
 
@@ -3845,7 +3845,7 @@ function showMessage(msg, type = "success") {
   showToast(msg, type);
 }
 
-// ── Photo upload (form) ──
+// Photo upload (form)
 const photos = ref([]);
 const photosAfter = ref([]);
 
@@ -3904,7 +3904,7 @@ function removePhotoAfterAt(idx) {
   photosAfter.value.splice(idx, 1);
 }
 
-// ── Camera capture ──
+// Camera capture
 const cameraModalRef = ref(null);
 const cameraTarget = ref(null);
 
@@ -3927,7 +3927,7 @@ function clearPhotosAfter() {
   photosAfter.value = [];
 }
 
-// ── Form ──
+// Form
 const defaultForm = () => ({
   jenisInspeksi: "",
   pelaporUsername: "",
@@ -3947,7 +3947,7 @@ const defaultForm = () => ({
 
 const form = ref(defaultForm());
 
-// ── Kategori tooltip positioning (fixed, escapes modal scroll clipping) ──
+// Kategori tooltip positioning (fixed, escapes modal scroll clipping)
 const kategoriTooltipStyle = ref({});
 function positionTooltip(e) {
   const rect = e.currentTarget.getBoundingClientRect();
@@ -4055,7 +4055,7 @@ function cancelForm() {
   clearPhotosAfter();
 }
 
-// ── Data loading ──
+// Data loading
 async function loadData() {
   loading.value = true;
   try {
@@ -4114,7 +4114,7 @@ function removeBulletOnEmpty(i, e) {
   }
 }
 
-// ── Tindak Lanjut ──
+// Tindak Lanjut
 const showTindakLanjutModal = ref(false);
 const tlTargetRecord = ref(null);
 const tlSubmitting = ref(false);
@@ -4227,7 +4227,7 @@ async function doSubmitTindakLanjut() {
   }
 }
 
-// ── Validasi Safety ─────────────────────────────────────────────────────
+// Validasi Safety
 const showValidasiModal = ref(false);
 const validasiTargetRecord = ref(null);
 const validasiSubmitting = ref(false);
@@ -4461,7 +4461,7 @@ function editRecord(item) {
   showForm.value = true;
 }
 
-// ── Delete modal ──
+// Delete modal
 const showDeleteModal = ref(false);
 const deletingRecord = ref(null);
 const deleting = ref(false);
@@ -4561,7 +4561,7 @@ async function exportCsv() {
   await exportToCsv(`inspection-k3l-${today}.xlsx`, columns, rows);
 }
 
-// ── Monthly Export (Option 1) ──────────────────────────────────────────────
+// Monthly Export (Option 1)
 const showExportModal = ref(false);
 const showExportDropdown = ref(false);
 const exportMonth = ref(new Date().getMonth() + 1);
@@ -4603,7 +4603,7 @@ async function exportMonthlyCSV() {
   showExportModal.value = false;
 }
 
-// ── Monthly Summary (Option 2) ─────────────────────────────────────────────
+// Monthly Summary (Option 2)
 const showSummaryModal = ref(false);
 const summaryMonth = ref(new Date().getMonth() + 1);
 const summaryYear = ref(new Date().getFullYear());
@@ -4737,7 +4737,7 @@ watch(
   },
 );
 
-// ── Download Monthly PDF (Option 3) ────────────────────────────────────────
+// Download Monthly PDF (Option 3)
 const pdfGenerating = ref(false);
 
 async function downloadMonthlyPDF(month, year, closeModal = false) {
@@ -5300,7 +5300,7 @@ onActivated(() => {
   }
 }
 
-/* ── Action bar ── */
+/* Action bar */
 .action-bar {
   display: flex;
   align-items: center;
@@ -5309,7 +5309,7 @@ onActivated(() => {
   margin-bottom: 10px;
 }
 
-/* ── Scope filter (inline beside action bar) ── */
+/* Scope filter (inline beside action bar) */
 .scope-filter-inline {
   display: flex;
   align-items: center;
@@ -5371,7 +5371,7 @@ onActivated(() => {
   }
 }
 
-/* ── Buttons ── */
+/* Buttons */
 .btn-delete-confirm {
   background: #ef4444;
   color: #fff;
@@ -5468,7 +5468,7 @@ onActivated(() => {
   font-size: 13px;
 }
 
-/* ── Modals ── */
+/* Modals */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -5636,7 +5636,7 @@ onActivated(() => {
   opacity: 0;
 }
 
-/* ── Detail view layout ── */
+/* Detail view layout */
 .detail-grid {
   display: flex;
   flex-direction: column;
@@ -5704,7 +5704,7 @@ onActivated(() => {
   transform: scale(1.04);
 }
 
-/* ── Lightbox ── */
+/* Lightbox */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -5824,7 +5824,7 @@ onActivated(() => {
   opacity: 0;
 }
 
-/* ── Form ── */
+/* Form */
 .form-grid {
   display: flex;
   flex-direction: column;
@@ -5953,7 +5953,7 @@ onActivated(() => {
   color: #60a5fa;
 }
 
-/* ── Info tooltip ── */
+/* Info tooltip */
 .info-tooltip {
   position: relative;
   display: inline-flex;
@@ -5998,7 +5998,7 @@ onActivated(() => {
   color: #fff;
 }
 
-/* ── Petugas Inspeksi ── */
+/* Petugas Inspeksi */
 .petugas-list {
   display: flex;
   flex-direction: column;
@@ -6614,7 +6614,7 @@ onActivated(() => {
   border-color: #e2e8f0 !important;
 }
 
-/* ── Toast ── */
+/* Toast */
 .toast {
   position: fixed;
   top: 24px;
@@ -6677,7 +6677,7 @@ onActivated(() => {
   transform: translateX(40px);
 }
 
-/* ── Table ── */
+/* Table */
 .table-card {
   background: #fff;
   border-radius: 12px;
@@ -6724,7 +6724,7 @@ onActivated(() => {
   cursor: not-allowed;
 }
 
-/* ── Date filter row ── */
+/* Date filter row */
 .date-filter-row {
   display: flex;
   align-items: center;
@@ -6795,7 +6795,7 @@ onActivated(() => {
   font-size: 13px;
 }
 
-/* ── Filter bar ── */
+/* Filter bar */
 /* Inspection-type tabs */
 .jenis-tabs {
   display: flex;
@@ -7056,7 +7056,7 @@ td:not(:first-child) {
   justify-content: center;
 }
 
-/* ── Mobile card list ── */
+/* Mobile card list */
 .card-list {
   display: none;
 }
@@ -7245,7 +7245,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   50% { background-color: #fde68a; }
 }
 
-/* ── Badges ── */
+/* Badges */
 .status-badge {
   display: inline-block;
   padding: 3px 10px;
@@ -7313,7 +7313,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   margin-top: 6px;
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .empty-state {
   padding: 40px 20px;
   text-align: center;
@@ -7321,7 +7321,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   font-size: 14px;
 }
 
-/* ── Discard confirm ── */
+/* Discard confirm */
 .discard-icon {
   display: flex;
   justify-content: center;
@@ -7364,7 +7364,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   background: #dc2626;
 }
 
-/* ── Mobile responsive ── */
+/* Mobile responsive */
 @media (max-width: 640px) {
   .inspection-k3l {
     padding: 16px;
@@ -7464,7 +7464,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   }
 }
 
-/* ── Monthly Report Buttons ─────────────────────────────────────────────── */
+/* Monthly Report Buttons */
 
 .btn-summary {
   background: #eff6ff;
@@ -7492,7 +7492,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   border-color: #c4b5fd;
 }
 
-/* ── Monthly modals shared container overrides ──────────────────────────── */
+/* Monthly modals shared container overrides */
 .modal-export-monthly {
   max-width: 420px;
 }
@@ -7578,7 +7578,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   cursor: not-allowed;
 }
 
-/* ── Monthly Summary Modal ──────────────────────────────────────────────── */
+/* Monthly Summary Modal */
 .summary-month-row {
   display: flex;
   gap: 10px;
@@ -7683,7 +7683,7 @@ tbody tr.row-warning-soon:hover .btn-danger    { background: #fcd34d; }
   }
 }
 
-/* ── Mobile: stack filters/tabs, no horizontal scroll (placed last to win cascade) ── */
+/* Mobile: stack filters/tabs, no horizontal scroll (placed last to win cascade) */
 @media (max-width: 768px) {
   /* Scope selects stack full-width, matching the Tambah Temuan button */
   .scope-filter-inline {

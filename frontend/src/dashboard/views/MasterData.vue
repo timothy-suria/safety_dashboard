@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <!-- ── Business Unit Tab ───────────────────────────────────────── -->
+    <!-- Business Unit Tab -->
     <div v-if="activeTab === 'bu'">
       <div class="section-bar">
         <div class="filter-group">
@@ -155,7 +155,7 @@
       </div>
     </div>
 
-    <!-- ── Plant Tab ──────────────────────────────────────────────── -->
+    <!-- Plant Tab -->
     <div v-if="activeTab === 'plant'">
       <div class="section-bar">
         <div class="filter-group">
@@ -239,7 +239,7 @@
       </div>
     </div>
 
-    <!-- ── Business Unit Modal ───────────────────────────────────── -->
+    <!-- Business Unit Modal -->
     <div v-if="buModal.show" class="modal-overlay" @click.self="closeBuModal">
       <div class="modal">
         <div class="modal-header">
@@ -280,7 +280,7 @@
       </div>
     </div>
 
-    <!-- ── Plant Modal ───────────────────────────────────────────── -->
+    <!-- Plant Modal -->
     <div v-if="plantModal.show" class="modal-overlay" @click.self="closePlantModal">
       <div class="modal">
         <div class="modal-header">
@@ -328,7 +328,7 @@
       </div>
     </div>
 
-    <!-- ── User Tab ─────────────────────────────────────────────── -->
+    <!-- User Tab -->
     <div v-if="activeTab === 'user'">
       <div class="section-bar">
         <div class="filter-group">
@@ -416,7 +416,7 @@
       </div>
     </div>
 
-    <!-- ── Roles Tab ─────────────────────────────────────────────── -->
+    <!-- Roles Tab -->
     <div v-if="activeTab === 'role'">
       <div class="section-bar">
         <div class="filter-group">
@@ -486,7 +486,7 @@
       </div>
     </div>
 
-    <!-- ── Role Modal ───────────────────────────────────────────── -->
+    <!-- Role Modal -->
     <div v-if="roleModal.show" class="modal-overlay" @click.self="closeRoleModal">
       <div class="modal modal-sm">
         <div class="modal-header">
@@ -522,7 +522,7 @@
       </div>
     </div>
 
-    <!-- ── User Modal ──────────────────────────────────────────── -->
+    <!-- User Modal -->
     <div v-if="userModal.show" class="modal-overlay" @click.self="closeUserModal">
       <div class="modal">
         <div class="modal-header">
@@ -597,7 +597,7 @@
       </div>
     </div>
 
-    <!-- ── Department Tab ──────────────────────────────────────── -->
+    <!-- Department Tab -->
     <div v-if="activeTab === 'dept'">
       <div class="section-bar">
         <div class="filter-group">
@@ -675,7 +675,7 @@
       </div>
     </div>
 
-    <!-- ── Department Modal ─────────────────────────────────────── -->
+    <!-- Department Modal -->
     <div v-if="deptModal.show" class="modal-overlay" @click.self="closeDeptModal">
       <div class="modal modal-sm">
         <div class="modal-header">
@@ -716,7 +716,7 @@
       </div>
     </div>
 
-    <!-- ── Delete Confirm Modal ──────────────────────────────────── -->
+    <!-- Delete Confirm Modal -->
     <div v-if="deleteModal.show" class="modal-overlay" @click.self="deleteModal.show = false">
       <div class="modal modal-sm">
         <div class="modal-header">
@@ -757,7 +757,7 @@ import { authService } from "@/services/authService.js";
 
 const roleLevel = authService.getRoleLevel();
 
-// ── State ────────────────────────────────────────────────────────────────
+// State
 const activeTab = ref("bu");
 
 const buList = ref([]);
@@ -781,7 +781,7 @@ const deptList = ref([]);
 const deptLoading = ref(false);
 const deptSearch = ref("");
 
-// ── Computed ─────────────────────────────────────────────────────────────
+// Computed
 const buNameMap = computed(() => {
   const map = {};
   buList.value.forEach((b) => (map[b.id] = b.name));
@@ -863,14 +863,14 @@ const filteredUsers = computed(() => {
   );
 });
 
-// ── Pagination ───────────────────────────────────────────────────────────
+// Pagination
 const { currentPage: buPage, perPage: buPer, totalItems: buTotal, totalPages: buPages, paginatedItems: pagedBu, goToPage: buGo, setPerPage: buSetPer } = usePagination(filteredBu);
 const { currentPage: plantPage, perPage: plantPer, totalItems: plantTotal, totalPages: plantPages, paginatedItems: pagedPlants, goToPage: plantGo, setPerPage: plantSetPer } = usePagination(filteredPlants);
 const { currentPage: rolePage, perPage: rolePer, totalItems: roleTotal, totalPages: rolePages, paginatedItems: pagedRoles, goToPage: roleGo, setPerPage: roleSetPer } = usePagination(filteredRoles);
 const { currentPage: userPage, perPage: userPer, totalItems: userTotal, totalPages: userPages, paginatedItems: pagedUsers, goToPage: userGo, setPerPage: userSetPer } = usePagination(filteredUsers);
 const { currentPage: deptPage, perPage: deptPer, totalItems: deptTotal, totalPages: deptPages, paginatedItems: pagedDepts, goToPage: deptGo, setPerPage: deptSetPer } = usePagination(filteredDepts);
 
-// ── Load data ────────────────────────────────────────────────────────────
+// Load data
 async function loadBu() {
   buLoading.value = true;
   try {
@@ -934,7 +934,7 @@ onMounted(() => {
   loadDepts();
 });
 
-// ── Business Unit form ───────────────────────────────────────────────────
+// Business Unit form
 const buModal = reactive({ show: false, editId: null, saving: false });
 const buForm = reactive({ name: "", code: "", description: "", isActive: true });
 
@@ -979,7 +979,7 @@ async function saveBu() {
   }
 }
 
-// ── Plant form ───────────────────────────────────────────────────────────
+// Plant form
 const plantModal = reactive({ show: false, editId: null, saving: false });
 const plantForm = reactive({ name: "", code: "", businessUnitId: null, location: "", isActive: true });
 
@@ -1027,7 +1027,7 @@ async function savePlant() {
   }
 }
 
-// ── Role form ────────────────────────────────────────────────────────────
+// Role form
 const roleModal = reactive({ show: false, editId: null, saving: false });
 const roleForm = reactive({ name: "", level: null, description: "" });
 
@@ -1070,7 +1070,7 @@ async function saveRole() {
   }
 }
 
-// ── User form ────────────────────────────────────────────────────────────
+// User form
 const userModal = reactive({ show: false, editId: null, saving: false });
 const userForm = reactive({
   email: "", password: "", username: "", fullName: "",
@@ -1135,7 +1135,7 @@ async function saveUser() {
   }
 }
 
-// ── Department form ──────────────────────────────────────────────────────
+// Department form
 const deptModal = reactive({ show: false, editId: null, saving: false });
 const deptForm = reactive({ name: "", code: "", description: "", isActive: true });
 
@@ -1180,7 +1180,7 @@ async function saveDept() {
   }
 }
 
-// ── Delete ───────────────────────────────────────────────────────────────
+// Delete
 const deleteModal = reactive({ show: false, name: "", type: "", id: null, loading: false });
 
 function confirmDeleteBu(item) {
@@ -1251,7 +1251,7 @@ async function executeDelete() {
   }
 }
 
-// ── Toast ────────────────────────────────────────────────────────────────
+// Toast
 const toast = reactive({ show: false, message: "", type: "success" });
 let toastTimer = null;
 
@@ -1263,7 +1263,7 @@ function showToast(msg, type = "success") {
   toastTimer = setTimeout(() => (toast.show = false), 4000);
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────
+// Helpers
 function formatDate(val) {
   if (!val) return "-";
   const d = new Date(val);

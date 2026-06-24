@@ -658,7 +658,7 @@ function openLightbox(url) {
   lightboxImg.value = url;
 }
 
-// ── Edit modal ───────────────────────────────────────────────────────────────
+// Edit modal
 
 const showEditModal = ref(false);
 const editSaving = ref(false);

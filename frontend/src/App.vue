@@ -12,15 +12,12 @@ const WARN_BEFORE_MS = 5 * 60 * 1000; // warn 5 minutes before expiry
 
 let checkInterval = null;
 
-// ── Screen-capture deterrents ──────────────────────────────────────
-// NOTE: A browser cannot truly block screenshots/recording. These are
-// deterrents: they disable copy/right-click/printing and warn on the
-// PrintScreen key (best-effort clipboard wipe). They do not stop OS
-// capture tools or a phone camera.
+// Screen-capture deterrents: block copy/right-click/print, warn on PrintScreen.
+// Can't stop OS capture tools or a phone camera.
 const showCaptureWarning = ref(false);
 let captureWarningTimer = null;
 
-// Allow normal copy/selection inside editable fields so forms stay usable.
+// keep copy/selection working in form fields
 function isEditable(el) {
   if (!el) return false;
   const tag = el.tagName;
@@ -55,8 +52,7 @@ function onKeyDown(e) {
 }
 
 async function onKeyUp(e) {
-  // PrintScreen fires on keyup in most browsers; wipe the clipboard image
-  // (best-effort — requires focus + permission) and warn the user.
+  // PrintScreen fires on keyup; try to wipe the clipboard image and warn
   if (e.key === "PrintScreen") {
     try {
       await navigator.clipboard.writeText(" ");

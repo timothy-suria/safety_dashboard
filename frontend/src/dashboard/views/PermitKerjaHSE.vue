@@ -1438,7 +1438,7 @@ const departments = ref([]);
 const businessUnits = ref([]);
 const plants = ref([]);
 
-// ── Scope filter (BU + Plant) ──
+// Scope filter (BU + Plant)
 const filterBU = ref(null);
 const filterPlant = ref(null);
 const availablePlants = ref([]);
@@ -1695,7 +1695,7 @@ onMounted(async () => {
   }
 });
 
-// ── Bullet helpers ─────────────────────────────────────────────────────
+// Bullet helpers
 function addBullet(field, afterIndex = null) {
   if (afterIndex !== null) {
     form.value[field].splice(afterIndex + 1, 0, '');
@@ -1733,7 +1733,7 @@ function firstBullet(raw) {
     : items[0];
 }
 
-// ── Photo helpers ──────────────────────────────────────────────────────
+// Photo helpers
 function parseFotos(raw) {
   if (!raw) return [];
   try {
@@ -1768,7 +1768,7 @@ function removeFoto(index) {
   form.value.fotos.splice(index, 1);
 }
 
-// ── Camera capture ──
+// Camera capture
 const cameraModalRef = ref(null);
 
 function openCamera() {
@@ -1816,7 +1816,7 @@ function lbNext() {
     (lightbox.value.index + 1) % lightbox.value.urls.length;
 }
 
-// ── Modal ──────────────────────────────────────────────────────────────
+// Modal
 function openCreate() {
   clearFotos();
   form.value = defaultForm();
@@ -1958,7 +1958,7 @@ function forceClose() {
   if (route.query.view) router.replace({ query: {} });
 }
 
-// ── Display helpers ────────────────────────────────────────────────────
+// Display helpers
 function displayJenis(r) {
   if (!r.jenisPekerjaan) return '-';
   if (r.jenisPekerjaan === 'Lainnya')
@@ -2012,7 +2012,7 @@ function formatDateFull(d) {
   return `${date}, ${time}`;
 }
 
-// ── Submit ─────────────────────────────────────────────────────────────
+// Submit
 async function submitForm() {
   formError.value = '';
   const clean = form.value.pekerjaan.map((s) => s.trim()).filter(Boolean);
@@ -2076,7 +2076,7 @@ async function doSave() {
   }
 }
 
-// ── Delete ─────────────────────────────────────────────────────────────
+// Delete
 function confirmDelete(r) {
   deleteTarget.value = r;
 }
@@ -2094,7 +2094,7 @@ async function doDelete() {
   }
 }
 
-// ── Export ─────────────────────────────────────────────────────────────────
+// Export
 const MONTH_NAMES = [
   'Januari',
   'Februari',
@@ -2435,7 +2435,7 @@ async function downloadMonthlyPDF() {
   margin: 0;
 }
 
-/* ── Scope filter ── */
+/* Scope filter */
 .scope-filter-row {
   display: flex;
   align-items: center;
@@ -2504,7 +2504,7 @@ async function downloadMonthlyPDF() {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Mobile card list ── */
+/* Mobile card list */
 .card-list {
   display: none;
 }
@@ -3598,7 +3598,7 @@ tbody tr.row-clickable:hover .btn-danger {
   background: #dc2626;
 }
 
-/* ── Mobile: stack filters, no horizontal scroll (placed last to win cascade) ── */
+/* Mobile: stack filters, no horizontal scroll (placed last to win cascade) */
 @media (max-width: 768px) {
   /* Scope selects stack full-width, matching the Tambah Laporan button */
   .scope-filter-row {
@@ -3662,7 +3662,7 @@ tbody tr.row-clickable:hover .btn-danger {
   }
 }
 
-/* ── Level Risiko info tooltip ── */
+/* Level Risiko info tooltip */
 .info-tooltip {
   position: relative;
   display: inline-flex;

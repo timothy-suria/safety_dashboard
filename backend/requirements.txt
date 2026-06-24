@@ -10,3 +10,4 @@ alembic
 email-validator
 python-multipart
 pywebpush==2.3.0
+requests
