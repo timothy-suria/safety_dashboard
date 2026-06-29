@@ -292,23 +292,10 @@ async function handleLogout() {
   opacity: 0;
 }
 
-/* On mobile: sidebar floats over content, doesn't push layout */
+/* On mobile the bottom navigation (BottomNav.vue) replaces the sidebar. */
 @media (max-width: 767px) {
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    height: 100dvh;
-    width: 240px;
-    z-index: 200;
-    transform: translateX(0);
-    transition: transform 0.25s ease;
-  }
-
-  .sidebar.collapsed {
-    width: 240px;
-    transform: translateX(-100%);
+    display: none;
   }
 }
 

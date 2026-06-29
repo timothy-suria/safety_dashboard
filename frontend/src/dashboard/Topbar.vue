@@ -390,6 +390,12 @@ function timeAgo(ts) {
 
 .btn-hamburger:hover { background: #f1f5f9; }
 
+/* On mobile the bottom nav replaces the sidebar, so the hamburger
+   (which toggled the mobile drawer) is no longer needed. */
+@media (max-width: 767px) {
+  .btn-hamburger { display: none; }
+}
+
 .btn-hamburger span {
   display: block;
   height: 2px;

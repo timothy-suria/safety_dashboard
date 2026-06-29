@@ -16,6 +16,7 @@
         </router-view>
       </div>
     </div>
+    <BottomNav />
   </div>
 </template>
 
@@ -24,6 +25,7 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import Sidebar from "./Sidebar.vue";
 import Topbar from "./Topbar.vue";
+import BottomNav from "./BottomNav.vue";
 
 const sidebarOpen = ref(window.innerWidth >= 768);
 
@@ -67,6 +69,14 @@ const pageTitle = computed(() => pageTitles[route.path] ?? "Dashboard");
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  /* Leave room for the fixed bottom nav (+ iOS safe area) so the last
+     row of content isn't hidden behind it. */
+  .content {
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Backdrop — only visible/interactive on mobile */
